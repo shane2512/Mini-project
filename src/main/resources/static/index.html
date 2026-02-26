@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forex System Login</title>
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+}
+
+.login-container{
+    width:400px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(15px);
+    padding:40px;
+    border-radius:20px;
+    box-shadow:0 10px 40px rgba(0,0,0,0.3);
+    color:white;
+}
+
+.login-container h2{
+    text-align:center;
+    margin-bottom:30px;
+    letter-spacing:1px;
+}
+
+.input-group{
+    margin-bottom:20px;
+}
+
+.input-group label{
+    display:block;
+    margin-bottom:6px;
+    font-size:14px;
+}
+
+.input-group input,
+.input-group select{
+    width:100%;
+    padding:10px 12px;
+    border:none;
+    border-radius:8px;
+    outline:none;
+    background:rgba(255,255,255,0.15);
+    color:white;
+    font-size:14px;
+    transition:0.3s;
+}
+
+.input-group input:focus,
+.input-group select:focus{
+    background:rgba(79,172,254,0.3);
+}
+
+.login-btn{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#4facfe;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.login-btn:hover{
+    background:#3b8ddb;
+}
+
+.footer-text{
+    text-align:center;
+    margin-top:20px;
+    font-size:13px;
+}
+
+.footer-text a{
+    color:#4facfe;
+    text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-container">
+    <h2>Forex Management System</h2>
+
+    <form id="loginForm">
+
+        <div class="input-group">
+            <label>Select Role</label>
+            <select id="role" required>
+                <option value="">-- Choose Role --</option>
+                <option value="admin">Admin</option>
+                <option value="user">User</option>
+                <option value="bank">Bank</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter username" required>
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+
+    </form>
+
+    <div class="footer-text">
+        Forgot password? <a href="#">Reset</a>
+    </div>
+</div>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", function(event) {
+    event.preventDefault(); 
+
+    let role = document.getElementById("role").value;
+
+    if(role === "admin"){
+        window.location.href = "admin_dashboard.html";
+    }
+    else if(role === "user"){
+        window.location.href = "user_dashboard.html";
+    }
+    else if(role === "bank"){
+        window.location.href = "bank_dashboard.html";
+    }
+    else{
+        alert("Please select a role");
+    }
+});
+</script>
+
+</body>
+</html>

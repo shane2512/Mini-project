@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participate in Forex - Forex Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">💱</div>
+                <span>Bank Portal</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item" data-link="bank_dashboard.html">
+                    <div class="icon">🏠</div>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item active" data-link="participate_forex.html">
+                    <div class="icon">💱</div>
+                    <span>Participate</span>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="sidebar-toggle">← Collapse</button>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="search-bar">
+                    <span class="icon">🔍</span>
+                    <input type="text" placeholder="Search...">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <div class="profile-avatar">B</div>
+                        <span>Bank</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item" onclick="logout()">🚪 Logout</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="dashboard-title">
+                Participate in Forex Transactions
+                <div class="subtitle">Join forex transactions as an intermediary</div>
+            </div>
+
+            <div class="form-container" style="background-color: var(--secondary-bg);">
+                <h3 style="margin-bottom: 20px; color: var(--primary-text);">Participate in Transaction</h3>
+                <form onsubmit="participateForex(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Customer</label>
+                            <select required>
+                                <option value="">Select customer</option>
+                                <option value="CUST001">ABC Trading Co.</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Currency Pair</label>
+                            <select required>
+                                <option value="USD/EUR">USD/EUR</option>
+                                <option value="USD/GBP">USD/GBP</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount</label>
+                            <input type="number" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Rate</label>
+                            <input type="number" step="0.0001" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn" style="margin-top: 15px;">Participate</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function participateForex(event) {
+            event.preventDefault();
+            showNotification('Successfully participated in transaction!', 'success');
+            event.target.reset();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+{
+  "cards": {
+    "admin": [
+      {
+        "id": "exchange_rates",
+        "title": "USD-Based Exchange Rate Management",
+        "description": "Manage and configure exchange rates for all currency pairs.",
+        "icon": "💱",
+        "page": "exchange_rates.html"
+      },
+      {
+        "id": "currency_management",
+        "title": "Country & Currency Management",
+        "description": "Add, update, or remove countries and their currencies.",
+        "icon": "🌍",
+        "page": "currency_management.html"
+      },
+      {
+        "id": "bank_management",
+        "title": "Bank Management",
+        "description": "Manage bank details, SWIFT, IFSC codes and affiliations.",
+        "icon": "🏦",
+        "page": "bank_management.html"
+      },
+      {
+        "id": "product_management",
+        "title": "Product & HS Code Management",
+        "description": "Configure products and harmonized system codes for import/export.",
+        "icon": "📦",
+        "page": "product_management.html"
+      },
+      {
+        "id": "user_management",
+        "title": "User & Role Management",
+        "description": "Create, edit, and manage users and their roles.",
+        "icon": "👥",
+        "page": "user_management.html"
+      },
+      {
+        "id": "reports",
+        "title": "Report Generation",
+        "description": "Generate comprehensive reports on transactions and activities.",
+        "icon": "📊",
+        "page": "reports.html"
+      },
+      {
+        "id": "monitoring",
+        "title": "System Monitoring",
+        "description": "Monitor system health, logs, and performance metrics.",
+        "icon": "⚙️",
+        "page": "monitoring.html"
+      }
+    ],
+    "customer": [
+      {
+        "id": "profile_kyc",
+        "title": "Profile & KYC",
+        "description": "Update your profile information and KYC documentation.",
+        "icon": "👤",
+        "page": "profile_kyc.html"
+      },
+      {
+        "id": "place_orders",
+        "title": "Place Import/Export Orders",
+        "description": "Create new import or export orders with custom specifications.",
+        "icon": "📄",
+        "page": "orders.html"
+      },
+      {
+        "id": "currency_selection",
+        "title": "Currency Selection",
+        "description": "Select and manage your preferred trading currencies.",
+        "icon": "💵",
+        "page": "currency_selection.html"
+      },
+      {
+        "id": "exchange_rates_view",
+        "title": "View Exchange Rates",
+        "description": "View live exchange rates and historical data.",
+        "icon": "📈",
+        "page": "exchange_rates_view.html"
+      },
+      {
+        "id": "forex_transactions",
+        "title": "Perform Forex Transactions",
+        "description": "Execute forex transactions with real-time rate updates.",
+        "icon": "💹",
+        "page": "transactions.html"
+      },
+      {
+        "id": "transaction_history",
+        "title": "Transaction History",
+        "description": "View detailed history of all your transactions.",
+        "icon": "📋",
+        "page": "transaction_history.html"
+      },
+      {
+        "id": "order_status",
+        "title": "Track Order Status",
+        "description": "Track the status of your import/export orders in real-time.",
+        "icon": "🔍",
+        "page": "order_status.html"
+      },
+      {
+        "id": "invoices",
+        "title": "Invoices",
+        "description": "View, download, and manage your invoices.",
+        "icon": "🧾",
+        "page": "invoices.html"
+      }
+    ],
+    "bank": [
+      {
+        "id": "customer_linkage",
+        "title": "Customer-Bank Linkage",
+        "description": "Manage linkage and relationship with customers.",
+        "icon": "🔗",
+        "page": "customer_linkage.html"
+      },
+      {
+        "id": "participate_forex",
+        "title": "Participate in Forex Transactions",
+        "description": "Participate in forex transactions as an intermediary.",
+        "icon": "💱",
+        "page": "participate_forex.html"
+      },
+      {
+        "id": "customer_transactions",
+        "title": "View Customer Transactions",
+        "description": "Review transactions of linked customers.",
+        "icon": "📊",
+        "page": "customer_transactions.html"
+      },
+      {
+        "id": "verify_payments",
+        "title": "Verify Payments",
+        "description": "Verify and confirm customer payments.",
+        "icon": "✓",
+        "page": "verify_payments.html"
+      },
+      {
+        "id": "bank_reports",
+        "title": "Generate Bank-wise Reports",
+        "description": "Generate comprehensive bank-wise transaction reports.",
+        "icon": "📈",
+        "page": "bank_reports.html"
+      },
+      {
+        "id": "swift_ifsc",
+        "title": "SWIFT/IFSC Data",
+        "description": "Manage SWIFT and IFSC codes for bank operations.",
+        "icon": "🏷️",
+        "page": "swift_ifsc.html"
+      }
+    ]
+  },
+  "navigation": [
+    {
+      "id": "dashboard",
+      "label": "Dashboard",
+      "icon": "🏠",
+      "link": "#"
+    },
+    {
+      "id": "transactions",
+      "label": "Transactions",
+      "icon": "💱",
+      "link": "transactions.html"
+    },
+    {
+      "id": "orders",
+      "label": "Orders",
+      "icon": "📦",
+      "link": "orders.html"
+    },
+    {
+      "id": "analytics",
+      "label": "Analytics",
+      "icon": "📊",
+      "link": "analytics.html"
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "icon": "⚙️",
+      "link": "settings.html"
+    }
+  ]
+}

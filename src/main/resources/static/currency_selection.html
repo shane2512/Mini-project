@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Selection - Forex Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">💵</div>
+                <span>Forex System</span>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item" data-link="customer_dashboard.html">
+                    <div class="icon">🏠</div>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item active" data-link="currency_selection.html">
+                    <div class="icon">💵</div>
+                    <span>Currencies</span>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="sidebar-toggle">← Collapse</button>
+            </div>
+        </aside>
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="search-bar">
+                    <span class="icon">🔍</span>
+                    <input type="text" placeholder="Search currencies...">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <div class="profile-avatar">C</div>
+                        <span>Customer</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item" onclick="logout()">🚪 Logout</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <div class="dashboard-title">
+                Currency Selection
+                <div class="subtitle">Select and manage your preferred trading currencies</div>
+            </div>
+
+            <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div style="background-color: var(--secondary-bg); border: 2px solid var(--accent-color); border-radius: 8px; padding: 20px; text-align: center;">
+                    <p style="font-size: 32px; margin-bottom: 10px;">🇺🇸</p>
+                    <h4 style="color: var(--primary-text); margin-bottom: 5px;">USD</h4>
+                    <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 15px;">US Dollar</p>
+                    <p style="color: #31a24c; font-weight: 600;">✓ Selected</p>
+                </div>
+                <div style="background-color: var(--secondary-bg); border: 2px solid var(--tertiary-bg); border-radius: 8px; padding: 20px; text-align: center;">
+                    <p style="font-size: 32px; margin-bottom: 10px;">🇪🇺</p>
+                    <h4 style="color: var(--primary-text); margin-bottom: 5px;">EUR</h4>
+                    <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 15px;">Euro</p>
+                    <button class="btn" style="width: 100%; padding: 8px;" onclick="selectCurrency(this)">Select</button>
+                </div>
+                <div style="background-color: var(--secondary-bg); border: 2px solid var(--tertiary-bg); border-radius: 8px; padding: 20px; text-align: center;">
+                    <p style="font-size: 32px; margin-bottom: 10px;">🇬🇧</p>
+                    <h4 style="color: var(--primary-text); margin-bottom: 5px;">GBP</h4>
+                    <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 15px;">British Pound</p>
+                    <button class="btn" style="width: 100%; padding: 8px;" onclick="selectCurrency(this)">Select</button>
+                </div>
+                <div style="background-color: var(--secondary-bg); border: 2px solid var(--tertiary-bg); border-radius: 8px; padding: 20px; text-align: center;">
+                    <p style="font-size: 32px; margin-bottom: 10px;">🇮🇳</p>
+                    <h4 style="color: var(--primary-text); margin-bottom: 5px;">INR</h4>
+                    <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 15px;">Indian Rupee</p>
+                    <button class="btn" style="width: 100%; padding: 8px;" onclick="selectCurrency(this)">Select</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function selectCurrency(btn) {
+            document.querySelectorAll('[style*="border: 2px"]').forEach(el => {
+                el.style.borderColor = 'var(--tertiary-bg)';
+                const selectBtn = el.querySelector('button');
+                if (selectBtn) selectBtn.style.display = 'block';
+                const status = el.querySelector('p:last-child');
+                if (status) status.style.display = 'none';
+            });
+            btn.parentElement.style.borderColor = 'var(--accent-color)';
+            btn.style.display = 'none';
+            const status = btn.previousElementSibling;
+            if (status) status.innerHTML = '<p style="color: #31a24c; font-weight: 600;">✓ Selected</p>';
+            showNotification('Currency selected!', 'success');
+        }
+    </script>
+</body>
+</html>

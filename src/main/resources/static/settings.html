@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Forex Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon">⚙️</div>
+                <span>Settings</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item" data-link="customer_dashboard.html">
+                    <div class="icon">🏠</div>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-link="profile_kyc.html">
+                    <div class="icon">👤</div>
+                    <span>Profile</span>
+                </div>
+                <div class="nav-item active" data-link="settings.html">
+                    <div class="icon">⚙️</div>
+                    <span>Settings</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-toggle">← Collapse</button>
+            </div>
+        </aside>
+
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="search-bar">
+                    <span class="icon">🔍</span>
+                    <input type="text" placeholder="Search...">
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <div class="profile-avatar">U</div>
+                        <span>User</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item" onclick="logout()">
+                            🚪 Logout
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="dashboard-title">
+                Settings
+                <div class="subtitle">Manage your account and system preferences</div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div style="background-color: var(--secondary-bg); border-bottom: 1px solid var(--tertiary-bg); margin-bottom: 30px; border-radius: 8px 8px 0 0;">
+                <div style="display: flex; gap: 0; overflow-x: auto;">
+                    <button class="settings-tab active" onclick="switchTab('account')" style="padding: 15px 20px; background: none; border: none; color: var(--primary-text); cursor: pointer; border-bottom: 3px solid var(--accent-color); white-space: nowrap;">Account Settings</button>
+                    <button class="settings-tab" onclick="switchTab('security')" style="padding: 15px 20px; background: none; border: none; color: var(--secondary-text); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap;">Security</button>
+                    <button class="settings-tab" onclick="switchTab('notifications')" style="padding: 15px 20px; background: none; border: none; color: var(--secondary-text); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap;">Notifications</button>
+                    <button class="settings-tab" onclick="switchTab('preferences')" style="padding: 15px 20px; background: none; border: none; color: var(--secondary-text); cursor: pointer; border-bottom: 3px solid transparent; white-space: nowrap;">Preferences</button>
+                </div>
+            </div>
+
+            <!-- Account Settings Tab -->
+            <div id="account-tab" class="settings-content">
+                <div class="form-container" style="background-color: var(--secondary-bg);">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-text);">Account Information</h3>
+
+                    <form onsubmit="saveSettings(event)">
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" value="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" value="+1-555-123-4567" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Company Name</label>
+                            <input type="text" value="Forex Trading Co." placeholder="Optional">
+                        </div>
+                        <div class="form-group">
+                            <label>Business Type</label>
+                            <select>
+                                <option>Individual Trader</option>
+                                <option>Small Business</option>
+                                <option>Enterprise</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn" style="margin-top: 15px;">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div id="security-tab" class="settings-content" style="display: none;">
+                <div class="form-container" style="background-color: var(--secondary-bg);">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-text);">Change Password</h3>
+
+                    <form onsubmit="changePassword(event)">
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirm New Password</label>
+                            <input type="password" required>
+                        </div>
+                        <button type="submit" class="btn" style="margin-top: 15px;">Change Password</button>
+                    </form>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
+                        <h3 style="margin-bottom: 20px; color: var(--primary-text);">Two-Factor Authentication</h3>
+                        <p style="color: var(--secondary-text); margin-bottom: 15px;">Add an extra layer of security to your account</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
+                            <div>
+                                <p style="color: var(--primary-text); font-weight: 600;">SMS Verification</p>
+                                <p style="color: var(--secondary-text); font-size: 12px;">Verify with SMS codes</p>
+                            </div>
+                            <button class="btn-secondary" style="border: 1px solid var(--accent-color); color: var(--accent-color); background: transparent; padding: 8px 20px; border-radius: 5px; cursor: pointer;">Enable</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div id="notifications-tab" class="settings-content" style="display: none;">
+                <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-text);">Notification Preferences</h3>
+
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
+                            <div>
+                                <p style="color: var(--primary-text); font-weight: 600;">Transaction Alerts</p>
+                                <p style="color: var(--secondary-text); font-size: 12px;">Notify on transaction completion</p>
+                            </div>
+                            <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer;" checked>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
+                            <div>
+                                <p style="color: var(--primary-text); font-weight: 600;">Price Alerts</p>
+                                <p style="color: var(--secondary-text); font-size: 12px;">Notify on exchange rate changes</p>
+                            </div>
+                            <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer;" checked>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
+                            <div>
+                                <p style="color: var(--primary-text); font-weight: 600;">Order Updates</p>
+                                <p style="color: var(--secondary-text); font-size: 12px;">Notify on order status changes</p>
+                            </div>
+                            <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer;" checked>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
+                            <div>
+                                <p style="color: var(--primary-text); font-weight: 600;">Email Notifications</p>
+                                <p style="color: var(--secondary-text); font-size: 12px;">Receive notifications via email</p>
+                            </div>
+                            <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer;" checked>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
+                            <div>
+                                <p style="color: var(--primary-text); font-weight: 600;">Push Notifications</p>
+                                <p style="color: var(--secondary-text); font-size: 12px;">Receive browser push notifications</p>
+                            </div>
+                            <input type="checkbox" style="width: 20px; height: 20px; cursor: pointer;">
+                        </div>
+                    </div>
+
+                    <button class="btn" style="margin-top: 20px;">Save Preferences</button>
+                </div>
+            </div>
+
+            <!-- Preferences Tab -->
+            <div id="preferences-tab" class="settings-content" style="display: none;">
+                <div class="form-container" style="background-color: var(--secondary-bg);">
+                    <h3 style="margin-bottom: 20px; color: var(--primary-text);">User Preferences</h3>
+
+                    <form onsubmit="savePreferences(event)">
+                        <div class="form-group">
+                            <label>Theme</label>
+                            <select>
+                                <option>Dark (Default)</option>
+                                <option>Light</option>
+                                <option>Auto</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Language</label>
+                            <select>
+                                <option>English</option>
+                                <option>Spanish</option>
+                                <option>French</option>
+                                <option>German</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Timezone</label>
+                            <select>
+                                <option>UTC-5 (Eastern)</option>
+                                <option>UTC-6 (Central)</option>
+                                <option>UTC-7 (Mountain)</option>
+                                <option>UTC-8 (Pacific)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Default Currency</label>
+                            <select>
+                                <option>USD</option>
+                                <option>EUR</option>
+                                <option>GBP</option>
+                                <option>JPY</option>
+                                <option>INR</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn" style="margin-top: 15px;">Save Preferences</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.settings-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+
+            // Remove active class from all buttons
+            document.querySelectorAll('.settings-tab').forEach(btn => {
+                btn.style.color = 'var(--secondary-text)';
+                btn.style.borderBottomColor = 'transparent';
+            });
+
+            // Show selected tab
+            const tabElement = document.getElementById(tabName + '-tab');
+            if (tabElement) {
+                tabElement.style.display = 'block';
+            }
+
+            // Add active class to clicked button
+            event.target.style.color = 'var(--primary-text)';
+            event.target.style.borderBottomColor = 'var(--accent-color)';
+        }
+
+        function saveSettings(event) {
+            event.preventDefault();
+            showNotification('Settings saved successfully!', 'success');
+        }
+
+        function changePassword(event) {
+            event.preventDefault();
+            showNotification('Password changed successfully!', 'success');
+            event.target.reset();
+        }
+
+        function savePreferences(event) {
+            event.preventDefault();
+            showNotification('Preferences saved successfully!', 'success');
+        }
+    </script>
+</body>
+</html>
