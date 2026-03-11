@@ -317,10 +317,14 @@ function setupEventListeners() {
         }
     });
 
-    // Mobile menu close on nav item click
+    // Navigate on nav item click using data-link attribute
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', function() {
+            const link = this.getAttribute('data-link');
+            if (link) {
+                window.location.href = link;
+            }
             if (window.innerWidth <= 768) {
                 toggleSidebar();
             }
