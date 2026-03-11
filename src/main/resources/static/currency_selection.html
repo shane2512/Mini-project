@@ -5,6 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Currency Selection - Forex Management System</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .currency-card {
+            background-color: var(--secondary-bg);
+            border: 2px solid var(--tertiary-bg);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        .currency-card.selected {
+            border-color: var(--accent-color);
+        }
+
+        .currency-card .flag {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .currency-card h4 {
+            color: var(--primary-text);
+            margin-bottom: 5px;
+        }
+
+        .currency-card .currency-name {
+            color: var(--secondary-text);
+            font-size: 12px;
+            margin-bottom: 15px;
+        }
+
+        .currency-card .status-selected {
+            color: #31a24c;
+            font-weight: 600;
+        }
+
+        .currency-card .btn-select {
+            width: 100%;
+            padding: 8px;
+        }
+    </style>
 </head>
 <body>
     <div class="main-container">
@@ -54,30 +100,30 @@
                 <div class="subtitle">Select and manage your preferred trading currencies</div>
             </div>
 
-            <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
-                <div style="background-color: var(--secondary-bg); border: 2px solid var(--accent-color); border-radius: 8px; padding: 20px; text-align: center;">
-                    <p style="font-size: 32px; margin-bottom: 10px;">🇺🇸</p>
-                    <h4 style="color: var(--primary-text); margin-bottom: 5px;">USD</h4>
-                    <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 15px;">US Dollar</p>
-                    <p style="color: #31a24c; font-weight: 600;">✓ Selected</p>
+            <div class="currency-grid" id="currencyGrid">
+                <div class="currency-card selected" data-code="USD">
+                    <div class="flag">🇺🇸</div>
+                    <h4>USD</h4>
+                    <p class="currency-name">US Dollar</p>
+                    <p class="status-selected">✓ Selected</p>
                 </div>
-                <div style="background-color: var(--secondary-bg); border: 2px solid var(--tertiary-bg); border-radius: 8px; padding: 20px; text-align: center;">
-                    <p style="font-size: 32px; margin-bottom: 10px;">🇪🇺</p>
-                    <h4 style="color: var(--primary-text); margin-bottom: 5px;">EUR</h4>
-                    <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 15px;">Euro</p>
-                    <button class="btn" style="width: 100%; padding: 8px;" onclick="selectCurrency(this)">Select</button>
+                <div class="currency-card" data-code="EUR">
+                    <div class="flag">🇪🇺</div>
+                    <h4>EUR</h4>
+                    <p class="currency-name">Euro</p>
+                    <button class="btn btn-select">Select</button>
                 </div>
-                <div style="background-color: var(--secondary-bg); border: 2px solid var(--tertiary-bg); border-radius: 8px; padding: 20px; text-align: center;">
-                    <p style="font-size: 32px; margin-bottom: 10px;">🇬🇧</p>
-                    <h4 style="color: var(--primary-text); margin-bottom: 5px;">GBP</h4>
-                    <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 15px;">British Pound</p>
-                    <button class="btn" style="width: 100%; padding: 8px;" onclick="selectCurrency(this)">Select</button>
+                <div class="currency-card" data-code="GBP">
+                    <div class="flag">🇬🇧</div>
+                    <h4>GBP</h4>
+                    <p class="currency-name">British Pound</p>
+                    <button class="btn btn-select">Select</button>
                 </div>
-                <div style="background-color: var(--secondary-bg); border: 2px solid var(--tertiary-bg); border-radius: 8px; padding: 20px; text-align: center;">
-                    <p style="font-size: 32px; margin-bottom: 10px;">🇮🇳</p>
-                    <h4 style="color: var(--primary-text); margin-bottom: 5px;">INR</h4>
-                    <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 15px;">Indian Rupee</p>
-                    <button class="btn" style="width: 100%; padding: 8px;" onclick="selectCurrency(this)">Select</button>
+                <div class="currency-card" data-code="INR">
+                    <div class="flag">🇮🇳</div>
+                    <h4>INR</h4>
+                    <p class="currency-name">Indian Rupee</p>
+                    <button class="btn btn-select">Select</button>
                 </div>
             </div>
         </main>
@@ -85,20 +131,38 @@
 
     <script src="script.js"></script>
     <script>
-        function selectCurrency(btn) {
-            document.querySelectorAll('[style*="border: 2px"]').forEach(el => {
-                el.style.borderColor = 'var(--tertiary-bg)';
-                const selectBtn = el.querySelector('button');
-                if (selectBtn) selectBtn.style.display = 'block';
-                const status = el.querySelector('p:last-child');
-                if (status) status.style.display = 'none';
+        // Attach click handlers to all select buttons
+        document.getElementById('currencyGrid').addEventListener('click', function (e) {
+            if (!e.target.classList.contains('btn-select')) return;
+
+            const clickedCard = e.target.closest('.currency-card');
+
+            // Reset all cards
+            document.querySelectorAll('.currency-card').forEach(function (card) {
+                card.classList.remove('selected');
+                // Remove selected status text if present
+                const status = card.querySelector('.status-selected');
+                if (status) status.remove();
+                // Re-add button if missing
+                if (!card.querySelector('.btn-select')) {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn btn-select';
+                    btn.textContent = 'Select';
+                    card.appendChild(btn);
+                }
             });
-            btn.parentElement.style.borderColor = 'var(--accent-color)';
-            btn.style.display = 'none';
-            const status = btn.previousElementSibling;
-            if (status) status.innerHTML = '<p style="color: #31a24c; font-weight: 600;">✓ Selected</p>';
+
+            // Mark clicked card as selected
+            clickedCard.classList.add('selected');
+            const btn = clickedCard.querySelector('.btn-select');
+            if (btn) btn.remove();
+            const statusEl = document.createElement('p');
+            statusEl.className = 'status-selected';
+            statusEl.textContent = '✓ Selected';
+            clickedCard.appendChild(statusEl);
+
             showNotification('Currency selected!', 'success');
-        }
+        });
     </script>
 </body>
 </html>

@@ -5,6 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank Reports - Forex Management System</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-change-positive {
+            color: #31a24c;
+        }
+
+        .section-card {
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 30px;
+            border: 1px solid var(--tertiary-bg);
+        }
+
+        .section-card h3 {
+            color: var(--primary-text);
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <div class="main-container">
@@ -54,21 +78,21 @@
                 <div class="subtitle">Generate comprehensive transaction reports</div>
             </div>
 
-            <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 30px;">
+            <div class="stats-row">
                 <div class="stat-box">
                     <div class="stat-title">Total Transactions</div>
                     <div class="stat-value">1,245</div>
-                    <div class="stat-change" style="color: #31a24c;">This month</div>
+                    <div class="stat-change stat-change-positive">This month</div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-title">Total Volume</div>
                     <div class="stat-value">$25.5M</div>
-                    <div class="stat-change" style="color: #31a24c;">+18%</div>
+                    <div class="stat-change stat-change-positive">+18%</div>
                 </div>
             </div>
 
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
-                <h3 style="color: var(--primary-text); margin-bottom: 20px;">Recent Transaction Summary</h3>
+            <div class="section-card">
+                <h3>Recent Transaction Summary</h3>
                 <div class="table-container">
                     <table>
                         <thead>

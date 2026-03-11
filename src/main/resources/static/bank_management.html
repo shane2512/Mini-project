@@ -8,131 +8,61 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-icon">🏦</div>
-                <span>Forex Admin</span>
-            </div>
-
+            <div class="sidebar-header"><div class="logo-icon">🏦</div><span>Forex Admin</span></div>
             <nav class="sidebar-nav">
-                <div class="nav-item" data-link="admin_dashboard.html">
-                    <div class="icon">🏠</div>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item active" data-link="bank_management.html">
-                    <div class="icon">🏦</div>
-                    <span>Banks</span>
-                </div>
+                <div class="nav-item" data-link="admin_dashboard.html"><div class="icon">🏠</div><span>Dashboard</span></div>
+                <div class="nav-item active" data-link="bank_management.html"><div class="icon">🏦</div><span>Banks</span></div>
             </nav>
-
-            <div class="sidebar-footer">
-                <button class="sidebar-toggle">← Collapse</button>
-            </div>
+            <div class="sidebar-footer"><button class="sidebar-toggle">← Collapse</button></div>
         </aside>
 
-        <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="search-bar">
                     <span class="icon">🔍</span>
-                    <input type="text" placeholder="Search banks...">
+                    <input type="text" id="searchBanks" title="Search banks" placeholder="Search banks..." aria-label="Search banks">
                 </div>
             </div>
-
             <div class="topbar-right">
                 <div class="profile-dropdown">
-                    <button class="profile-btn">
-                        <div class="profile-avatar">A</div>
-                        <span>Admin</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item" onclick="logout()">
-                            🚪 Logout
-                        </div>
-                    </div>
+                    <button class="profile-btn"><div class="profile-avatar">A</div><span>Admin</span></button>
+                    <div class="dropdown-menu"><div class="dropdown-item" onclick="logout()">🚪 Logout</div></div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="content">
-            <div class="dashboard-title">
-                Bank Management
-                <div class="subtitle">Manage bank details, SWIFT codes, and IFSC codes</div>
-            </div>
+            <div class="dashboard-title">Bank Management<div class="subtitle">Manage bank details, SWIFT codes, and IFSC codes</div></div>
 
-            <!-- Banks List -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg); margin-bottom: 30px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="color: var(--primary-text);">Registered Banks</h3>
-                    <button class="btn" style="padding: 10px 20px;">+ Add Bank</button>
+            <div class="section-card">
+                <div class="section-header">
+                    <h3>Registered Banks</h3>
+                    <button class="btn btn-add">+ Add Bank</button>
                 </div>
-
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Bank Name</th>
-                                <th>Country</th>
-                                <th>SWIFT Code</th>
-                                <th>IFSC Code</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Bank Name</th><th>Country</th><th>SWIFT Code</th><th>IFSC Code</th><th>Status</th><th>Actions</th></tr></thead>
                         <tbody>
-                            <tr>
-                                <td>Chase Bank</td>
-                                <td>🇺🇸 USA</td>
-                                <td>CHASUS33</td>
-                                <td>N/A</td>
-                                <td><span style="color: #31a24c;">Active</span></td>
-                                <td>
-                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;">Edit</button>
-                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; background-color: var(--danger-color);">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>HDFC Bank</td>
-                                <td>🇮🇳 India</td>
-                                <td>HDFCINBB</td>
-                                <td>HDFC0000001</td>
-                                <td><span style="color: #31a24c;">Active</span></td>
-                                <td>
-                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;">Edit</button>
-                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; background-color: var(--danger-color);">Delete</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>HSBC</td>
-                                <td>🇬🇧 UK</td>
-                                <td>HSBCGB2L</td>
-                                <td>N/A</td>
-                                <td><span style="color: #31a24c;">Active</span></td>
-                                <td>
-                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; margin-right: 5px;">Edit</button>
-                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; background-color: var(--danger-color);">Delete</button>
-                                </td>
-                            </tr>
+                            <tr><td>Chase Bank</td><td>🇺🇸 USA</td><td>CHASUS33</td><td>N/A</td><td><span class="status-active">Active</span></td><td><button class="btn btn-sm btn-sm-gap">Edit</button><button class="btn btn-sm btn-danger">Delete</button></td></tr>
+                            <tr><td>HDFC Bank</td><td>🇮🇳 India</td><td>HDFCINBB</td><td>HDFC0000001</td><td><span class="status-active">Active</span></td><td><button class="btn btn-sm btn-sm-gap">Edit</button><button class="btn btn-sm btn-danger">Delete</button></td></tr>
+                            <tr><td>HSBC</td><td>🇬🇧 UK</td><td>HSBCGB2L</td><td>N/A</td><td><span class="status-active">Active</span></td><td><button class="btn btn-sm btn-sm-gap">Edit</button><button class="btn btn-sm btn-danger">Delete</button></td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Add New Bank Form -->
-            <div class="form-container" style="background-color: var(--secondary-bg);">
-                <h3 style="margin-bottom: 20px; color: var(--primary-text);">Add New Bank</h3>
-
+            <div class="form-container">
+                <h3 class="form-heading">Add New Bank</h3>
                 <form onsubmit="addBank(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-grid-2">
                         <div class="form-group">
-                            <label>Bank Name</label>
-                            <input type="text" placeholder="Enter bank name" required>
+                            <label for="bankName">Bank Name</label>
+                            <input type="text" id="bankName" title="Enter bank name" placeholder="Enter bank name" required>
                         </div>
                         <div class="form-group">
-                            <label>Country</label>
-                            <select required>
+                            <label for="bankCountry">Country</label>
+                            <select id="bankCountry" title="Select country" required>
                                 <option value="">Select country</option>
                                 <option value="USA">United States</option>
                                 <option value="UK">United Kingdom</option>
@@ -141,23 +71,23 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>SWIFT Code</label>
-                            <input type="text" placeholder="e.g., CHASUS33" maxlength="11" required>
+                            <label for="bankSwift">SWIFT Code</label>
+                            <input type="text" id="bankSwift" title="Enter SWIFT code" placeholder="e.g., CHASUS33" maxlength="11" required>
                         </div>
                         <div class="form-group">
-                            <label>IFSC Code (optional)</label>
-                            <input type="text" placeholder="e.g., HDFC0000001">
+                            <label for="bankIfsc">IFSC Code (optional)</label>
+                            <input type="text" id="bankIfsc" title="Enter IFSC code (optional)" placeholder="e.g., HDFC0000001">
                         </div>
                         <div class="form-group">
-                            <label>Bank Address</label>
-                            <input type="text" placeholder="Full address" required>
+                            <label for="bankAddress">Bank Address</label>
+                            <input type="text" id="bankAddress" title="Enter full address" placeholder="Full address" required>
                         </div>
                         <div class="form-group">
-                            <label>Phone Number</label>
-                            <input type="tel" placeholder="+1-555-0000" required>
+                            <label for="bankPhone">Phone Number</label>
+                            <input type="tel" id="bankPhone" title="Enter phone number" placeholder="+1-555-0000" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn" style="margin-top: 15px;">Add Bank</button>
+                    <button type="submit" class="btn form-submit">Add Bank</button>
                 </form>
             </div>
         </main>

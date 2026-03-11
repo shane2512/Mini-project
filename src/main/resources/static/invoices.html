@@ -8,204 +8,107 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-icon">🧾</div>
-                <span>Forex System</span>
-            </div>
-
+            <div class="sidebar-header"><div class="logo-icon">🧾</div><span>Forex System</span></div>
             <nav class="sidebar-nav">
-                <div class="nav-item" data-link="customer_dashboard.html">
-                    <div class="icon">🏠</div>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item" data-link="transactions.html">
-                    <div class="icon">💹</div>
-                    <span>Transactions</span>
-                </div>
-                <div class="nav-item active" data-link="invoices.html">
-                    <div class="icon">🧾</div>
-                    <span>Invoices</span>
-                </div>
-                <div class="nav-item" data-link="orders.html">
-                    <div class="icon">📦</div>
-                    <span>Orders</span>
-                </div>
+                <div class="nav-item" data-link="customer_dashboard.html"><div class="icon">🏠</div><span>Dashboard</span></div>
+                <div class="nav-item" data-link="transactions.html"><div class="icon">💹</div><span>Transactions</span></div>
+                <div class="nav-item active" data-link="invoices.html"><div class="icon">🧾</div><span>Invoices</span></div>
+                <div class="nav-item" data-link="orders.html"><div class="icon">📦</div><span>Orders</span></div>
             </nav>
-
-            <div class="sidebar-footer">
-                <button class="sidebar-toggle">← Collapse</button>
-            </div>
+            <div class="sidebar-footer"><button class="sidebar-toggle">← Collapse</button></div>
         </aside>
 
-        <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="search-bar">
                     <span class="icon">🔍</span>
-                    <input type="text" placeholder="Search invoices...">
+                    <input type="text" id="searchInvoices" title="Search invoices" placeholder="Search invoices..." aria-label="Search invoices">
                 </div>
             </div>
-
             <div class="topbar-right">
-                <div class="notification-icon">
-                    🔔
-                    <span class="notification-badge">2</span>
-                </div>
-
+                <div class="notification-icon">🔔<span class="notification-badge">2</span></div>
                 <div class="profile-dropdown">
-                    <button class="profile-btn">
-                        <div class="profile-avatar">C</div>
-                        <span>Customer</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item" onclick="logout()">
-                            🚪 Logout
-                        </div>
-                    </div>
+                    <button class="profile-btn"><div class="profile-avatar">C</div><span>Customer</span></button>
+                    <div class="dropdown-menu"><div class="dropdown-item" onclick="logout()">🚪 Logout</div></div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="content">
-            <div class="dashboard-title">
-                Invoices
-                <div class="subtitle">View and manage your invoices</div>
-            </div>
+            <div class="dashboard-title">Invoices<div class="subtitle">View and manage your invoices</div></div>
 
-            <!-- Filters -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 20px; margin-bottom: 30px; border: 1px solid var(--tertiary-bg);">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+            <div class="filter-bar">
+                <div class="filter-grid">
                     <div>
-                        <label style="display: block; margin-bottom: 8px; font-size: 13px; color: var(--secondary-text);">Status</label>
-                        <select style="width: 100%; padding: 8px; background-color: var(--tertiary-bg); border: 1px solid var(--tertiary-bg); border-radius: 5px; color: var(--primary-text);">
-                            <option>All</option>
-                            <option>Paid</option>
-                            <option>Pending</option>
-                            <option>Overdue</option>
+                        <label for="filterInvStatus">Status</label>
+                        <select id="filterInvStatus" title="Filter by status">
+                            <option>All</option><option>Paid</option><option>Pending</option><option>Overdue</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 8px; font-size: 13px; color: var(--secondary-text);">Date Range</label>
-                        <input type="date" style="width: 100%; padding: 8px; background-color: var(--tertiary-bg); border: 1px solid var(--tertiary-bg); border-radius: 5px; color: var(--primary-text);">
+                        <label for="filterInvDate">Date Range</label>
+                        <input type="date" id="filterInvDate" title="Select date range">
                     </div>
-                    <div style="display: flex; align-items: flex-end;">
-                        <button class="btn" style="width: 100%;">Apply Filters</button>
+                    <div class="flex-end">
+                        <button class="btn w-full">Apply Filters</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Quick Stats -->
-            <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 30px;">
-                <div class="stat-box">
-                    <div class="stat-title">Total Invoices</div>
-                    <div class="stat-value">48</div>
-                    <div class="stat-change">All time</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Pending Amount</div>
-                    <div class="stat-value">$15,420</div>
-                    <div class="stat-change negative" style="color: #f0ad4e;">3 invoices</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Total Paid</div>
-                    <div class="stat-value">$485,600</div>
-                    <div class="stat-change positive" style="color: #31a24c;">100%</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Overdue</div>
-                    <div class="stat-value">1</div>
-                    <div class="stat-change negative" style="color: #d9534f;">Attention needed</div>
-                </div>
+            <div class="stats-row">
+                <div class="stat-box"><div class="stat-title">Total Invoices</div><div class="stat-value">48</div><div class="stat-change">All time</div></div>
+                <div class="stat-box"><div class="stat-title">Pending Amount</div><div class="stat-value">$15,420</div><div class="stat-change stat-pending">3 invoices</div></div>
+                <div class="stat-box"><div class="stat-title">Total Paid</div><div class="stat-value">$485,600</div><div class="stat-change stat-change-success">100%</div></div>
+                <div class="stat-box"><div class="stat-title">Overdue</div><div class="stat-value">1</div><div class="stat-change stat-danger">Attention needed</div></div>
             </div>
 
-            <!-- Invoices Table -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg); margin-bottom: 30px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="color: var(--primary-text);">Your Invoices</h3>
-                    <button class="btn" style="padding: 10px 20px; font-size: 14px;" onclick="exportToCSV(MockAPI.getInvoices(), 'invoices.csv')">📥 Export CSV</button>
+            <div class="section-card">
+                <div class="section-header">
+                    <h3>Your Invoices</h3>
+                    <button class="btn btn-export" onclick="exportToCSV(MockAPI.getInvoices(),'invoices.csv')">📥 Export CSV</button>
                 </div>
-
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Invoice ID</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Currency</th>
-                                <th>Due Date</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="invoicesTable">
-                            <!-- Will be populated by JavaScript -->
-                        </tbody>
+                        <thead><tr><th>Invoice ID</th><th>Date</th><th>Amount</th><th>Currency</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+                        <tbody id="invoicesTable"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Invoice Cards View -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
-                <h3 style="margin-bottom: 20px; color: var(--primary-text);">Recent Invoice Details</h3>
-                <div class="cards-grid" id="invoiceCardsGrid">
-                    <!-- Invoice cards will be generated here -->
-                </div>
+            <div class="section-card">
+                <h3>Recent Invoice Details</h3>
+                <div class="invoice-cards-grid" id="invoiceCardsGrid"></div>
             </div>
         </main>
     </div>
 
     <script src="script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Populate invoices table
-            const invoices = MockAPI.getInvoices(8);
+        document.addEventListener('DOMContentLoaded', function () {
+            const invoices  = MockAPI.getInvoices(8);
             const tableBody = document.getElementById('invoicesTable');
-
-            invoices.forEach(inv => {
+            invoices.forEach(function (inv) {
                 const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${inv.id}</td>
-                    <td>${formatDate(inv.date)}</td>
-                    <td>$${inv.amount.toFixed(2)}</td>
-                    <td>${inv.currency}</td>
-                    <td>${formatDate(inv.dueDate)}</td>
-                    <td><span style="color: ${getStatusColor(inv.status)}">${inv.status}</span></td>
-                    <td>
-                        <button class="btn" style="padding: 6px 12px; font-size: 12px; background-color: var(--tertiary-bg); color: var(--accent-color); border: 1px solid var(--accent-color);" onclick="downloadPDF('${inv.id}')">📥 PDF</button>
-                    </td>
-                `;
+                row.innerHTML = `<td>${inv.id}</td><td>${formatDate(inv.date)}</td><td>$${inv.amount.toFixed(2)}</td>
+                    <td>${inv.currency}</td><td>${formatDate(inv.dueDate)}</td>
+                    <td><span style="color:${getStatusColor(inv.status)}">${inv.status}</span></td>
+                    <td><button class="btn btn-sm btn-outline" onclick="downloadPDF('${inv.id}')">📥 PDF</button></td>`;
                 tableBody.appendChild(row);
             });
-
-            // Generate invoice cards
             const cardsGrid = document.getElementById('invoiceCardsGrid');
-            invoices.slice(0, 3).forEach(inv => {
+            invoices.slice(0, 3).forEach(function (inv) {
                 const card = document.createElement('div');
-                card.style.cssText = `
-                    background-color: var(--tertiary-bg);
-                    border: 1px solid var(--tertiary-bg);
-                    border-radius: 8px;
-                    padding: 20px;
-                    text-align: center;
-                `;
-                card.innerHTML = `
-                    <div style="font-size: 40px; margin-bottom: 15px;">📄</div>
-                    <h4 style="color: var(--primary-text); margin-bottom: 8px;">${inv.id}</h4>
-                    <p style="color: var(--secondary-text); margin-bottom: 10px;">${inv.amount.toFixed(2)} ${inv.currency}</p>
-                    <p style="font-size: 12px; color: ${getStatusColor(inv.status)}; margin-bottom: 15px;">${inv.status}</p>
-                    <button class="btn" style="width: 100%; padding: 10px;" onclick="downloadPDF('${inv.id}')">Download PDF</button>
-                `;
+                card.className = 'invoice-card';
+                card.innerHTML = `<div class="invoice-icon">📄</div><h4>${inv.id}</h4>
+                    <p class="invoice-amount">${inv.amount.toFixed(2)} ${inv.currency}</p>
+                    <p class="invoice-status" style="color:${getStatusColor(inv.status)}">${inv.status}</p>
+                    <button class="btn btn-full" onclick="downloadPDF('${inv.id}')">Download PDF</button>`;
                 cardsGrid.appendChild(card);
             });
         });
-
         function downloadPDF(invoiceId) {
-            showNotification(`PDF for ${invoiceId} would be generated and downloaded`, 'success');
-            // In production, integrate with a PDF library like jsPDF or html2pdf
+            showNotification('PDF for ' + invoiceId + ' would be generated and downloaded', 'success');
         }
     </script>
 </body>

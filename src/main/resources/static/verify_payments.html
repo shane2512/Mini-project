@@ -54,7 +54,7 @@
                 <div class="subtitle">Verify and confirm customer payments</div>
             </div>
 
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
+            <div class="section-card">
                 <div class="table-container">
                     <table>
                         <thead>
@@ -73,8 +73,10 @@
                                 <td>ABC Trading</td>
                                 <td>$50,000</td>
                                 <td>Feb 25, 2026</td>
-                                <td><span style="color: #f0ad4e;">Pending</span></td>
-                                <td><button class="btn" style="padding: 6px 12px; font-size: 12px;" onclick="verifyPayment(this)">Verify</button></td>
+                                <td id="pay001-status"><span class="stat-pending">Pending</span></td>
+                                <td>
+                                    <button class="btn btn-sm" onclick="verifyPayment('pay001-status', this)">Verify</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -85,9 +87,14 @@
 
     <script src="script.js"></script>
     <script>
-        function verifyPayment(btn) {
+        function verifyPayment(statusCellId, btn) {
             showNotification('Payment verified successfully!', 'success');
-            btn.parentElement.parentElement.cells[4].innerHTML = '<span style="color: #31a24c;">Verified</span>';
+            const cell = document.getElementById(statusCellId);
+            if (cell) {
+                cell.innerHTML = '<span class="status-active">Verified</span>';
+            }
+            btn.disabled = true;
+            btn.textContent = 'Verified';
         }
     </script>
 </body>

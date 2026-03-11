@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Transactions - Forex Management System</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .section-card {
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 30px;
+            border: 1px solid var(--tertiary-bg);
+        }
+    </style>
 </head>
 <body>
     <div class="main-container">
@@ -54,7 +62,7 @@
                 <div class="subtitle">View transactions of linked customers</div>
             </div>
 
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
+            <div class="section-card">
                 <div class="table-container">
                     <table id="customerTransactionsTable">
                         <thead>
@@ -67,8 +75,7 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-                        <tbody id="txnBody">
-                        </tbody>
+                        <tbody id="txnBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -77,10 +84,10 @@
 
     <script src="script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const transactions = MockAPI.getTransactions(10);
             const tbody = document.getElementById('txnBody');
-            transactions.forEach(txn => {
+            transactions.forEach(function (txn) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${txn.id}</td>

@@ -8,182 +8,80 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-icon">💱</div>
-                <span>Forex System</span>
-            </div>
-
+            <div class="sidebar-header"><div class="logo-icon">💱</div><span>Forex System</span></div>
             <nav class="sidebar-nav">
-                <div class="nav-item" data-link="admin_dashboard.html">
-                    <div class="icon">🏠</div>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item active" data-link="exchange_rates.html">
-                    <div class="icon">💱</div>
-                    <span>Exchange Rates</span>
-                </div>
-                <div class="nav-item" data-link="transactions.html">
-                    <div class="icon">💹</div>
-                    <span>Transactions</span>
-                </div>
+                <div class="nav-item" data-link="admin_dashboard.html"><div class="icon">🏠</div><span>Dashboard</span></div>
+                <div class="nav-item active" data-link="exchange_rates.html"><div class="icon">💱</div><span>Exchange Rates</span></div>
+                <div class="nav-item" data-link="transactions.html"><div class="icon">💹</div><span>Transactions</span></div>
             </nav>
-
-            <div class="sidebar-footer">
-                <button class="sidebar-toggle">← Collapse</button>
-            </div>
+            <div class="sidebar-footer"><button class="sidebar-toggle">← Collapse</button></div>
         </aside>
 
-        <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="search-bar">
                     <span class="icon">🔍</span>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" id="searchRates" title="Search exchange rates" placeholder="Search..." aria-label="Search exchange rates">
                 </div>
             </div>
-
             <div class="topbar-right">
-                <div class="notification-icon">
-                    🔔
-                    <span class="notification-badge">3</span>
-                </div>
-
+                <div class="notification-icon">🔔<span class="notification-badge">3</span></div>
                 <div class="profile-dropdown">
-                    <button class="profile-btn">
-                        <div class="profile-avatar">A</div>
-                        <span>Admin</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item" onclick="logout()">
-                            🚪 Logout
-                        </div>
-                    </div>
+                    <button class="profile-btn"><div class="profile-avatar">A</div><span>Admin</span></button>
+                    <div class="dropdown-menu"><div class="dropdown-item" onclick="logout()">🚪 Logout</div></div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="content">
-            <div class="dashboard-title">
-                USD-Based Exchange Rates
-                <div class="subtitle">View and manage current exchange rates</div>
+            <div class="dashboard-title">USD-Based Exchange Rates<div class="subtitle">View and manage current exchange rates</div></div>
+
+            <div class="stats-row">
+                <div class="stat-box"><div class="stat-title">Base Currency</div><div class="stat-value">USD</div><div class="stat-change">US Dollar</div></div>
+                <div class="stat-box"><div class="stat-title">Last Updated</div><div class="stat-value" id="lastUpdate">--:--</div><div class="stat-change">Just now</div></div>
+                <div class="stat-box"><div class="stat-title">Total Pairs</div><div class="stat-value">6</div><div class="stat-change">Active rates</div></div>
             </div>
 
-            <!-- Quick Stats -->
-            <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 30px;">
-                <div class="stat-box">
-                    <div class="stat-title">Base Currency</div>
-                    <div class="stat-value">USD</div>
-                    <div class="stat-change">US Dollar</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Last Updated</div>
-                    <div class="stat-value" id="lastUpdate">--:--</div>
-                    <div class="stat-change">Just now</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-title">Total Pairs</div>
-                    <div class="stat-value">6</div>
-                    <div class="stat-change">Active rates</div>
-                </div>
-            </div>
-
-            <!-- Exchange Rates Table -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
-                <h3 style="margin-bottom: 20px; color: var(--primary-text);">Current Exchange Rates</h3>
-
+            <div class="section-card">
+                <h3>Current Exchange Rates</h3>
                 <div class="table-container">
                     <table>
-                        <thead>
-                            <tr>
-                                <th>Currency Pair</th>
-                                <th>Current Rate</th>
-                                <th>High</th>
-                                <th>Low</th>
-                                <th>Change</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Currency Pair</th><th>Current Rate</th><th>High</th><th>Low</th><th>Change</th><th>Actions</th></tr></thead>
                         <tbody id="ratesTableBody">
-                            <tr>
-                                <td>USD/EUR</td>
-                                <td>0.9245</td>
-                                <td>0.9301</td>
-                                <td>0.9189</td>
-                                <td><span style="color: #31a24c;">+0.15%</span></td>
-                                <td><button class="btn" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
-                            </tr>
-                            <tr>
-                                <td>USD/GBP</td>
-                                <td>0.7924</td>
-                                <td>0.7982</td>
-                                <td>0.7865</td>
-                                <td><span style="color: #d9534f;">-0.22%</span></td>
-                                <td><button class="btn" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
-                            </tr>
-                            <tr>
-                                <td>USD/JPY</td>
-                                <td>149.50</td>
-                                <td>151.20</td>
-                                <td>148.75</td>
-                                <td><span style="color: #31a24c;">+0.85%</span></td>
-                                <td><button class="btn" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
-                            </tr>
-                            <tr>
-                                <td>USD/INR</td>
-                                <td>83.12</td>
-                                <td>83.45</td>
-                                <td>82.98</td>
-                                <td><span style="color: #31a24c;">+0.45%</span></td>
-                                <td><button class="btn" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
-                            </tr>
-                            <tr>
-                                <td>USD/CAD</td>
-                                <td>1.3654</td>
-                                <td>1.3705</td>
-                                <td>1.3598</td>
-                                <td><span style="color: #f0ad4e;">0.00%</span></td>
-                                <td><button class="btn" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
-                            </tr>
-                            <tr>
-                                <td>USD/AUD</td>
-                                <td>1.5342</td>
-                                <td>1.5401</td>
-                                <td>1.5289</td>
-                                <td><span style="color: #31a24c;">+0.32%</span></td>
-                                <td><button class="btn" style="padding: 6px 12px; font-size: 12px;">Edit</button></td>
-                            </tr>
+                            <tr><td>USD/EUR</td><td>0.9245</td><td>0.9301</td><td>0.9189</td><td><span class="change-up">+0.15%</span></td><td><button class="btn btn-sm">Edit</button></td></tr>
+                            <tr><td>USD/GBP</td><td>0.7924</td><td>0.7982</td><td>0.7865</td><td><span class="change-down">-0.22%</span></td><td><button class="btn btn-sm">Edit</button></td></tr>
+                            <tr><td>USD/JPY</td><td>149.50</td><td>151.20</td><td>148.75</td><td><span class="change-up">+0.85%</span></td><td><button class="btn btn-sm">Edit</button></td></tr>
+                            <tr><td>USD/INR</td><td>83.12</td><td>83.45</td><td>82.98</td><td><span class="change-up">+0.45%</span></td><td><button class="btn btn-sm">Edit</button></td></tr>
+                            <tr><td>USD/CAD</td><td>1.3654</td><td>1.3705</td><td>1.3598</td><td><span class="change-flat">0.00%</span></td><td><button class="btn btn-sm">Edit</button></td></tr>
+                            <tr><td>USD/AUD</td><td>1.5342</td><td>1.5401</td><td>1.5289</td><td><span class="change-up">+0.32%</span></td><td><button class="btn btn-sm">Edit</button></td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Add New Rate Form -->
-            <div class="form-container" style="background-color: var(--secondary-bg); margin-top: 30px;">
-                <h3 style="margin-bottom: 20px; color: var(--primary-text);">Add New Exchange Rate</h3>
-
+            <div class="form-container">
+                <h3 class="form-heading">Add New Exchange Rate</h3>
                 <form onsubmit="addExchangeRate(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-grid-2">
                         <div class="form-group">
-                            <label>From Currency</label>
-                            <input type="text" placeholder="e.g., USD" required>
+                            <label for="rateFrom">From Currency</label>
+                            <input type="text" id="rateFrom" title="Enter source currency (e.g. USD)" placeholder="e.g., USD" required>
                         </div>
                         <div class="form-group">
-                            <label>To Currency</label>
-                            <input type="text" placeholder="e.g., EUR" required>
+                            <label for="rateTo">To Currency</label>
+                            <input type="text" id="rateTo" title="Enter target currency (e.g. EUR)" placeholder="e.g., EUR" required>
                         </div>
                         <div class="form-group">
-                            <label>Exchange Rate</label>
-                            <input type="number" step="0.0001" placeholder="0.9245" required>
+                            <label for="rateValue">Exchange Rate</label>
+                            <input type="number" id="rateValue" step="0.0001" title="Enter exchange rate" placeholder="0.9245" required>
                         </div>
                         <div class="form-group">
-                            <label>Effective Date</label>
-                            <input type="date" required>
+                            <label for="rateDate">Effective Date</label>
+                            <input type="date" id="rateDate" title="Select effective date" required>
                         </div>
                     </div>
-                    <button type="submit" class="btn" style="margin-top: 15px;">Add Rate</button>
+                    <button type="submit" class="btn form-submit">Add Rate</button>
                 </form>
             </div>
         </main>
@@ -191,17 +89,12 @@
 
     <script src="script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update last update time
-            const now = new Date();
-            document.getElementById('lastUpdate').textContent = now.toLocaleTimeString();
-
-            // Update every minute
-            setInterval(() => {
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            setInterval(function () {
                 document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
             }, 60000);
         });
-
         function addExchangeRate(event) {
             event.preventDefault();
             showNotification('Exchange rate added successfully!', 'success');

@@ -8,105 +8,73 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon">📊</div>
                 <span>Forex System</span>
             </div>
-
             <nav class="sidebar-nav">
-                <div class="nav-item" data-link="admin_dashboard.html">
-                    <div class="icon">🏠</div>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item active" data-link="reports.html">
-                    <div class="icon">📊</div>
-                    <span>Reports</span>
-                </div>
+                <div class="nav-item" data-link="admin_dashboard.html"><div class="icon">🏠</div><span>Dashboard</span></div>
+                <div class="nav-item active" data-link="reports.html"><div class="icon">📊</div><span>Reports</span></div>
             </nav>
-
-            <div class="sidebar-footer">
-                <button class="sidebar-toggle">← Collapse</button>
-            </div>
+            <div class="sidebar-footer"><button class="sidebar-toggle">← Collapse</button></div>
         </aside>
 
-        <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="search-bar">
                     <span class="icon">🔍</span>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" id="searchReports" title="Search reports" placeholder="Search..." aria-label="Search reports">
                 </div>
             </div>
-
             <div class="topbar-right">
                 <div class="profile-dropdown">
-                    <button class="profile-btn">
-                        <div class="profile-avatar">A</div>
-                        <span>Admin</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item" onclick="logout()">
-                            🚪 Logout
-                        </div>
-                    </div>
+                    <button class="profile-btn"><div class="profile-avatar">A</div><span>Admin</span></button>
+                    <div class="dropdown-menu"><div class="dropdown-item" onclick="logout()">🚪 Logout</div></div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="content">
             <div class="dashboard-title">
                 Report Generation
                 <div class="subtitle">Generate comprehensive system and transaction reports</div>
             </div>
 
-            <!-- Report Options -->
             <div class="cards-grid">
                 <div class="dashboard-card" onclick="generateReport('transaction')">
                     <div class="card-icon">💹</div>
                     <h3 class="card-title">Transaction Report</h3>
                     <p class="card-description">Generate detailed transaction reports by date range and currency pair.</p>
-                    <div class="card-action">
-                        <button class="btn">Generate</button>
-                    </div>
+                    <div class="card-action"><button class="btn">Generate</button></div>
                 </div>
                 <div class="dashboard-card" onclick="generateReport('user')">
                     <div class="card-icon">👥</div>
                     <h3 class="card-title">User Activity Report</h3>
                     <p class="card-description">Track user activities, logins, and transaction volumes.</p>
-                    <div class="card-action">
-                        <button class="btn">Generate</button>
-                    </div>
+                    <div class="card-action"><button class="btn">Generate</button></div>
                 </div>
                 <div class="dashboard-card" onclick="generateReport('revenue')">
                     <div class="card-icon">💰</div>
                     <h3 class="card-title">Revenue Report</h3>
                     <p class="card-description">View revenue analytics and financial metrics.</p>
-                    <div class="card-action">
-                        <button class="btn">Generate</button>
-                    </div>
+                    <div class="card-action"><button class="btn">Generate</button></div>
                 </div>
                 <div class="dashboard-card" onclick="generateReport('order')">
                     <div class="card-icon">📦</div>
                     <h3 class="card-title">Order Report</h3>
                     <p class="card-description">Detailed order fulfillment and import/export statistics.</p>
-                    <div class="card-action">
-                        <button class="btn">Generate</button>
-                    </div>
+                    <div class="card-action"><button class="btn">Generate</button></div>
                 </div>
             </div>
 
-            <!-- Report Generator Form -->
-            <div class="form-container" style="background-color: var(--secondary-bg); margin-top: 30px;">
-                <h3 style="margin-bottom: 20px; color: var(--primary-text);">Custom Report Builder</h3>
-
+            <div class="form-container mt-30">
+                <h3 class="form-heading">Custom Report Builder</h3>
                 <form onsubmit="buildCustomReport(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-grid-2">
                         <div class="form-group">
-                            <label>Report Type</label>
-                            <select required>
+                            <label for="reportType">Report Type</label>
+                            <select id="reportType" title="Select report type" required>
                                 <option value="">Select type</option>
                                 <option value="summary">Summary Report</option>
                                 <option value="detailed">Detailed Report</option>
@@ -114,8 +82,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Date Range</label>
-                            <select required>
+                            <label for="reportDateRange">Date Range</label>
+                            <select id="reportDateRange" title="Select date range" required>
                                 <option value="">Select range</option>
                                 <option value="today">Today</option>
                                 <option value="week">This Week</option>
@@ -124,8 +92,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Export Format</label>
-                            <select required>
+                            <label for="reportFormat">Export Format</label>
+                            <select id="reportFormat" title="Select export format" required>
                                 <option value="pdf">PDF</option>
                                 <option value="csv">CSV</option>
                                 <option value="excel">Excel</option>
@@ -133,8 +101,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Schedule Report</label>
-                            <select>
+                            <label for="reportSchedule">Schedule Report</label>
+                            <select id="reportSchedule" title="Select schedule">
                                 <option value="now">Generate Now</option>
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
@@ -142,7 +110,7 @@
                             </select>
                         </div>
                     </div>
-                    <button type="submit" class="btn" style="margin-top: 15px;">Generate Report</button>
+                    <button type="submit" class="btn mt-15">Generate Report</button>
                 </form>
             </div>
         </main>
@@ -151,10 +119,8 @@
     <script src="script.js"></script>
     <script>
         function generateReport(type) {
-            showNotification(`Generating ${type} report...`, 'success');
-            // In production, this would trigger a download
+            showNotification('Generating ' + type + ' report...', 'success');
         }
-
         function buildCustomReport(event) {
             event.preventDefault();
             showNotification('Custom report generated and downloaded!', 'success');

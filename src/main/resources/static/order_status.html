@@ -8,13 +8,11 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon">🔍</div>
                 <span>Forex System</span>
             </div>
-
             <nav class="sidebar-nav">
                 <div class="nav-item" data-link="customer_dashboard.html">
                     <div class="icon">🏠</div>
@@ -29,13 +27,11 @@
                     <span>Orders</span>
                 </div>
             </nav>
-
             <div class="sidebar-footer">
                 <button class="sidebar-toggle">← Collapse</button>
             </div>
         </aside>
 
-        <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="search-bar">
@@ -43,7 +39,6 @@
                     <input type="text" placeholder="Search order ID...">
                 </div>
             </div>
-
             <div class="topbar-right">
                 <div class="profile-dropdown">
                     <button class="profile-btn">
@@ -51,79 +46,73 @@
                         <span>Customer</span>
                     </button>
                     <div class="dropdown-menu">
-                        <div class="dropdown-item" onclick="logout()">
-                            🚪 Logout
-                        </div>
+                        <div class="dropdown-item" onclick="logout()">🚪 Logout</div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="content">
             <div class="dashboard-title">
                 Track Order Status
                 <div class="subtitle">Monitor your import/export orders in real-time</div>
             </div>
 
-            <!-- Sample Order -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg); margin-bottom: 30px;">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+            <!-- Sample Order Card -->
+            <div class="section-card">
+                <div class="order-header">
                     <div>
-                        <h3 style="color: var(--primary-text); margin-bottom: 5px;">Order #ORD00001</h3>
-                        <p style="color: var(--secondary-text); font-size: 12px;">Electronics - 500 units</p>
+                        <h3>Order #ORD00001</h3>
+                        <p class="order-header-sub">Electronics - 500 units</p>
                     </div>
-                    <div style="text-align: right;">
-                        <p style="color: #31a24c; font-weight: 600;">✓ Delivered</p>
-                        <p style="color: var(--secondary-text); font-size: 12px;">Completed on Feb 20, 2026</p>
+                    <div class="order-status-delivered">
+                        <p>✓ Delivered</p>
+                        <p>Completed on Feb 20, 2026</p>
                     </div>
                 </div>
 
-                <div style="margin: 25px 0;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; text-align: center;">
-                        <div style="padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
-                            <p style="color: var(--accent-color); font-weight: 600;">✓ Order Placed</p>
-                            <p style="color: var(--secondary-text); font-size: 12px;">Feb 10</p>
-                        </div>
-                        <div style="padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
-                            <p style="color: var(--accent-color); font-weight: 600;">✓ Processing</p>
-                            <p style="color: var(--secondary-text); font-size: 12px;">Feb 12</p>
-                        </div>
-                        <div style="padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
-                            <p style="color: var(--accent-color); font-weight: 600;">✓ Shipped</p>
-                            <p style="color: var(--secondary-text); font-size: 12px;">Feb 15</p>
-                        </div>
-                        <div style="padding: 15px; background-color: var(--tertiary-bg); border-radius: 5px;">
-                            <p style="color: var(--accent-color); font-weight: 600;">✓ Delivered</p>
-                            <p style="color: var(--secondary-text); font-size: 12px;">Feb 20</p>
-                        </div>
+                <div class="progress-steps">
+                    <div class="progress-step">
+                        <p>✓ Order Placed</p>
+                        <p>Feb 10</p>
+                    </div>
+                    <div class="progress-step">
+                        <p>✓ Processing</p>
+                        <p>Feb 12</p>
+                    </div>
+                    <div class="progress-step">
+                        <p>✓ Shipped</p>
+                        <p>Feb 15</p>
+                    </div>
+                    <div class="progress-step">
+                        <p>✓ Delivered</p>
+                        <p>Feb 20</p>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 20px; border-top: 1px solid var(--tertiary-bg);">
-                    <div>
-                        <p style="color: var(--secondary-text); font-size: 11px; margin-bottom: 5px;">TRACKING ID</p>
-                        <p style="color: var(--primary-text); font-weight: 600;">SHP-2026-ORD-00001</p>
+                <div class="order-detail-grid">
+                    <div class="order-detail-item">
+                        <label>TRACKING ID</label>
+                        <p>SHP-2026-ORD-00001</p>
                     </div>
-                    <div>
-                        <p style="color: var(--secondary-text); font-size: 11px; margin-bottom: 5px;">ESTIMATED DELIVERY</p>
-                        <p style="color: var(--primary-text); font-weight: 600;">Already Delivered</p>
+                    <div class="order-detail-item">
+                        <label>ESTIMATED DELIVERY</label>
+                        <p>Already Delivered</p>
                     </div>
-                    <div>
-                        <p style="color: var(--secondary-text); font-size: 11px; margin-bottom: 5px;">CARRIER</p>
-                        <p style="color: var(--primary-text); font-weight: 600;">International Cargo Inc.</p>
+                    <div class="order-detail-item">
+                        <label>CARRIER</label>
+                        <p>International Cargo Inc.</p>
                     </div>
-                    <div>
-                        <p style="color: var(--secondary-text); font-size: 11px; margin-bottom: 5px;">LOCATION</p>
-                        <p style="color: var(--primary-text); font-weight: 600;">New York, USA</p>
+                    <div class="order-detail-item">
+                        <label>LOCATION</label>
+                        <p>New York, USA</p>
                     </div>
                 </div>
             </div>
 
             <!-- Active Orders -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
-                <h3 style="margin-bottom: 20px; color: var(--primary-text);">Active Orders</h3>
-
+            <div class="section-card">
+                <h3>Active Orders</h3>
                 <div class="table-container">
                     <table id="activeOrdersTable">
                         <thead>
@@ -135,8 +124,7 @@
                                 <th>Est. Delivery</th>
                             </tr>
                         </thead>
-                        <tbody id="activeOrdersBody">
-                        </tbody>
+                        <tbody id="activeOrdersBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -145,20 +133,23 @@
 
     <script src="script.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const orders = MockAPI.getOrders(5).filter(o => o.status !== 'Delivered');
+        document.addEventListener('DOMContentLoaded', function () {
+            const orders = MockAPI.getOrders(5).filter(function (o) {
+                return o.status !== 'Delivered';
+            });
             const tbody = document.getElementById('activeOrdersBody');
 
-            orders.forEach(order => {
-                const progress = order.status === 'Processing' ? 30 : order.status === 'Shipped' ? 70 : 10;
+            orders.forEach(function (order) {
+                const progress = order.status === 'Processing' ? 30
+                               : order.status === 'Shipped'    ? 70 : 10;
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${order.id}</td>
                     <td>${order.product}</td>
-                    <td><span style="color: ${getStatusColor(order.status)}">${order.status}</span></td>
+                    <td><span style="color:${getStatusColor(order.status)}">${order.status}</span></td>
                     <td>
-                        <div style="background-color: var(--tertiary-bg); border-radius: 10px; height: 8px; width: 100px; overflow: hidden;">
-                            <div style="background-color: var(--accent-color); height: 100%; width: ${progress}%;"></div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" style="width:${progress}%"></div>
                         </div>
                     </td>
                     <td>${formatDate(order.date)}</td>

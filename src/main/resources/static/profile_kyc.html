@@ -3,99 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile & KYC - Forex Management System</title>
+    <title>Profile &amp; KYC - Forex Management System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon">👤</div>
                 <span>Forex System</span>
             </div>
-
             <nav class="sidebar-nav">
-                <div class="nav-item" data-link="customer_dashboard.html">
-                    <div class="icon">🏠</div>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item active" data-link="profile_kyc.html">
-                    <div class="icon">👤</div>
-                    <span>Profile</span>
-                </div>
-                <div class="nav-item" data-link="settings.html">
-                    <div class="icon">⚙️</div>
-                    <span>Settings</span>
-                </div>
+                <div class="nav-item" data-link="customer_dashboard.html"><div class="icon">🏠</div><span>Dashboard</span></div>
+                <div class="nav-item active" data-link="profile_kyc.html"><div class="icon">👤</div><span>Profile</span></div>
+                <div class="nav-item" data-link="settings.html"><div class="icon">⚙️</div><span>Settings</span></div>
             </nav>
-
-            <div class="sidebar-footer">
-                <button class="sidebar-toggle">← Collapse</button>
-            </div>
+            <div class="sidebar-footer"><button class="sidebar-toggle">← Collapse</button></div>
         </aside>
 
-        <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="search-bar">
                     <span class="icon">🔍</span>
-                    <input type="text" placeholder="Search...">
+                    <input type="text" id="searchProfile" title="Search" placeholder="Search..." aria-label="Search">
                 </div>
             </div>
-
             <div class="topbar-right">
-                <div class="notification-icon">
-                    🔔
-                    <span class="notification-badge">1</span>
-                </div>
-
+                <div class="notification-icon">🔔<span class="notification-badge">1</span></div>
                 <div class="profile-dropdown">
-                    <button class="profile-btn">
-                        <div class="profile-avatar">U</div>
-                        <span>User</span>
-                    </button>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-item" onclick="logout()">
-                            🚪 Logout
-                        </div>
-                    </div>
+                    <button class="profile-btn"><div class="profile-avatar">U</div><span>User</span></button>
+                    <div class="dropdown-menu"><div class="dropdown-item" onclick="logout()">🚪 Logout</div></div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="content">
             <div class="dashboard-title">
-                Profile & KYC Management
+                Profile &amp; KYC Management
                 <div class="subtitle">Update your personal information and KYC documents</div>
             </div>
 
             <!-- Profile Overview -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg); margin-bottom: 30px;">
-                <div style="display: grid; grid-template-columns: 150px 1fr; gap: 30px; align-items: start;">
-                    <div style="text-align: center;">
-                        <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color), #0073e6); display: flex; align-items: center; justify-content: center; font-size: 60px; color: white; margin: 0 auto;">👤</div>
-                        <button class="btn" style="width: 100%; margin-top: 15px; padding: 8px;">Upload Photo</button>
+            <div class="section-card">
+                <div class="profile-overview">
+                    <div class="profile-photo-wrap">
+                        <div class="profile-photo">👤</div>
+                        <button class="btn btn-full mt-15 btn-photo-upload">Upload Photo</button>
                     </div>
                     <div>
-                        <h3 style="color: var(--primary-text); margin-bottom: 20px;">John Doe</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <h3 class="text-bold profile-name">John Doe</h3>
+                        <div class="profile-meta-grid">
                             <div>
-                                <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 5px;">Member Since</p>
-                                <p style="color: var(--primary-text); font-weight: 600;">January 15, 2024</p>
+                                <p class="profile-meta-label">Member Since</p>
+                                <p class="profile-meta-value">January 15, 2024</p>
                             </div>
                             <div>
-                                <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 5px;">Account Status</p>
-                                <p style="color: #31a24c; font-weight: 600;">✓ Verified</p>
+                                <p class="profile-meta-label">Account Status</p>
+                                <p class="profile-meta-value text-success">✓ Verified</p>
                             </div>
                             <div>
-                                <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 5px;">KYC Status</p>
-                                <p style="color: #31a24c; font-weight: 600;">✓ Completed</p>
+                                <p class="profile-meta-label">KYC Status</p>
+                                <p class="profile-meta-value text-success">✓ Completed</p>
                             </div>
                             <div>
-                                <p style="color: var(--secondary-text); font-size: 12px; margin-bottom: 5px;">Trading Level</p>
-                                <p style="color: var(--accent-color); font-weight: 600;">Premium</p>
+                                <p class="profile-meta-label">Trading Level</p>
+                                <p class="profile-meta-value text-accent">Premium</p>
                             </div>
                         </div>
                     </div>
@@ -103,30 +75,29 @@
             </div>
 
             <!-- Edit Profile Form -->
-            <div class="form-container" style="background-color: var(--secondary-bg); margin-bottom: 30px;">
-                <h3 style="margin-bottom: 20px; color: var(--primary-text);">Edit Personal Information</h3>
-
+            <div class="form-container">
+                <h3 class="form-heading">Edit Personal Information</h3>
                 <form onsubmit="updateProfile(event)">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-grid-2">
                         <div class="form-group">
-                            <label>First Name</label>
-                            <input type="text" value="John" required>
+                            <label for="profileFirstName">First Name</label>
+                            <input type="text" id="profileFirstName" title="First name" value="John" required>
                         </div>
                         <div class="form-group">
-                            <label>Last Name</label>
-                            <input type="text" value="Doe" required>
+                            <label for="profileLastName">Last Name</label>
+                            <input type="text" id="profileLastName" title="Last name" value="Doe" required>
                         </div>
                         <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" value="john@example.com" required>
+                            <label for="profileEmail">Email</label>
+                            <input type="email" id="profileEmail" title="Email address" value="john@example.com" required>
                         </div>
                         <div class="form-group">
-                            <label>Phone</label>
-                            <input type="tel" value="+1-555-123-4567" required>
+                            <label for="profilePhone">Phone</label>
+                            <input type="tel" id="profilePhone" title="Phone number" value="+1-555-123-4567" required>
                         </div>
                         <div class="form-group">
-                            <label>Country</label>
-                            <select required>
+                            <label for="profileCountry">Country</label>
+                            <select id="profileCountry" title="Select country" required>
                                 <option>United States</option>
                                 <option>United Kingdom</option>
                                 <option>Canada</option>
@@ -134,8 +105,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Currency Preference</label>
-                            <select required>
+                            <label for="profileCurrency">Currency Preference</label>
+                            <select id="profileCurrency" title="Select preferred currency" required>
                                 <option>USD</option>
                                 <option>EUR</option>
                                 <option>GBP</option>
@@ -143,35 +114,34 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Address</label>
-                        <input type="text" value="123 Main Street, New York, NY 10001" required>
+                        <label for="profileAddress">Address</label>
+                        <input type="text" id="profileAddress" title="Full address" value="123 Main Street, New York, NY 10001" required>
                     </div>
-                    <button type="submit" class="btn" style="margin-top: 15px;">Update Profile</button>
+                    <button type="submit" class="btn mt-15">Update Profile</button>
                 </form>
             </div>
 
             <!-- KYC Documents -->
-            <div style="background-color: var(--secondary-bg); border-radius: 8px; padding: 30px; border: 1px solid var(--tertiary-bg);">
-                <h3 style="margin-bottom: 20px; color: var(--primary-text);">KYC Documentation</h3>
-
-                <div class="cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-                    <div style="background-color: var(--tertiary-bg); border: 2px dashed var(--accent-color); border-radius: 8px; padding: 30px; text-align: center;">
-                        <div style="font-size: 40px; margin-bottom: 15px;">📄</div>
-                        <h4 style="color: var(--primary-text); margin-bottom: 8px;">Passport</h4>
-                        <p style="color: #31a24c; font-size: 12px; margin-bottom: 15px;">✓ Verified</p>
-                        <button class="btn-secondary" style="width: 100%; padding: 8px; border: 1px solid var(--accent-color); border-radius: 5px; color: var(--accent-color); background: transparent; cursor: pointer;">Replace</button>
+            <div class="section-card">
+                <h3>KYC Documentation</h3>
+                <div class="kyc-grid">
+                    <div class="kyc-card kyc-card-verified">
+                        <div class="kyc-icon">📄</div>
+                        <h4>Passport</h4>
+                        <p class="kyc-status-verified">✓ Verified</p>
+                        <button class="btn-secondary w-full">Replace</button>
                     </div>
-                    <div style="background-color: var(--tertiary-bg); border: 2px dashed var(--accent-color); border-radius: 8px; padding: 30px; text-align: center;">
-                        <div style="font-size: 40px; margin-bottom: 15px;">🏠</div>
-                        <h4 style="color: var(--primary-text); margin-bottom: 8px;">Address Proof</h4>
-                        <p style="color: #31a24c; font-size: 12px; margin-bottom: 15px;">✓ Verified</p>
-                        <button class="btn-secondary" style="width: 100%; padding: 8px; border: 1px solid var(--accent-color); border-radius: 5px; color: var(--accent-color); background: transparent; cursor: pointer;">Replace</button>
+                    <div class="kyc-card kyc-card-verified">
+                        <div class="kyc-icon">🏠</div>
+                        <h4>Address Proof</h4>
+                        <p class="kyc-status-verified">✓ Verified</p>
+                        <button class="btn-secondary w-full">Replace</button>
                     </div>
-                    <div style="background-color: var(--tertiary-bg); border: 2px dashed var(--warning-color); border-radius: 8px; padding: 30px; text-align: center;">
-                        <div style="font-size: 40px; margin-bottom: 15px;">💼</div>
-                        <h4 style="color: var(--primary-text); margin-bottom: 8px;">Business Registration</h4>
-                        <p style="color: var(--warning-color); font-size: 12px; margin-bottom: 15px;">⚠ Pending Review</p>
-                        <button class="btn-secondary" style="width: 100%; padding: 8px; border: 1px solid var(--warning-color); border-radius: 5px; color: var(--warning-color); background: transparent; cursor: pointer;">View Status</button>
+                    <div class="kyc-card kyc-card-pending">
+                        <div class="kyc-icon">💼</div>
+                        <h4>Business Registration</h4>
+                        <p class="kyc-status-pending">⚠ Pending Review</p>
+                        <button class="btn-secondary w-full btn-kyc-pending">View Status</button>
                     </div>
                 </div>
             </div>
