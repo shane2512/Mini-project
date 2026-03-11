@@ -8,13 +8,11 @@
 </head>
 <body>
     <div class="main-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon">⚙️</div>
                 <span>Forex Admin</span>
             </div>
-
             <nav class="sidebar-nav">
                 <div class="nav-item active" data-link="admin_dashboard.html">
                     <div class="icon">🏠</div>
@@ -45,13 +43,11 @@
                     <span>Monitoring</span>
                 </div>
             </nav>
-
             <div class="sidebar-footer">
                 <button class="sidebar-toggle">← Collapse</button>
             </div>
         </aside>
 
-        <!-- Top Bar -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="search-bar">
@@ -59,52 +55,37 @@
                     <input type="text" placeholder="Search cards...">
                 </div>
             </div>
-
             <div class="topbar-right">
                 <div class="notification-icon">
                     🔔
                     <span class="notification-badge">3</span>
                 </div>
-
                 <div class="profile-dropdown">
                     <button class="profile-btn">
                         <div class="profile-avatar">A</div>
                         <span>Admin User</span>
                     </button>
                     <div class="dropdown-menu">
-                        <div class="dropdown-item" onclick="window.location.href='profile_kyc.html'">
-                            👤 Profile
-                        </div>
-                        <div class="dropdown-item" onclick="window.location.href='settings.html'">
-                            ⚙️ Settings
-                        </div>
-                        <div class="dropdown-item">
-                            ❓ Help
-                        </div>
-                        <div class="dropdown-item" onclick="logout()">
-                            🚪 Logout
-                        </div>
+                        <div class="dropdown-item" onclick="window.location.href='profile_kyc.html'">👤 Profile</div>
+                        <div class="dropdown-item" onclick="window.location.href='settings.html'">⚙️ Settings</div>
+                        <div class="dropdown-item">❓ Help</div>
+                        <div class="dropdown-item" onclick="logout()">🚪 Logout</div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
         <main class="content">
             <div class="dashboard-title">
                 Admin Dashboard
                 <div class="subtitle">Manage your Forex system</div>
             </div>
-
-            <div class="cards-grid" id="cardsGrid">
-                <!-- Cards will be generated here by JavaScript -->
-            </div>
+            <div class="cards-grid" id="cardsGrid"></div>
         </main>
     </div>
 
     <script src="script.js"></script>
     <script>
-        // Override currentUser for admin
         currentUser.role = 'admin';
         currentUser.name = 'Admin User';
     </script>
