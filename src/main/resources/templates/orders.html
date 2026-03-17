@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><title>FTMS — Orders</title><link rel="stylesheet" href="/css/style.css"/></head>
+<body>
+<div class="app-layout">
+<aside class="sidebar">
+<div class="sidebar-brand"><div class="brand-icon">🌐</div><h1>FTMS</h1><p>Foreign Trade System</p></div>
+<nav class="sidebar-nav">
+<a href="/dashboard">📊 <span class="nav-label">Dashboard</span></a>
+<a href="/customers">👥 <span class="nav-label">Customers</span></a>
+<a href="/orders" class="active">📦 <span class="nav-label">Orders</span></a>
+<a href="/forex">💱 <span class="nav-label">Forex</span></a>
+<a href="/invoices">🧾 <span class="nav-label">Invoices</span></a>
+<a href="/products">🏭 <span class="nav-label">Products</span></a>
+<a href="/countries">🌍 <span class="nav-label">Countries</span></a>
+<a href="/banks">🏦 <span class="nav-label">Banks</span></a>
+<a href="/currencies">💰 <span class="nav-label">Currencies</span></a>
+<a href="/exchange-rates">📈 <span class="nav-label">Rates</span></a>
+</nav>
+<div class="sidebar-footer"><div>© 2025 FTMS v1.0</div><button class="btn btn-danger btn-sm" style="margin-top:8px;width:100%;justify-content:center;" onclick="handleLogout()">Logout</button></div>
+</aside>
+<main class="main-content">
+<div class="page-header"><div><h2>Orders</h2><p id="subTitle">Loading...</p></div><button class="btn btn-primary" onclick="openModal()">➕ Place Order</button></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>Product</th><th>Type</th><th>Qty</th><th>Total</th><th>Currency</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="ordersTable"><tr><td colspan="10"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table></div></div>
+</main>
+</div>
+<div class="modal-overlay" id="modal" style="display:none;">
+<div class="modal"><h3>📦 Place New Order</h3>
+<div class="form-group"><label>Customer *</label><select id="mCustomer"><option value="">Select customer</option></select></div>
+<div class="form-grid">
+<div class="form-group"><label>Product *</label><select id="mProduct" onchange="updateTotal()"><option value="">Select product</option></select></div>
+<div class="form-group"><label>Order Type</label><select id="mOrderType"><option value="IMPORT">Import</option><option value="EXPORT">Export</option></select></div>
+<div class="form-group"><label>Quantity *</label><input type="number" id="mQty" min="1" placeholder="100" oninput="updateTotal()"/></div>
+<div class="form-group"><label>Currency</label><select id="mCurrency"></select></div>
+</div>
+<div class="rate-box" id="totalPreview" style="display:none;"><div class="rate-num" id="totalAmount">0</div><div class="rate-label">Estimated Total</div></div>
+<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="placeOrder()">Place Order</button></div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/supabase-config.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/orders.js"></script>
+</body>
+</html>
