@@ -1,31 +1,31 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"/><title>FTMS — Products</title><link rel="stylesheet" href="/css/style.css"/></head>
+<head><meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>FTMS � Products</title><link rel="stylesheet" href="../css/style.css"/></head>
 <body>
 <div class="app-layout">
 <aside class="sidebar">
-<div class="sidebar-brand"><div class="brand-icon">🌐</div><h1>FTMS</h1><p>Foreign Trade System</p></div>
+<div class="sidebar-brand"><div class="brand-icon">??</div><h1>FTMS</h1><p>Foreign Trade System</p></div>
 <nav class="sidebar-nav">
-<a href="/dashboard">📊 <span class="nav-label">Dashboard</span></a>
-<a href="/customers">👥 <span class="nav-label">Customers</span></a>
-<a href="/orders">📦 <span class="nav-label">Orders</span></a>
-<a href="/forex">💱 <span class="nav-label">Forex</span></a>
-<a href="/invoices">🧾 <span class="nav-label">Invoices</span></a>
-<a href="/products" class="active">🏭 <span class="nav-label">Products</span></a>
-<a href="/countries">🌍 <span class="nav-label">Countries</span></a>
-<a href="/banks">🏦 <span class="nav-label">Banks</span></a>
-<a href="/currencies">💰 <span class="nav-label">Currencies</span></a>
-<a href="/exchange-rates">📈 <span class="nav-label">Rates</span></a>
+<a href="../pages/index.html">?? <span class="nav-label">Dashboard</span></a>
+<a href="../pages/customers.html">?? <span class="nav-label">Customers</span></a>
+<a href="../pages/orders.html">?? <span class="nav-label">Orders</span></a>
+<a href="../pages/forex.html">?? <span class="nav-label">Forex</span></a>
+<a href="../pages/invoices.html">?? <span class="nav-label">Invoices</span></a>
+<a href="../pages/products.html" class="active">?? <span class="nav-label">Products</span></a>
+<a href="../pages/countries.html">?? <span class="nav-label">Countries</span></a>
+<a href="../pages/banks.html">?? <span class="nav-label">Banks</span></a>
+<a href="../pages/currencies.html">?? <span class="nav-label">Currencies</span></a>
+<a href="../pages/exchange-rates.html">?? <span class="nav-label">Rates</span></a>
 </nav>
-<div class="sidebar-footer"><div>© 2025 FTMS v1.0</div><button class="btn btn-danger btn-sm" style="margin-top:8px;width:100%;justify-content:center;" onclick="handleLogout()">Logout</button></div>
+<div class="sidebar-footer"><div>� 2025 FTMS v1.0</div><button class="btn btn-danger btn-sm" style="margin-top:8px;width:100%;justify-content:center;" onclick="handleLogout()">Logout</button></div>
 </aside>
 <main class="main-content">
-<div class="page-header"><div><h2>Products</h2><p id="subTitle">Loading...</p></div><button class="btn btn-primary" onclick="openModal()">➕ Add Product</button></div>
+<div class="page-header"><div><h2>Products</h2><p id="subTitle">Loading...</p></div><button class="btn btn-primary" onclick="openModal()">? Add Product</button></div>
 <div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Product Name</th><th>HS Code</th><th>Unit Price</th><th>Actions</th></tr></thead><tbody id="productsTable"></tbody></table></div></div>
 </main>
 </div>
 <div class="modal-overlay" id="modal" style="display:none;">
-<div class="modal"><h3>🏭 Add Product</h3>
+<div class="modal"><h3>?? Add Product</h3>
 <div class="form-group"><label>Product Name *</label><input id="mName" placeholder="Raw Cotton"/></div>
 <div class="form-grid">
 <div class="form-group"><label>HS Code</label><input id="mHs" placeholder="5201.00.10"/></div>
@@ -35,8 +35,9 @@
 </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/js/supabase-config.js"></script>
-<script src="/js/auth.js"></script>
-<script src="/js/products.js"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/products.js"></script>
 </body>
 </html>
+

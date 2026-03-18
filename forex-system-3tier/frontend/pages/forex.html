@@ -1,31 +1,31 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"/><title>FTMS — Forex</title><link rel="stylesheet" href="/css/style.css"/></head>
+<head><meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>FTMS � Forex</title><link rel="stylesheet" href="../css/style.css"/></head>
 <body>
 <div class="app-layout">
 <aside class="sidebar">
-<div class="sidebar-brand"><div class="brand-icon">🌐</div><h1>FTMS</h1><p>Foreign Trade System</p></div>
+<div class="sidebar-brand"><div class="brand-icon">??</div><h1>FTMS</h1><p>Foreign Trade System</p></div>
 <nav class="sidebar-nav">
-<a href="/dashboard">📊 <span class="nav-label">Dashboard</span></a>
-<a href="/customers">👥 <span class="nav-label">Customers</span></a>
-<a href="/orders">📦 <span class="nav-label">Orders</span></a>
-<a href="/forex" class="active">💱 <span class="nav-label">Forex</span></a>
-<a href="/invoices">🧾 <span class="nav-label">Invoices</span></a>
-<a href="/products">🏭 <span class="nav-label">Products</span></a>
-<a href="/countries">🌍 <span class="nav-label">Countries</span></a>
-<a href="/banks">🏦 <span class="nav-label">Banks</span></a>
-<a href="/currencies">💰 <span class="nav-label">Currencies</span></a>
-<a href="/exchange-rates">📈 <span class="nav-label">Rates</span></a>
+<a href="../pages/index.html">?? <span class="nav-label">Dashboard</span></a>
+<a href="../pages/customers.html">?? <span class="nav-label">Customers</span></a>
+<a href="../pages/orders.html">?? <span class="nav-label">Orders</span></a>
+<a href="../pages/forex.html" class="active">?? <span class="nav-label">Forex</span></a>
+<a href="../pages/invoices.html">?? <span class="nav-label">Invoices</span></a>
+<a href="../pages/products.html">?? <span class="nav-label">Products</span></a>
+<a href="../pages/countries.html">?? <span class="nav-label">Countries</span></a>
+<a href="../pages/banks.html">?? <span class="nav-label">Banks</span></a>
+<a href="../pages/currencies.html">?? <span class="nav-label">Currencies</span></a>
+<a href="../pages/exchange-rates.html">?? <span class="nav-label">Rates</span></a>
 </nav>
-<div class="sidebar-footer"><div>© 2025 FTMS v1.0</div><button class="btn btn-danger btn-sm" style="margin-top:8px;width:100%;justify-content:center;" onclick="handleLogout()">Logout</button></div>
+<div class="sidebar-footer"><div>� 2025 FTMS v1.0</div><button class="btn btn-danger btn-sm" style="margin-top:8px;width:100%;justify-content:center;" onclick="handleLogout()">Logout</button></div>
 </aside>
 <main class="main-content">
-<div class="page-header"><div><h2>Forex Transactions</h2><p>USD-centric currency conversion</p></div><button class="btn btn-primary" onclick="openModal()">➕ New Transaction</button></div>
+<div class="page-header"><div><h2>Forex Transactions</h2><p>USD-centric currency conversion</p></div><button class="btn btn-primary" onclick="openModal()">? New Transaction</button></div>
 <div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>From</th><th>To</th><th>Amount</th><th>Converted</th><th>Rate</th><th>Date</th></tr></thead><tbody id="forexTable"><tr><td colspan="8"><div class="loading"><div class="spinner"></div></div></td></tr></tbody></table></div></div>
 </main>
 </div>
 <div class="modal-overlay" id="modal" style="display:none;">
-<div class="modal"><h3>💱 New Forex Transaction</h3>
+<div class="modal"><h3>?? New Forex Transaction</h3>
 <div class="form-group"><label>Customer *</label><select id="mCustomer"><option value="">Select customer</option></select></div>
 <div class="form-grid">
 <div class="form-group"><label>From Currency</label><select id="mFrom" onchange="calculatePreview()"></select></div>
@@ -41,8 +41,9 @@
 </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/js/supabase-config.js"></script>
-<script src="/js/auth.js"></script>
-<script src="/js/forex.js"></script>
+<script src="../js/supabase-config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/forex.js"></script>
 </body>
 </html>
+
