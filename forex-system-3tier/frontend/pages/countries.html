@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"/><title>FTMS — Countries</title><link rel="stylesheet" href="/css/style.css"/></head>
+<body>
+<div class="app-layout">
+<aside class="sidebar">
+<div class="sidebar-brand"><div class="brand-icon">🌐</div><h1>FTMS</h1><p>Foreign Trade System</p></div>
+<nav class="sidebar-nav">
+<a href="/dashboard">📊 <span class="nav-label">Dashboard</span></a>
+<a href="/customers">👥 <span class="nav-label">Customers</span></a>
+<a href="/orders">📦 <span class="nav-label">Orders</span></a>
+<a href="/forex">💱 <span class="nav-label">Forex</span></a>
+<a href="/invoices">🧾 <span class="nav-label">Invoices</span></a>
+<a href="/products">🏭 <span class="nav-label">Products</span></a>
+<a href="/countries" class="active">🌍 <span class="nav-label">Countries</span></a>
+<a href="/banks">🏦 <span class="nav-label">Banks</span></a>
+<a href="/currencies">💰 <span class="nav-label">Currencies</span></a>
+<a href="/exchange-rates">📈 <span class="nav-label">Rates</span></a>
+</nav>
+<div class="sidebar-footer"><div>© 2025 FTMS v1.0</div><button class="btn btn-danger btn-sm" style="margin-top:8px;width:100%;justify-content:center;" onclick="handleLogout()">Logout</button></div>
+</aside>
+<main class="main-content">
+<div class="page-header"><div><h2>Countries</h2><p id="subTitle">Loading...</p></div><button class="btn btn-primary" onclick="openModal()">➕ Add Country</button></div>
+<div class="card"><div class="table-wrap"><table><thead><tr><th>ID</th><th>Country Name</th><th>ISO Code</th><th>Actions</th></tr></thead><tbody id="countriesTable"></tbody></table></div></div>
+</main>
+</div>
+<div class="modal-overlay" id="modal" style="display:none;">
+<div class="modal"><h3>🌍 Add Country</h3>
+<div class="form-group"><label>Country Name *</label><input id="mName" placeholder="Germany"/></div>
+<div class="form-group"><label>ISO Code *</label><input id="mIso" placeholder="DE" maxlength="5"/></div>
+<div class="form-actions"><button class="btn btn-secondary" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="addCountry()">Add Country</button></div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/js/supabase-config.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/countries.js"></script>
+</body>
+</html>
