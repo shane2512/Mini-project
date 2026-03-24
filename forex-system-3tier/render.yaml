@@ -2,7 +2,7 @@ services:
   - type: web
     name: forex-system-backend
     runtime: docker
-    rootDir: backend
+    rootDir: forex-system-3tier/backend
     dockerfilePath: ./Dockerfile
     plan: free
     autoDeploy: true
