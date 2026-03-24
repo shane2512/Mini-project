@@ -2,11 +2,34 @@
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value.trim();
     if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
-    const { data, error } = await db.auth.signInWithPassword({ email, password });
-    if (error) { showToast(error.message, 'error'); return; }
-    showToast('Login successful!');
-    setTimeout(() => window.location.href = '/dashboard', 800);
+
+    try {
+        await supabaseSignIn(email, password);
+
+        const customers = await apiGet('/api/customers');
+
+        const customer = (customers || []).find(c => (c.email || '').toLowerCase() === email.toLowerCase());
+
+        if (!customer) {
+            showToast('Customer not found. Please register first.', 'error');
+            return;
+        }
+
+        // Keep a minimal client session after verifying the user exists in backend.
+        setSession({
+            customerId: customer.customerId,
+            name: customer.name,
+            email: customer.email,
+            loggedAt: new Date().toISOString()
+        });
+
+        showToast('Login successful!');
+        setTimeout(() => window.location.href = '../pages/index.html', 800);
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
 }
+
 async function handleRegister() {
     const name = document.getElementById('name').value.trim();
     const phone = document.getElementById('phone').value.trim();
@@ -16,24 +39,81 @@ async function handleRegister() {
     const bankId = document.getElementById('bankId').value;
     const address = document.getElementById('address').value.trim();
     if (!name || !email || !password) { showToast('Name, email and password are required', 'error'); return; }
-    const { data: authData, error: authError } = await db.auth.signUp({ email, password });
-    if (authError) { showToast(authError.message, 'error'); return; }
-    const { error: dbError } = await db.from('customers').insert([{ name, phone, email, address, customer_type: customerType, bank_id: bankId || null }]);
-    if (dbError) { showToast(dbError.message, 'error'); return; }
-    showToast('Account created! Please login.');
-    setTimeout(() => window.location.href = '/', 1000);
+
+    try {
+        await supabaseSignUp(email, password);
+
+        await apiPost('/api/customers', {
+            name,
+            phone,
+            email,
+            address,
+            customerType,
+            bankId: bankId || null
+        });
+
+        showToast('Account created! Please login.');
+        setTimeout(() => window.location.href = '../pages/login.html', 1000);
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
 }
-async function handleLogout() { await db.auth.signOut(); window.location.href = '/'; }
+
+async function handleLogout() {
+    clearSession();
+    window.location.href = '../pages/login.html';
+}
+
 async function loadBanksForRegister() {
     const bankSelect = document.getElementById('bankId');
     if (!bankSelect) return;
-    const { data } = await db.from('banks').select('*');
-    if (data) bankSelect.innerHTML = '<option value="">Select bank</option>' + data.map(b => `<option value="${b.bank_id}">${b.bank_name} — ${b.branch_name}</option>`).join('');
+
+    try {
+        const banks = await apiGet('/api/banks');
+
+        if (banks) {
+            bankSelect.innerHTML = '<option value="">Select bank</option>' +
+                banks.map(b => `<option value="${b.bankId}">${b.bankName} — ${b.branchName || 'Main'}</option>`).join('');
+        }
+    } catch {
+        bankSelect.innerHTML = '<option value="">Unable to load banks</option>';
+    }
 }
+
 async function checkAuth() {
-    const { data: { session } } = await db.auth.getSession();
-    const isLoginPage = window.location.pathname === '/' || window.location.pathname === '/register';
-    if (!session && !isLoginPage) window.location.href = '/';
-    if (session && isLoginPage) window.location.href = '/dashboard';
+    const session = getSession();
+    const path = window.location.pathname.toLowerCase().replace(/\/+$/, '');
+
+    // Support both explicit .html routes and clean URL variants from static servers.
+    const publicPaths = new Set([
+        '',
+        '/',
+        '/login',
+        '/login.html',
+        '/register',
+        '/register.html',
+        '/pages/login',
+        '/pages/login.html',
+        '/pages/register',
+        '/pages/register.html'
+    ]);
+    const isPublicPage = publicPaths.has(path);
+
+    if (!session && !isPublicPage) {
+        const target = '/pages/login.html';
+        if (window.location.pathname.toLowerCase() !== target) {
+            window.location.href = target;
+        }
+        return;
+    }
+
+    if (session && isPublicPage) {
+        const target = '/pages/index.html';
+        if (window.location.pathname.toLowerCase() !== target) {
+            window.location.href = target;
+        }
+    }
 }
-checkAuth(); loadBanksForRegister();
+
+checkAuth();
+loadBanksForRegister();

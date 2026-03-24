@@ -1,7 +1,108 @@
-﻿const SUPABASE_URL = 'https://ftbytspvsadvboiknmmy.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_oilURXSnrpkjTi0wE7qrKg_2WTaWyw_';
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+﻿const AUTH_KEY = 'ftms_session';
+const APP_CONFIG = window.__APP_CONFIG || {};
+const API_BASE_URL =
+    APP_CONFIG.API_BASE_URL ||
+    window.API_BASE_URL ||
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:8080'
+        : '');
+const SUPABASE_URL = APP_CONFIG.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = APP_CONFIG.SUPABASE_ANON_KEY || '';
+
+async function apiRequest(path, options = {}) {
+    const requestOptions = {
+        method: options.method || 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(options.headers || {})
+        }
+    };
+
+    if (options.body !== undefined) {
+        requestOptions.body = JSON.stringify(options.body);
+    }
+
+    const response = await fetch(`${API_BASE_URL}${path}`, requestOptions);
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Request failed (${response.status})`);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    const responseText = await response.text();
+    return responseText ? JSON.parse(responseText) : null;
+}
+
+function apiGet(path) { return apiRequest(path); }
+function apiPost(path, body) { return apiRequest(path, { method: 'POST', body }); }
+function apiPut(path, body) { return apiRequest(path, { method: 'PUT', body }); }
+function apiDelete(path) { return apiRequest(path, { method: 'DELETE' }); }
+
+async function supabaseSignIn(email, password) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        throw new Error('Supabase auth is not configured. Set values in app-config.js.');
+    }
+
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            apikey: SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({ email, password })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Invalid credentials');
+    }
+
+    return response.json();
+}
+
+async function supabaseSignUp(email, password) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        throw new Error('Supabase auth is not configured. Set values in app-config.js.');
+    }
+
+    const response = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            apikey: SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({ email, password })
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Signup failed');
+    }
+
+    return response.json();
+}
+
+function getSession() {
+    try {
+        const raw = localStorage.getItem(AUTH_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+function setSession(session) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(session));
+}
+
+function clearSession() {
+    localStorage.removeItem(AUTH_KEY);
+}
+
 function showToast(message, type = 'success') {
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();

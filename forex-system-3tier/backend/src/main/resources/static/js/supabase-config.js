@@ -1,7 +1,8 @@
-﻿const SUPABASE_URL = 'https://ftbytspvsadvboiknmmy.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_oilURXSnrpkjTi0wE7qrKg_2WTaWyw_';
+﻿const APP_CONFIG = window.__APP_CONFIG || {};
+const SUPABASE_URL = APP_CONFIG.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = APP_CONFIG.SUPABASE_ANON_KEY || '';
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const db = SUPABASE_URL && SUPABASE_ANON_KEY ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 function showToast(message, type = 'success') {
     const existing = document.querySelector('.toast');
     if (existing) existing.remove();
