@@ -1,9 +1,28 @@
 [build]
   publish = "."
 
-# After deploying backend on Render, replace the hostname below.
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/pages/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/register"
+  to = "/pages/register.html"
+  status = 200
+
+[[redirects]]
+  from = "/dashboard"
+  to = "/pages/index.html"
+  status = 200
+
 [[redirects]]
   from = "/api/*"
-  to = "https://YOUR-RENDER-SERVICE.onrender.com/api/:splat"
+  to = "https://forex-system-backend.onrender.com/api/:splat"
   status = 200
   force = true
