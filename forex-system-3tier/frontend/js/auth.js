@@ -4,22 +4,14 @@
     if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
 
     try {
-        await supabaseSignIn(email, password);
+        const authResult = await supabaseSignIn(email, password);
+        const user = authResult && authResult.user ? authResult.user : null;
 
-        const customers = await apiGet('/api/customers');
-
-        const customer = (customers || []).find(c => (c.email || '').toLowerCase() === email.toLowerCase());
-
-        if (!customer) {
-            showToast('Customer not found. Please register first.', 'error');
-            return;
-        }
-
-        // Keep a minimal client session after verifying the user exists in backend.
+        // Keep a minimal client session based on successful Supabase authentication.
         setSession({
-            customerId: customer.customerId,
-            name: customer.name,
-            email: customer.email,
+            customerId: user && user.id ? user.id : email,
+            name: user && user.user_metadata && user.user_metadata.name ? user.user_metadata.name : (email.split('@')[0] || 'User'),
+            email,
             loggedAt: new Date().toISOString()
         });
 
