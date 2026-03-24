@@ -4,14 +4,22 @@
     if (!email || !password) { showToast('Please enter email and password', 'error'); return; }
 
     try {
-        const authResult = await supabaseSignIn(email, password);
-        const user = authResult && authResult.user ? authResult.user : null;
+        await supabaseSignIn(email, password);
 
-        // Keep a minimal client session based on successful Supabase authentication.
+        const customers = await supabaseTableSelect('customers', `email=eq.${encodeURIComponent(email)}`);
+
+        const customer = (customers || [])[0];
+
+        if (!customer) {
+            showToast('Customer not found. Please register first.', 'error');
+            return;
+        }
+
+        // Keep a minimal client session after verifying the user exists in backend.
         setSession({
-            customerId: user && user.id ? user.id : email,
-            name: user && user.user_metadata && user.user_metadata.name ? user.user_metadata.name : (email.split('@')[0] || 'User'),
-            email,
+            customerId: customer.customer_id,
+            name: customer.name,
+            email: customer.email,
             loggedAt: new Date().toISOString()
         });
 
@@ -35,13 +43,13 @@ async function handleRegister() {
     try {
         await supabaseSignUp(email, password);
 
-        await apiPost('/api/customers', {
+        await supabaseTableInsert('customers', {
             name,
             phone,
             email,
             address,
-            customerType,
-            bankId: bankId || null
+            customer_type: customerType,
+            bank_id: bankId || null
         });
 
         showToast('Account created! Please login.');
@@ -61,11 +69,11 @@ async function loadBanksForRegister() {
     if (!bankSelect) return;
 
     try {
-        const banks = await apiGet('/api/banks');
+        const banks = await supabaseTableSelect('banks');
 
         if (banks) {
             bankSelect.innerHTML = '<option value="">Select bank</option>' +
-                banks.map(b => `<option value="${b.bankId}">${b.bankName} — ${b.branchName || 'Main'}</option>`).join('');
+                banks.map(b => `<option value="${b.bank_id}">${b.bank_name} — ${b.branch_name || 'Main'}</option>`).join('');
         }
     } catch {
         bankSelect.innerHTML = '<option value="">Unable to load banks</option>';

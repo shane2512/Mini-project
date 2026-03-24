@@ -86,6 +86,71 @@ async function supabaseSignUp(email, password) {
     return response.json();
 }
 
+async function supabaseRestRequest(path, options = {}) {
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        throw new Error('Supabase auth is not configured. Set values in app-config.js.');
+    }
+
+    const response = await fetch(`${SUPABASE_URL}${path}`, {
+        method: options.method || 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            ...(options.headers || {})
+        },
+        body: options.body !== undefined ? JSON.stringify(options.body) : undefined
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Supabase request failed (${response.status})`);
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+}
+
+function supabaseTableSelect(table, filters = '', columns = '*') {
+    const filterSuffix = filters ? `&${filters}` : '';
+    return supabaseRestRequest(`/rest/v1/${table}?select=${encodeURIComponent(columns)}${filterSuffix}`);
+}
+
+function supabaseTableInsert(table, payload) {
+    return supabaseRestRequest(`/rest/v1/${table}`, {
+        method: 'POST',
+        headers: {
+            Prefer: 'return=representation'
+        },
+        body: payload
+    });
+}
+
+function supabaseTableUpdate(table, filters, payload) {
+    const filterSuffix = filters ? `?${filters}` : '';
+    return supabaseRestRequest(`/rest/v1/${table}${filterSuffix}`, {
+        method: 'PATCH',
+        headers: {
+            Prefer: 'return=representation'
+        },
+        body: payload
+    });
+}
+
+function supabaseTableDelete(table, filters) {
+    const filterSuffix = filters ? `?${filters}` : '';
+    return supabaseRestRequest(`/rest/v1/${table}${filterSuffix}`, {
+        method: 'DELETE',
+        headers: {
+            Prefer: 'return=minimal'
+        }
+    });
+}
+
 function getSession() {
     try {
         const raw = localStorage.getItem(AUTH_KEY);
