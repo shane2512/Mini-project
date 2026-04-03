@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FTMS — Register</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="auth-left">
+      <div class="auth-left-grid"></div>
+      <div class="auth-left-content">
+        <div class="auth-brand">FT<span>MS</span></div>
+        <p class="auth-tagline">Forex Transaction Management System</p>
+        <div class="auth-stat">
+          <div class="auth-stat-value">KYC</div>
+          <div class="auth-stat-label">Passport verification required</div>
+        </div>
+        <div class="auth-stat">
+          <div class="auth-stat-value">24h</div>
+          <div class="auth-stat-label">Typical approval time</div>
+        </div>
+        <div class="auth-stat">
+          <div class="auth-stat-value">20+</div>
+          <div class="auth-stat-label">Currencies supported</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-right" style="align-items: flex-start; padding-top: 40px;">
+      <div class="auth-card" style="max-width: 520px;">
+        <h1>Create account</h1>
+        <p class="subtitle">KYC verification required for all new accounts</p>
+
+        <div id="success-msg" class="success-message" style="display:none;"></div>
+        <div id="error-msg" class="error-message" style="display:none;"></div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="fullName" placeholder="As on passport" />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="email" placeholder="you@example.com" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Password *</label>
+            <input type="password" id="password" placeholder="Min 8 characters" />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" id="phone" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" id="city" placeholder="Your city" />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" id="phone" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Address *</label>
+          <textarea id="address" placeholder="Full address for KYC verification" rows="2"></textarea>
+        </div>
+
+        <hr class="section-divider" />
+        <p class="section-label">Passport / Identity Document *</p>
+
+        <div class="form-group">
+          <div class="file-upload-area" id="upload-area">
+            <input type="file" id="passportFile" accept="image/*,.pdf" onchange="handleFileSelect(this)" />
+            <div class="file-upload-icon">🪪</div>
+            <div class="file-upload-text">
+              <span>Click to upload</span> or drag and drop your passport<br>
+              <small style="color: var(--text3);">JPG, PNG or PDF — max 5MB</small>
+            </div>
+            <div class="file-preview" id="file-preview"></div>
+          </div>
+        </div>
+
+        <hr class="section-divider" />
+        <p class="section-label">Bank Details</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Bank Name</label>
+            <input type="text" id="bankName" placeholder="e.g. State Bank of India" />
+          </div>
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" id="accountNumber" placeholder="Account number" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>IFSC Code</label>
+            <input type="text" id="ifscCode" placeholder="e.g. SBIN0001234" />
+          </div>
+          <div class="form-group">
+            <label>SWIFT Code</label>
+            <input type="text" id="swiftCode" placeholder="e.g. SBININBB" />
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="handleRegister()" id="reg-btn">Submit Registration & KYC</button>
+        <p class="link-text">Already have an account? <a href="login.html">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    let passportBase64 = null;
+
+    function handleFileSelect(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File too large. Max 5MB allowed.');
+        input.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        passportBase64 = e.target.result;
+        const preview = document.getElementById('file-preview');
+        preview.textContent = '✓ ' + file.name + ' (' + (file.size / 1024).toFixed(0) + ' KB)';
+        preview.style.display = 'block';
+        document.getElementById('upload-area').style.borderColor = 'var(--accent)';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Drag and drop support
+    const area = document.getElementById('upload-area');
+    area.addEventListener('dragover', (e) => { e.preventDefault(); area.classList.add('dragover'); });
+    area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+    area.addEventListener('drop', (e) => {
+      e.preventDefault();
+      area.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        document.getElementById('passportFile').files = e.dataTransfer.files;
+        handleFileSelect(document.getElementById('passportFile'));
+      }
+    });
+
+    async function handleRegister() {
+      const errEl = document.getElementById('error-msg');
+      const sucEl = document.getElementById('success-msg');
+      const btn = document.getElementById('reg-btn');
+
+      errEl.style.display = 'none';
+      sucEl.style.display = 'none';
+
+      const data = {
+        fullName: document.getElementById('fullName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        address: document.getElementById('address').value.trim(),
+        bankName: document.getElementById('bankName').value.trim(),
+        accountNumber: document.getElementById('accountNumber').value.trim(),
+        ifscCode: document.getElementById('ifscCode').value.trim(),
+        swiftCode: document.getElementById('swiftCode').value.trim(),
+        passportBase64: passportBase64
+      };
+
+      if (!data.fullName || !data.email || !data.password || !data.city || !data.address) {
+        errEl.textContent = 'Please fill in all required fields (*).';
+        errEl.style.display = 'block'; return;
+      }
+      if (!passportBase64) {
+        errEl.textContent = 'Please upload your passport or identity document.';
+        errEl.style.display = 'block'; return;
+      }
+
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          sucEl.innerHTML = '✓ Registration successful! Your KYC is submitted.<br>You can login after admin approves your account.';
+          sucEl.style.display = 'block';
+          setTimeout(() => window.location.href = 'login.html', 3000);
+        } else {
+          errEl.textContent = result.message || 'Registration failed. Please try again.';
+          errEl.style.display = 'block';
+        }
+      } catch (e) {
+        errEl.textContent = 'Cannot connect to server.';
+        errEl.style.display = 'block';
+      } finally {
+        btn.textContent = 'Submit Registration & KYC';
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

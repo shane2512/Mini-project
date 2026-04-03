@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FTMS - Foreign Trade Management System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .landing {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #3949ab 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .landing-content {
+            max-width: 600px;
+        }
+        .landing h1 {
+            font-size: 48px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .landing p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        .landing-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-landing {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: 2px solid white;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        .btn-login {
+            background: white;
+            color: #1a237e;
+        }
+        .btn-login:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        .btn-register {
+            background: transparent;
+            color: white;
+        }
+        .btn-register:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="landing">
+        <div class="landing-content">
+            <h1>FTMS</h1>
+            <p>Foreign Trade Management System</p>
+            <p style="font-size: 14px; opacity: 0.8;">Streamlined forex transactions with secure KYC verification</p>
+            <div class="landing-buttons">
+                <a href="/login.html" class="btn-landing btn-login">Login</a>
+                <a href="/register.html" class="btn-landing btn-register">Register</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commercial Bank — FTMS</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">FT<span style="color:var(--accent)">MS</span> <span style="font-size:0.7rem;font-family:var(--font);color:var(--text3);margin-left:8px;font-weight:400;">Commercial Bank</span></div>
+    <div class="nav-user">
+      <span class="nav-user-name" id="bank-name"></span>
+      <span class="badge badge-role">COMM. BANK</span>
+      <button onclick="Auth.logout()" class="btn-logout">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-wrap">
+    <aside class="sidebar">
+      <div class="sidebar-section">Menu</div>
+      <ul>
+        <li class="active" onclick="showSection('pending')" id="tab-pending">
+          <span class="sidebar-icon">⏳</span> Pending Verification
+        </li>
+        <li onclick="showSection('completed')" id="tab-completed">
+          <span class="sidebar-icon">✓</span> Completed
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+
+      <div id="section-pending">
+        <div class="page-header">
+          <h2>Pending Verification</h2>
+          <p>Transactions approved by Central Bank — verify SWIFT/IFSC and complete</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Awaiting Bank Verification</span>
+            <button class="btn-secondary" onclick="loadPending()">↻ Refresh</button>
+          </div>
+          <div id="pending-loading" class="loading"><div class="spinner"></div> Loading...</div>
+          <table class="data-table" id="pending-table" style="display:none;">
+            <thead>
+              <tr><th>ID</th><th>Customer</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Converted</th><th>Rate</th><th>Beneficiary</th><th>SWIFT</th><th>Date</th><th>Action</th></tr>
+            </thead>
+            <tbody id="pending-tbody"></tbody>
+          </table>
+          <div id="pending-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">✓</div>
+            <p>No transactions pending verification</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-completed" style="display:none;">
+        <div class="page-header">
+          <h2>Completed Transactions</h2>
+          <p>All transactions verified and completed by this bank</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Completed</span>
+            <button class="btn-secondary" onclick="loadCompleted()">↻ Refresh</button>
+          </div>
+          <div id="completed-loading" class="loading"><div class="spinner"></div> Loading...</div>
+          <table class="data-table" id="completed-table" style="display:none;">
+            <thead>
+              <tr><th>ID</th><th>Customer</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Converted</th><th>Rate</th><th>Beneficiary</th><th>Completed</th></tr>
+            </thead>
+            <tbody id="completed-tbody"></tbody>
+          </table>
+          <div id="completed-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">📋</div>
+            <p>No completed transactions yet</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    if (!Auth.requireRole('COMMERCIAL_BANK')) {}
+    document.getElementById('bank-name').textContent = Auth.getFullName();
+    loadPending();
+
+    function showSection(name) {
+      ['pending','completed'].forEach(s => {
+        document.getElementById('section-' + s).style.display = 'none';
+        document.getElementById('tab-' + s).classList.remove('active');
+      });
+      document.getElementById('section-' + name).style.display = 'block';
+      document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'completed') loadCompleted();
+    }
+
+    async function loadPending() {
+      document.getElementById('pending-loading').style.display = 'flex';
+      document.getElementById('pending-table').style.display = 'none';
+      document.getElementById('pending-empty').style.display = 'none';
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/bank/pending-verification', { headers: Auth.getAuthHeader() });
+        const txns = await res.json();
+        document.getElementById('pending-loading').style.display = 'none';
+        if (!txns.length) { document.getElementById('pending-empty').style.display = 'block'; return; }
+        document.getElementById('pending-table').style.display = 'table';
+        const tbody = document.getElementById('pending-tbody');
+        tbody.innerHTML = '';
+        txns.forEach(t => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>#${t.id}</strong></td>
+              <td>${t.user?.fullName}</td>
+              <td>${t.transactionType}</td>
+              <td style="font-family:var(--font-mono)">${t.fromCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.toCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.fromAmount}</td>
+              <td style="font-family:var(--font-mono)">${t.toAmount}</td>
+              <td style="font-family:var(--font-mono);font-size:0.8rem">${t.exchangeRate}</td>
+              <td>${t.beneficiaryName || '—'}</td>
+              <td style="font-family:var(--font-mono);font-size:0.8rem">${t.beneficiarySwift || '—'}</td>
+              <td style="color:var(--text3);font-size:0.8rem">${new Date(t.createdAt).toLocaleDateString()}</td>
+              <td>
+                <button class="btn-approve" onclick="verify(${t.id})">Verify & Complete</button>
+              </td>
+            </tr>`;
+        });
+      } catch(e) {
+        document.getElementById('pending-loading').innerHTML = '<span style="color:var(--danger)">Error loading data.</span>';
+      }
+    }
+
+    async function loadCompleted() {
+      document.getElementById('completed-loading').style.display = 'flex';
+      document.getElementById('completed-table').style.display = 'none';
+      document.getElementById('completed-empty').style.display = 'none';
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/bank/completed', { headers: Auth.getAuthHeader() });
+        const txns = await res.json();
+        document.getElementById('completed-loading').style.display = 'none';
+        if (!txns.length) { document.getElementById('completed-empty').style.display = 'block'; return; }
+        document.getElementById('completed-table').style.display = 'table';
+        const tbody = document.getElementById('completed-tbody');
+        tbody.innerHTML = '';
+        txns.forEach(t => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>#${t.id}</strong></td>
+              <td>${t.user?.fullName}</td>
+              <td>${t.transactionType}</td>
+              <td style="font-family:var(--font-mono)">${t.fromCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.toCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.fromAmount}</td>
+              <td style="font-family:var(--font-mono)">${t.toAmount}</td>
+              <td style="font-family:var(--font-mono);font-size:0.8rem">${t.exchangeRate}</td>
+              <td>${t.beneficiaryName || '—'}</td>
+              <td style="color:var(--text3);font-size:0.8rem">${new Date(t.updatedAt || t.createdAt).toLocaleDateString()}</td>
+            </tr>`;
+        });
+      } catch(e) {
+        document.getElementById('completed-loading').innerHTML = '<span style="color:var(--danger)">Error loading data.</span>';
+      }
+    }
+
+    async function verify(txnId) {
+      if (!confirm('Verify and complete transaction #' + txnId + '?\n\nThis confirms SWIFT/IFSC details are correct and funds are released.')) return;
+      try {
+        // Show SWIFT loading state
+        const btn = event.target;
+        btn.disabled = true;
+        const originalText = btn.textContent;
+        btn.innerHTML = '⏳ Contacting SWIFT network...';
+        
+        // Simulate SWIFT network call - wait 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Call actual API to mark complete
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/bank/verify/' + txnId, {
+          method: 'PUT', headers: Auth.getAuthHeader()
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          btn.innerHTML = '✓ Completed!';
+          btn.style.background = 'rgba(0, 212, 170, 0.3)';
+          alert('Transaction #' + txnId + ' completed successfully!');
+          loadPending();
+        } else {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          alert('Error: ' + data.message);
+        }
+      } catch(e) { 
+        const btn = event.target;
+        btn.textContent = originalText;
+        btn.disabled = false;
+        alert('Error verifying transaction: ' + e.message);
+      }
+    }
+  </script>
+</body>
+</html>

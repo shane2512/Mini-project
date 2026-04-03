@@ -1,0 +1,16 @@
+{
+    "liveServer.settings.root": "/frontend",
+    "liveServer.settings.port": 5500,
+    "liveServer.settings.https": false,
+    "liveServer.settings.multiRootWorkspaceName": "forex-system",
+    "editor.formatOnSave": true,
+    "[html]": {
+        "editor.formatOnSave": false
+    },
+    "[javascript]": {
+        "editor.formatOnSave": false
+    },
+    "[css]": {
+        "editor.formatOnSave": false
+    }
+}

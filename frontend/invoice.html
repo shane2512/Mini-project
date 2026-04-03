@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - FTMS</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        @media print {
+            body { margin: 0; padding: 20px; background: white; }
+            .invoice-container { box-shadow: none; margin: 0; }
+            .no-print { display: none !important; }
+        }
+        
+        .invoice-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .invoice-header {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .invoice-header h1 {
+            font-size: 32px;
+            margin: 0;
+            color: #00d4aa;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .invoice-info {
+            text-align: right;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .invoice-info .label {
+            font-weight: 600;
+            color: #00d4aa;
+        }
+
+        .invoice-content {
+            padding: 40px;
+            color: #0a0c10;
+        }
+
+        .invoice-section {
+            margin-bottom: 30px;
+        }
+
+        .invoice-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00d4aa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .invoice-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .invoice-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .invoice-field-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .invoice-field-value {
+            font-size: 16px;
+            color: #0a0c10;
+            font-weight: 500;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .invoice-table th {
+            background-color: #f7fafc;
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #0a0c10;
+            font-size: 13px;
+        }
+
+        .invoice-table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        .invoice-summary {
+            background-color: #f7fafc;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+
+        .summary-row-total {
+            font-size: 18px;
+            font-weight: 600;
+            color: #00d4aa;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 10px;
+        }
+
+        .invoice-footer {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 30px;
+            margin-top: 30px;
+            text-align: center;
+            color: #718096;
+            font-size: 12px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+            no-print-area: true;
+        }
+
+        .btn-print {
+            background-color: #00d4aa;
+            color: #0a0c10;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-print:hover {
+            background-color: #00a88a;
+        }
+
+        .btn-download {
+            background-color: #4a5568;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-download:hover {
+            background-color: #2d3748;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-completed {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-pending {
+            background-color: #fef5e7;
+            color: #7d6608;
+        }
+
+        .status-rejected {
+            background-color: #fed7d7;
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <div class="invoice-header">
+            <div>
+                <h1>FTMS</h1>
+                <p style="margin: 5px 0 0 0; font-size: 12px;">Forex Transaction Management System</p>
+            </div>
+            <div class="invoice-info">
+                <div><span class="label">Invoice #:</span> <span id="invNum"></span></div>
+                <div><span class="label">Date:</span> <span id="invDate"></span></div>
+                <div><span class="label">Status:</span> <span id="invStatus"></span></div>
+            </div>
+        </div>
+
+        <div class="invoice-content">
+            <!-- User Details -->
+            <div class="invoice-section">
+                <div class="invoice-section-title">Customer Information</div>
+                <div class="invoice-row">
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Name</span>
+                        <span class="invoice-field-value" id="userName"></span>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Email</span>
+                        <span class="invoice-field-value" id="userEmail"></span>
+                    </div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Phone</span>
+                        <span class="invoice-field-value" id="userPhone"></span>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">City</span>
+                        <span class="invoice-field-value" id="userCity"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction Details -->
+            <div class="invoice-section">
+                <div class="invoice-section-title">Transaction Details</div>
+                <table class="invoice-table">
+                    <tr>
+                        <th>Item</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Transaction Type</td>
+                        <td><strong id="txnType"></strong></td>
+                    </tr>
+                    <tr>
+                        <td>From Currency</td>
+                        <td id="fromCur"></td>
+                    </tr>
+                    <tr>
+                        <td>To Currency</td>
+                        <td id="toCur"></td>
+                    </tr>
+                    <tr>
+                        <td>From Amount</td>
+                        <td id="fromAmt"></td>
+                    </tr>
+                    <tr>
+                        <td>Exchange Rate (locked)</td>
+                        <td id="exRate"></td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #f0f0f0; font-weight: 600;">To Amount (received)</td>
+                        <td style="background-color: #f0f0f0; font-weight: 600;" id="toAmt"></td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Beneficiary Details -->
+            <div class="invoice-section">
+                <div class="invoice-section-title">Beneficiary Information</div>
+                <div class="invoice-row">
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Beneficiary Name</span>
+                        <span class="invoice-field-value" id="benName"></span>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Bank</span>
+                        <span class="invoice-field-value" id="benBank"></span>
+                    </div>
+                </div>
+                <div class="invoice-row">
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">SWIFT Code</span>
+                        <span class="invoice-field-value" id="benSwift"></span>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Purpose</span>
+                        <span class="invoice-field-value" id="purpose"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approvals -->
+            <div class="invoice-section">
+                <div class="invoice-section-title">Approvals & Verifications</div>
+                <div class="invoice-row">
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Approved By Central Bank</span>
+                        <span class="invoice-field-value" id="cbApprover"></span>
+                    </div>
+                    <div class="invoice-field">
+                        <span class="invoice-field-label">Verified By Commercial Bank</span>
+                        <span class="invoice-field-value" id="bankVerifier"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="invoice-footer">
+                <p>This is an electronically generated invoice. No signature is required.</p>
+                <p>For support, contact: support@ftms.com | Phone: +91-800-FTMS-HELP</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group no-print">
+        <button class="btn-print" onclick="window.print()">🖨️ Print Invoice</button>
+        <button class="btn-download" id="downloadBtn">📥 Download PDF</button>
+        <button class="btn-download" onclick="window.location.href=document.referrer || '/user/dashboard.html'">← Back</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        if (!Auth.isLoggedIn()) {
+            window.location.href = '/login.html';
+        }
+
+        // Get transaction ID from URL
+        const params = new URLSearchParams(window.location.search);
+        const txnId = params.get('id');
+
+        if (!txnId) {
+            alert('Transaction ID not provided');
+            window.location.href = '/user/dashboard.html';
+        }
+
+        // Fetch invoice data
+        async function loadInvoice() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/forex/invoice/${txnId}`, {
+                    headers: Auth.getAuthHeader()
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    // Populate invoice
+                    document.getElementById('invNum').textContent = data.transactionId;
+                    document.getElementById('invDate').textContent = new Date(data.transactionDate).toLocaleDateString('en-IN', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    
+                    const statusClass = `status-${data.status.toLowerCase()}`;
+                    document.getElementById('invStatus').innerHTML = `<span class="status-badge ${statusClass}">${data.status}</span>`;
+
+                    document.getElementById('userName').textContent = data.userName || 'N/A';
+                    document.getElementById('userEmail').textContent = data.userEmail || 'N/A';
+                    document.getElementById('userPhone').textContent = data.userPhone || 'N/A';
+                    document.getElementById('userCity').textContent = data.userCity || 'N/A';
+
+                    document.getElementById('txnType').textContent = data.transactionType;
+                    document.getElementById('fromCur').textContent = data.fromCurrency;
+                    document.getElementById('toCur').textContent = data.toCurrency;
+                    document.getElementById('fromAmt').textContent = `${data.fromCurrency} ${parseFloat(data.fromAmount).toFixed(2)}`;
+                    document.getElementById('exRate').textContent = parseFloat(data.exchangeRate).toFixed(6);
+                    document.getElementById('toAmt').textContent = `${data.toCurrency} ${parseFloat(data.toAmount).toFixed(2)}`;
+
+                    document.getElementById('benName').textContent = data.beneficiaryName || 'N/A';
+                    document.getElementById('benBank').textContent = data.beneficiaryBank || 'N/A';
+                    document.getElementById('benSwift').textContent = data.beneficiarySwift || 'N/A';
+                    document.getElementById('purpose').textContent = data.purpose || 'N/A';
+
+                    document.getElementById('cbApprover').textContent = data.approvedByAdmin;
+                    document.getElementById('bankVerifier').textContent = data.approvedByBank;
+                } else {
+                    alert(data.message || 'Failed to load invoice');
+                    window.location.href = '/user/dashboard.html';
+                }
+            } catch (error) {
+                alert('Error loading invoice: ' + error.message);
+                window.location.href = '/user/dashboard.html';
+            }
+        }
+
+        // Download as PDF
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const element = document.querySelector('.invoice-container');
+            const opt = {
+                margin: 10,
+                filename: `invoice-${txnId}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+
+        loadInvoice();
+    </script>
+</body>
+</html>

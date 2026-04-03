@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — FTMS</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">FT<span style="color:var(--accent)">MS</span></div>
+    <div class="nav-user">
+      <span class="nav-user-name" id="user-name"></span>
+      <span class="badge badge-role" id="user-role"></span>
+      <button onclick="Auth.logout()" class="btn-logout">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-wrap">
+    <aside class="sidebar">
+      <div class="sidebar-section">Menu</div>
+      <ul>
+        <li class="active" onclick="showSection('rates')" id="tab-rates">
+          <span class="sidebar-icon">📊</span> Live Rates
+        </li>
+        <li onclick="showSection('order')" id="tab-order">
+          <span class="sidebar-icon">💱</span> Place Order
+        </li>
+        <li onclick="showSection('history')" id="tab-history">
+          <span class="sidebar-icon">🕐</span> History
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+
+      <!-- RATES SECTION -->
+      <div id="section-rates">
+        <div class="page-header">
+          <h2>Live Exchange Rates</h2>
+          <p>All rates against USD — auto-refreshes every 30 seconds</p>
+        </div>
+
+        <div class="rates-ticker">
+          <div class="rates-ticker-header">
+            <span class="rates-ticker-title">Currency Rates vs USD</span>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <span class="countdown" id="countdown">Refreshing in 30s</span>
+              <div class="live-badge">
+                <div class="live-dot"></div>
+                LIVE
+              </div>
+            </div>
+          </div>
+          <div id="rates-loading" class="loading"><div class="spinner"></div> Fetching live rates...</div>
+          <div id="rates-grid" class="rates-grid" style="display:none;"></div>
+          <div class="rates-footer">
+            <span id="rates-timestamp">—</span>
+            <button class="refresh-btn" onclick="fetchRates()">↻ Refresh now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDER SECTION -->
+      <div id="section-order" style="display:none;">
+        <div class="page-header">
+          <h2>Place Forex Order</h2>
+          <p>Submit a currency conversion request for approval</p>
+        </div>
+
+        <div class="card order-form">
+          <div class="form-group">
+            <label>Transaction Type</label>
+            <select id="txnType">
+              <option value="IMPORT">Import — Pay foreign supplier</option>
+              <option value="EXPORT">Export — Receive foreign payment</option>
+              <option value="EXCHANGE">Exchange — Convert currency</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>From Currency</label>
+              <select id="fromCurrency" onchange="updatePreview()"></select>
+            </div>
+            <div class="form-group">
+              <label>To Currency</label>
+              <select id="toCurrency" onchange="updatePreview()"></select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Amount (in From Currency)</label>
+            <input type="number" id="amount" placeholder="Enter amount" min="1" oninput="updatePreview()" />
+          </div>
+
+          <div class="conversion-preview" id="conv-preview">
+            <div class="conversion-preview-label">Estimated conversion</div>
+            <div class="conversion-preview-value" id="preview-value">—</div>
+            <div class="conversion-preview-rate" id="preview-rate">Rate locked at order submission</div>
+          </div>
+
+          <div class="form-group">
+            <label>Purpose *</label>
+            <input type="text" id="purpose" placeholder="e.g. Payment to XYZ supplier, Germany" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Beneficiary Name</label>
+              <input type="text" id="beneficiaryName" placeholder="Receiver's full name" />
+            </div>
+            <div class="form-group">
+              <label>Beneficiary Bank</label>
+              <input type="text" id="beneficiaryBank" placeholder="Receiver's bank name" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Beneficiary SWIFT Code</label>
+            <input type="text" id="beneficiarySwift" placeholder="e.g. DEUTDEDB" />
+          </div>
+
+          <div id="order-result" style="display:none; margin-bottom:16px;"></div>
+          <button class="btn-primary" onclick="placeOrder()" id="order-btn">Submit Order</button>
+          <p style="font-size:0.75rem;color:var(--text3);margin-top:10px;text-align:center;">
+            Rate is fetched and locked at the moment of submission. Order requires Central Bank approval.
+          </p>
+        </div>
+      </div>
+
+      <!-- HISTORY SECTION -->
+      <div id="section-history" style="display:none;">
+        <div class="page-header">
+          <h2>Transaction History</h2>
+          <p>All your forex orders and their current status</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">My Orders</span>
+            <button class="btn-secondary" onclick="loadHistory()">↻ Refresh</button>
+          </div>
+          <div id="history-loading" class="loading"><div class="spinner"></div> Loading...</div>
+          <table class="data-table" id="history-table" style="display:none;">
+            <thead>
+              <tr><th>ID</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Received</th><th>Rate</th><th>Status</th><th>Date</th><th>Action</th></tr>
+            </thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+          <div id="history-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">💱</div>
+            <p>No transactions yet. Place your first order.</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    if (!Auth.requireUser()) {}
+
+    document.getElementById('user-name').textContent = Auth.getFullName();
+    document.getElementById('user-role').textContent = Auth.getRole();
+
+    // Populate currency dropdowns
+    CONFIG.CURRENCIES.forEach(cur => {
+      ['fromCurrency','toCurrency'].forEach(id => {
+        document.getElementById(id).innerHTML += `<option value="${cur}">${cur}</option>`;
+      });
+    });
+    document.getElementById('fromCurrency').value = 'INR';
+    document.getElementById('toCurrency').value = 'USD';
+
+    // ─── REAL-TIME RATES ───
+    let cachedRates = {};
+    let prevRates = {};
+    let countdown = 30;
+    let countdownTimer;
+
+    async function fetchRates() {
+      countdown = 30;
+      document.getElementById('rates-loading').style.display = 'flex';
+      document.getElementById('rates-grid').style.display = 'none';
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/forex/rates');
+        const data = await res.json();
+        prevRates = {...cachedRates};
+        cachedRates = data.rates;
+        renderRates();
+        document.getElementById('rates-timestamp').textContent =
+          'Last updated: ' + new Date().toLocaleTimeString();
+      } catch(e) {
+        document.getElementById('rates-loading').innerHTML =
+          '<span style="color:var(--danger)">Failed to load rates. Check backend.</span>';
+      }
+    }
+
+    function renderRates() {
+      const grid = document.getElementById('rates-grid');
+      grid.innerHTML = '';
+      CONFIG.CURRENCIES.forEach(cur => {
+        if (!cachedRates[cur]) return;
+        const val = cachedRates[cur];
+        const prev = prevRates[cur];
+        let changeClass = '';
+        let changeStr = '';
+        if (prev) {
+          const diff = ((val - prev) / prev * 100);
+          changeClass = diff >= 0 ? 'up' : 'down';
+          changeStr = (diff >= 0 ? '+' : '') + diff.toFixed(3) + '%';
+        }
+        grid.innerHTML += `
+          <div class="rate-card">
+            <div class="rate-currency">${cur}</div>
+            <div class="rate-value ${changeClass}">${val.toFixed(4)}</div>
+            <div class="rate-label">per 1 USD</div>
+            ${changeStr ? `<div class="rate-change ${changeClass}">${changeStr}</div>` : ''}
+          </div>`;
+      });
+      document.getElementById('rates-loading').style.display = 'none';
+      document.getElementById('rates-grid').style.display = 'grid';
+    }
+
+    function startCountdown() {
+      clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        countdown--;
+        document.getElementById('countdown').textContent = 'Refreshing in ' + countdown + 's';
+        if (countdown <= 0) fetchRates();
+      }, 1000);
+    }
+
+    fetchRates();
+    startCountdown();
+
+    // ─── CONVERSION PREVIEW ───
+    function updatePreview() {
+      const from = document.getElementById('fromCurrency').value;
+      const to = document.getElementById('toCurrency').value;
+      const amt = parseFloat(document.getElementById('amount').value);
+
+      if (!amt || amt <= 0 || !cachedRates[from] || !cachedRates[to]) {
+        document.getElementById('conv-preview').classList.remove('visible');
+        return;
+      }
+      // All conversions via USD
+      const inUSD = amt / cachedRates[from];
+      const converted = inUSD * cachedRates[to];
+      const rate = cachedRates[to] / cachedRates[from];
+
+      document.getElementById('preview-value').textContent =
+        converted.toFixed(2) + ' ' + to;
+      document.getElementById('preview-rate').textContent =
+        '1 ' + from + ' ≈ ' + rate.toFixed(6) + ' ' + to + ' (indicative)';
+      document.getElementById('conv-preview').classList.add('visible');
+    }
+
+    // ─── PLACE ORDER ───
+    async function placeOrder() {
+      const btn = document.getElementById('order-btn');
+      const resultDiv = document.getElementById('order-result');
+      resultDiv.style.display = 'none';
+
+      const orderData = {
+        transactionType: document.getElementById('txnType').value,
+        fromCurrency: document.getElementById('fromCurrency').value,
+        toCurrency: document.getElementById('toCurrency').value,
+        fromAmount: parseFloat(document.getElementById('amount').value),
+        purpose: document.getElementById('purpose').value.trim(),
+        beneficiaryName: document.getElementById('beneficiaryName').value.trim(),
+        beneficiaryBank: document.getElementById('beneficiaryBank').value.trim(),
+        beneficiarySwift: document.getElementById('beneficiarySwift').value.trim()
+      };
+
+      if (!orderData.fromAmount || orderData.fromAmount <= 0) {
+        alert('Please enter a valid amount.'); return;
+      }
+      if (!orderData.purpose) { alert('Please enter the purpose.'); return; }
+
+      btn.textContent = 'Submitting...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/forex/transaction', {
+          method: 'POST',
+          headers: Auth.getAuthHeader(),
+          body: JSON.stringify(orderData)
+        });
+        const data = await res.json();
+        resultDiv.style.display = 'block';
+        if (data.success) {
+          resultDiv.className = 'success-message';
+          resultDiv.innerHTML = `
+            ✓ Order submitted successfully<br>
+            Transaction ID: <strong>#${data.transactionId}</strong><br>
+            You will receive: <strong>${data.toAmount} ${orderData.toCurrency}</strong><br>
+            Rate locked: <strong>1 ${orderData.fromCurrency} = ${data.exchangeRate} ${orderData.toCurrency}</strong>`;
+        } else {
+          resultDiv.className = 'error-message';
+          resultDiv.textContent = data.message;
+        }
+      } catch(e) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'error-message';
+        resultDiv.textContent = 'Error connecting to server.';
+      } finally {
+        btn.textContent = 'Submit Order';
+        btn.disabled = false;
+      }
+    }
+
+    // ─── HISTORY ───
+    async function loadHistory() {
+      document.getElementById('history-loading').style.display = 'flex';
+      document.getElementById('history-table').style.display = 'none';
+      document.getElementById('history-empty').style.display = 'none';
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/forex/my-transactions', {
+          headers: Auth.getAuthHeader()
+        });
+        const txns = await res.json();
+        document.getElementById('history-loading').style.display = 'none';
+        if (!txns.length) { document.getElementById('history-empty').style.display = 'block'; return; }
+        document.getElementById('history-table').style.display = 'table';
+        const tbody = document.getElementById('history-tbody');
+        tbody.innerHTML = '';
+        const statusMap = {
+          PENDING_CENTRAL_BANK: 'badge-pending',
+          APPROVED_BY_CENTRAL_BANK: 'badge-approved',
+          REJECTED_BY_CENTRAL_BANK: 'badge-rejected',
+          COMPLETED: 'badge-success',
+          FAILED: 'badge-rejected'
+        };
+        txns.forEach(t => {
+          const isCompleted = t.status === 'COMPLETED';
+          const actionBtn = isCompleted ? 
+            `<a href="/invoice.html?id=${t.id}" class="btn-action">📄 Invoice</a>` : 
+            '<span style="color:var(--text3)">—</span>';
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>#${t.id}</strong></td>
+              <td>${t.transactionType}</td>
+              <td style="font-family:var(--font-mono)">${t.fromCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.toCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.fromAmount}</td>
+              <td style="font-family:var(--font-mono)">${t.toAmount || '—'}</td>
+              <td style="font-family:var(--font-mono);font-size:0.8rem">${t.exchangeRate || '—'}</td>
+              <td><span class="badge ${statusMap[t.status] || ''}">${t.status.replace(/_/g,' ')}</span></td>
+              <td style="color:var(--text3);font-size:0.8rem">${new Date(t.createdAt).toLocaleDateString()}</td>
+              <td>${actionBtn}</td>
+            </tr>`;
+        });
+      } catch(e) {
+        document.getElementById('history-loading').innerHTML = '<span style="color:var(--danger)">Error loading transactions.</span>';
+      }
+    }
+
+    function showSection(name) {
+      ['rates','order','history'].forEach(s => {
+        document.getElementById('section-' + s).style.display = 'none';
+        document.getElementById('tab-' + s).classList.remove('active');
+      });
+      document.getElementById('section-' + name).style.display = 'block';
+      document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'history') loadHistory();
+    }
+  </script>
+</body>
+</html>

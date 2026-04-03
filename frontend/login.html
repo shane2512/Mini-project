@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FTMS — Login</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="auth-wrap">
+    <div class="auth-left">
+      <div class="auth-left-grid"></div>
+      <div class="auth-left-content">
+        <div class="auth-brand">FT<span>MS</span></div>
+        <p class="auth-tagline">Forex Transaction Management System</p>
+        <div class="auth-stat">
+          <div class="auth-stat-value" id="live-usd-inr">loading...</div>
+          <div class="auth-stat-label">USD / INR — Live Rate</div>
+        </div>
+        <div class="auth-stat">
+          <div class="auth-stat-value" id="live-usd-eur">loading...</div>
+          <div class="auth-stat-label">USD / EUR — Live Rate</div>
+        </div>
+        <div class="auth-stat">
+          <div class="auth-stat-value" id="live-usd-gbp">loading...</div>
+          <div class="auth-stat-label">USD / GBP — Live Rate</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-right">
+      <div class="auth-card">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Sign in to your FTMS account</p>
+
+        <div id="error-msg" class="error-message" style="display:none;"></div>
+
+        <div class="form-group">
+          <label>Email address</label>
+          <input type="email" id="email" placeholder="you@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')handleLogin()" />
+        </div>
+
+        <button class="btn-primary" onclick="handleLogin()" id="login-btn">Sign in</button>
+
+        <p class="link-text">Don't have an account? <a href="register.html">Register</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    if (Auth.isLoggedIn()) redirectByRole(Auth.getRole());
+
+    // Load live rates on login page
+    fetch('https://api.exchangerate-api.com/v4/latest/USD')
+      .then(r => r.json())
+      .then(data => {
+        document.getElementById('live-usd-inr').textContent = data.rates.INR.toFixed(2);
+        document.getElementById('live-usd-eur').textContent = data.rates.EUR.toFixed(4);
+        document.getElementById('live-usd-gbp').textContent = data.rates.GBP.toFixed(4);
+      }).catch(() => {
+        document.getElementById('live-usd-inr').textContent = '—';
+        document.getElementById('live-usd-eur').textContent = '—';
+        document.getElementById('live-usd-gbp').textContent = '—';
+      });
+
+    async function handleLogin() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const errEl = document.getElementById('error-msg');
+      const btn = document.getElementById('login-btn');
+
+      if (!email || !password) {
+        errEl.textContent = 'Please enter your email and password.';
+        errEl.style.display = 'block'; return;
+      }
+
+      btn.textContent = 'Signing in...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (data.token) {
+          Auth.saveSession(data.token, data.role, data.fullName, data.id);
+          
+          // Check if user needs to select role
+          const systemRoles = ['ADMIN', 'CENTRAL_BANK', 'COMMERCIAL_BANK'];
+          if (!data.roleSelected && !systemRoles.includes(data.role)) {
+            // User has been KYC approved but hasn't selected role yet
+            window.location.href = 'role-selection.html';
+          } else {
+            // Normal redirect by role
+            redirectByRole(data.role);
+          }
+        } else {
+          errEl.textContent = data.message || 'Invalid credentials or account pending approval.';
+          errEl.style.display = 'block';
+        }
+      } catch (e) {
+        errEl.textContent = 'Cannot connect to server. Make sure backend is running.';
+        errEl.style.display = 'block';
+      } finally {
+        btn.textContent = 'Sign in';
+        btn.disabled = false;
+      }
+    }
+
+    function redirectByRole(role) {
+      const map = {
+        ADMIN: 'admin/dashboard.html',
+        CENTRAL_BANK: 'central-bank/dashboard.html',
+        COMMERCIAL_BANK: 'bank/dashboard.html'
+      };
+      window.location.href = map[role] || 'user/dashboard.html';
+    }
+  </script>
+</body>
+</html>

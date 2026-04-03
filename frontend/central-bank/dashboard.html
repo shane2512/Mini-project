@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central Bank — FTMS</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">FT<span style="color:var(--accent)">MS</span> <span style="font-size:0.7rem;font-family:var(--font);color:var(--text3);margin-left:8px;font-weight:400;">Central Bank</span></div>
+    <div class="nav-user">
+      <span class="nav-user-name" id="cb-name"></span>
+      <span class="badge badge-role">CENTRAL BANK</span>
+      <button onclick="Auth.logout()" class="btn-logout">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-wrap">
+    <aside class="sidebar">
+      <div class="sidebar-section">Menu</div>
+      <ul>
+        <li class="active" onclick="showSection('pending')" id="tab-pending">
+          <span class="sidebar-icon">⏳</span> Pending Approval
+        </li>
+        <li onclick="showSection('approved')" id="tab-approved">
+          <span class="sidebar-icon">✓</span> Approved
+        </li>
+        <li onclick="showSection('rejected')" id="tab-rejected">
+          <span class="sidebar-icon">✕</span> Rejected
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+
+      <div id="section-pending">
+        <div class="page-header">
+          <h2>Pending Approvals</h2>
+          <p>Forex transactions awaiting central bank authorization</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Pending Transactions</span>
+            <button class="btn-secondary" onclick="loadPending()">↻ Refresh</button>
+          </div>
+          <div id="pending-loading" class="loading"><div class="spinner"></div> Loading...</div>
+          <table class="data-table" id="pending-table" style="display:none;">
+            <thead>
+              <tr><th>ID</th><th>Customer</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Converted</th><th>Rate</th><th>Purpose</th><th>Beneficiary</th><th>SWIFT</th><th>Date</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="pending-tbody"></tbody>
+          </table>
+          <div id="pending-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">✓</div>
+            <p>No transactions pending approval</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-approved" style="display:none;">
+        <div class="page-header">
+          <h2>Approved Transactions</h2>
+          <p>Transactions you have approved — forwarded to commercial bank</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Approved</span>
+            <button class="btn-secondary" onclick="loadApproved()">↻ Refresh</button>
+          </div>
+          <div id="approved-loading" class="loading"><div class="spinner"></div> Loading...</div>
+          <table class="data-table" id="approved-table" style="display:none;">
+            <thead>
+              <tr><th>ID</th><th>Customer</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Converted</th><th>Rate</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody id="approved-tbody"></tbody>
+          </table>
+          <div id="approved-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">📋</div>
+            <p>No approved transactions yet</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-rejected" style="display:none;">
+        <div class="page-header">
+          <h2>Rejected Transactions</h2>
+          <p>Transactions rejected by central bank</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Rejected</span>
+            <button class="btn-secondary" onclick="loadRejected()">↻ Refresh</button>
+          </div>
+          <div id="rejected-loading" class="loading"><div class="spinner"></div> Loading...</div>
+          <table class="data-table" id="rejected-table" style="display:none;">
+            <thead>
+              <tr><th>ID</th><th>Customer</th><th>Type</th><th>From</th><th>To</th><th>Amount</th><th>Reason</th><th>Date</th></tr>
+            </thead>
+            <tbody id="rejected-tbody"></tbody>
+          </table>
+          <div id="rejected-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">📋</div>
+            <p>No rejected transactions</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    if (!Auth.requireRole('CENTRAL_BANK')) {}
+    document.getElementById('cb-name').textContent = Auth.getFullName();
+    loadPending();
+
+    function showSection(name) {
+      ['pending','approved','rejected'].forEach(s => {
+        document.getElementById('section-' + s).style.display = 'none';
+        document.getElementById('tab-' + s).classList.remove('active');
+      });
+      document.getElementById('section-' + name).style.display = 'block';
+      document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'approved') loadApproved();
+      if (name === 'rejected') loadRejected();
+    }
+
+    async function loadPending() {
+      document.getElementById('pending-loading').style.display = 'flex';
+      document.getElementById('pending-table').style.display = 'none';
+      document.getElementById('pending-empty').style.display = 'none';
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/central-bank/pending', { headers: Auth.getAuthHeader() });
+        const txns = await res.json();
+        document.getElementById('pending-loading').style.display = 'none';
+        if (!txns.length) { document.getElementById('pending-empty').style.display = 'block'; return; }
+        document.getElementById('pending-table').style.display = 'table';
+        const tbody = document.getElementById('pending-tbody');
+        tbody.innerHTML = '';
+        txns.forEach(t => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>#${t.id}</strong></td>
+              <td>${t.user?.fullName}<br><small style="color:var(--text3)">${t.user?.email}</small></td>
+              <td>${t.transactionType}</td>
+              <td style="font-family:var(--font-mono)">${t.fromCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.toCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.fromAmount}</td>
+              <td style="font-family:var(--font-mono)">${t.toAmount}</td>
+              <td style="font-family:var(--font-mono);font-size:0.8rem">${t.exchangeRate}</td>
+              <td style="max-width:140px;font-size:0.82rem">${t.purpose || '—'}</td>
+              <td>${t.beneficiaryName || '—'}</td>
+              <td style="font-family:var(--font-mono);font-size:0.8rem">${t.beneficiarySwift || '—'}</td>
+              <td style="color:var(--text3);font-size:0.8rem">${new Date(t.createdAt).toLocaleDateString()}</td>
+              <td style="white-space:nowrap">
+                <button class="btn-approve" onclick="approve(${t.id})">Approve</button>
+                <button class="btn-reject" onclick="reject(${t.id})">Reject</button>
+              </td>
+            </tr>`;
+        });
+      } catch(e) {
+        document.getElementById('pending-loading').innerHTML = '<span style="color:var(--danger)">Error loading data.</span>';
+      }
+    }
+
+    async function loadApproved() {
+      document.getElementById('approved-loading').style.display = 'flex';
+      document.getElementById('approved-table').style.display = 'none';
+      document.getElementById('approved-empty').style.display = 'none';
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/central-bank/approved', { headers: Auth.getAuthHeader() });
+        const txns = await res.json();
+        document.getElementById('approved-loading').style.display = 'none';
+        if (!txns.length) { document.getElementById('approved-empty').style.display = 'block'; return; }
+        document.getElementById('approved-table').style.display = 'table';
+        const tbody = document.getElementById('approved-tbody');
+        tbody.innerHTML = '';
+        txns.forEach(t => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>#${t.id}</strong></td>
+              <td>${t.user?.fullName}</td>
+              <td>${t.transactionType}</td>
+              <td style="font-family:var(--font-mono)">${t.fromCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.toCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.fromAmount}</td>
+              <td style="font-family:var(--font-mono)">${t.toAmount}</td>
+              <td style="font-family:var(--font-mono);font-size:0.8rem">${t.exchangeRate}</td>
+              <td><span class="badge badge-approved">APPROVED</span></td>
+              <td style="color:var(--text3);font-size:0.8rem">${new Date(t.createdAt).toLocaleDateString()}</td>
+            </tr>`;
+        });
+      } catch(e) {
+        document.getElementById('approved-loading').innerHTML = '<span style="color:var(--danger)">Error loading data.</span>';
+      }
+    }
+
+    async function loadRejected() {
+      document.getElementById('rejected-loading').style.display = 'flex';
+      document.getElementById('rejected-table').style.display = 'none';
+      document.getElementById('rejected-empty').style.display = 'none';
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/central-bank/rejected', { headers: Auth.getAuthHeader() });
+        const txns = await res.json();
+        document.getElementById('rejected-loading').style.display = 'none';
+        if (!txns.length) { document.getElementById('rejected-empty').style.display = 'block'; return; }
+        document.getElementById('rejected-table').style.display = 'table';
+        const tbody = document.getElementById('rejected-tbody');
+        tbody.innerHTML = '';
+        txns.forEach(t => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>#${t.id}</strong></td>
+              <td>${t.user?.fullName}</td>
+              <td>${t.transactionType}</td>
+              <td style="font-family:var(--font-mono)">${t.fromCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.toCurrency}</td>
+              <td style="font-family:var(--font-mono)">${t.fromAmount}</td>
+              <td style="color:var(--danger);font-size:0.82rem">${t.rejectionReason || '—'}</td>
+              <td style="color:var(--text3);font-size:0.8rem">${new Date(t.createdAt).toLocaleDateString()}</td>
+            </tr>`;
+        });
+      } catch(e) {
+        document.getElementById('rejected-loading').innerHTML = '<span style="color:var(--danger)">Error loading data.</span>';
+      }
+    }
+
+    async function approve(txnId) {
+      if (!confirm('Approve transaction #' + txnId + '?')) return;
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/central-bank/approve/' + txnId, {
+          method: 'PUT', headers: Auth.getAuthHeader()
+        });
+        const data = await res.json();
+        alert(data.message);
+        loadPending();
+      } catch(e) { alert('Error approving transaction.'); }
+    }
+
+    async function reject(txnId) {
+      const reason = prompt('Rejection reason for transaction #' + txnId + ':');
+      if (!reason) return;
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/central-bank/reject/' + txnId, {
+          method: 'PUT',
+          headers: Auth.getAuthHeader(),
+          body: JSON.stringify({ reason })
+        });
+        const data = await res.json();
+        alert(data.message);
+        loadPending();
+      } catch(e) { alert('Error rejecting transaction.'); }
+    }
+  </script>
+</body>
+</html>

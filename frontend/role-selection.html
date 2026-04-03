@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Role - FTMS</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Welcome, <span id="userName"></span>!</h1>
+                <p>Your KYC has been approved. Please select your role to continue.</p>
+            </div>
+
+            <div class="role-selection-grid">
+                <div class="role-card" data-role="IMPORTER">
+                    <div class="role-icon">📥</div>
+                    <h3>Importer</h3>
+                    <p>Import goods from foreign suppliers. Pay in foreign currency and receive bills in local currency.</p>
+                    <button class="role-select-btn">Select Role</button>
+                </div>
+
+                <div class="role-card" data-role="EXPORTER">
+                    <div class="role-icon">📤</div>
+                    <h3>Exporter</h3>
+                    <p>Export goods to foreign buyers. Receive payment in foreign currency and convert to local.</p>
+                    <button class="role-select-btn">Select Role</button>
+                </div>
+
+                <div class="role-card" data-role="EXCHANGER">
+                    <div class="role-icon">💱</div>
+                    <h3>Exchanger</h3>
+                    <p>Perform pure currency exchange and conversions. Buy and sell foreign currencies freely.</p>
+                    <button class="role-select-btn">Select Role</button>
+                </div>
+            </div>
+
+            <div id="roleMessage" class="message"></div>
+
+            <div class="auth-footer">
+                <button id="logoutBtn" class="btn-secondary">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Check authentication
+        if (!Auth.isLoggedIn()) {
+            window.location.href = '/login.html';
+        }
+
+        // Set user name
+        document.getElementById('userName').textContent = Auth.getFullName();
+
+        // Handle role selection
+        document.querySelectorAll('.role-card').forEach(card => {
+            const btn = card.querySelector('.role-select-btn');
+            btn.addEventListener('click', async () => {
+                const role = card.dataset.role;
+                const messageDiv = document.getElementById('roleMessage');
+                
+                try {
+                    btn.disabled = true;
+                    btn.textContent = 'Selecting...';
+                    
+                    const response = await fetch(`${API_BASE_URL}/api/user/select-role`, {
+                        method: 'PUT',
+                        headers: Auth.getAuthHeader(),
+                        body: JSON.stringify({ role: role })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        messageDiv.className = 'message success';
+                        messageDiv.textContent = `✓ Role selected as ${role}. Redirecting to dashboard...`;
+                        
+                        // Redirect to appropriate dashboard after 1.5 seconds
+                        setTimeout(() => {
+                            const dashboardMap = {
+                                'IMPORTER': '/user/dashboard.html',
+                                'EXPORTER': '/user/dashboard.html',
+                                'EXCHANGER': '/user/dashboard.html',
+                                'ADMIN': '/admin/dashboard.html',
+                                'CENTRAL_BANK': '/central-bank/dashboard.html',
+                                'COMMERCIAL_BANK': '/bank/dashboard.html'
+                            };
+                            window.location.href = dashboardMap[role] || '/login.html';
+                        }, 1500);
+                    } else {
+                        messageDiv.className = 'message error';
+                        messageDiv.textContent = `✗ Error: ${data.message}`;
+                        btn.disabled = false;
+                        btn.textContent = 'Select Role';
+                    }
+                } catch (error) {
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = `✗ Error: ${error.message}`;
+                    btn.disabled = false;
+                    btn.textContent = 'Select Role';
+                }
+            });
+        });
+
+        // Logout button
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            Auth.logout();
+        });
+    </script>
+
+    <style>
+        .role-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .role-card {
+            background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+            border: 2px solid #00d4aa;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .role-card:hover {
+            background: linear-gradient(135deg, #252d3f 0%, #18202d 100%);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
+        }
+
+        .role-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .role-card h3 {
+            color: #00d4aa;
+            font-size: 20px;
+            margin: 15px 0;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .role-card p {
+            color: #a0aec0;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 15px 0;
+        }
+
+        .role-select-btn {
+            background-color: #00d4aa;
+            color: #0a0c10;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .role-select-btn:hover {
+            background-color: #00a88a;
+            transform: translateY(-2px);
+        }
+
+        .role-select-btn:disabled {
+            background-color: #4a5568;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+    </style>
+</body>
+</html>
