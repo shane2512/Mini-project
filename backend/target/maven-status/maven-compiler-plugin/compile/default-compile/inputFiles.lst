@@ -8,6 +8,7 @@ C:\forex-system\backend\src\main\java\com\ftms\controller\AuthController.java
 C:\forex-system\backend\src\main\java\com\ftms\repository\UserRepository.java
 C:\forex-system\backend\src\main\java\com\ftms\service\ForexService.java
 C:\forex-system\backend\src\main\java\com\ftms\model\ExchangeRate.java
+C:\forex-system\backend\src\main\java\com\ftms\service\InvoiceService.java
 C:\forex-system\backend\src\main\java\com\ftms\FtmsApplication.java
 C:\forex-system\backend\src\main\java\com\ftms\controller\BankController.java
 C:\forex-system\backend\src\main\java\com\ftms\controller\ForexController.java

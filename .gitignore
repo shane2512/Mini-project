@@ -14,3 +14,6 @@
 
 # Local Netlify folder
 .netlify
+
+# trash files by vs
+trash/

@@ -126,4 +126,49 @@ public class ForexService {
         BigDecimal oneUnit = convertAmount(fromCurrency, toCurrency, BigDecimal.ONE);
         return oneUnit;
     }
+
+    // Converts amount with explicit USD bridge currency display
+    // Returns: { fromCurrency: "INR", fromAmount: 10000, bridgeCurrency: "USD",
+    // bridgeAmount: 120.05, toCurrency: "EUR", toAmount: 110.43 }
+    @SuppressWarnings("unchecked")
+    public Map<String, Object> convertWithBridge(String fromCurrency, String toCurrency, BigDecimal amount) {
+        Map<String, Object> ratesData = getAllRates();
+        Map<String, Object> rates = (Map<String, Object>) ratesData.get("rates");
+
+        if (rates == null) {
+            throw new RuntimeException("Could not get rates from API");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+
+        // Step 1: Convert fromCurrency to USD
+        double fromRate = getRate(rates, fromCurrency);
+        BigDecimal bridgeAmount = amount.divide(BigDecimal.valueOf(fromRate), 6, RoundingMode.HALF_UP);
+
+        // Step 2: Convert USD to toCurrency
+        double toRate = getRate(rates, toCurrency);
+        BigDecimal finalAmount = bridgeAmount.multiply(BigDecimal.valueOf(toRate));
+
+        // Build response showing full bridge conversion
+        result.put("fromCurrency", fromCurrency);
+        result.put("fromAmount", amount.setScale(2, RoundingMode.HALF_UP));
+        result.put("fromRate", BigDecimal.valueOf(fromRate).setScale(6, RoundingMode.HALF_UP));
+
+        result.put("bridgeCurrency", "USD"); // Always USD
+        result.put("bridgeAmount", bridgeAmount.setScale(2, RoundingMode.HALF_UP));
+
+        result.put("toCurrency", toCurrency);
+        result.put("toAmount", finalAmount.setScale(2, RoundingMode.HALF_UP));
+        result.put("toRate", BigDecimal.valueOf(toRate).setScale(6, RoundingMode.HALF_UP));
+
+        // Overall exchange rate (1 fromCurrency = ? toCurrency)
+        BigDecimal finalRate = getExchangeRate(fromCurrency, toCurrency);
+        result.put("finalExchangeRate", finalRate.setScale(6, RoundingMode.HALF_UP));
+
+        // Add timestamp
+        result.put("ratesFetchedAt", LocalDateTime.now().toString());
+        result.put("ratesSource", ratesData.get("source")); // "cached" or "fresh"
+
+        return result;
+    }
 }

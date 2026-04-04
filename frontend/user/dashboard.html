@@ -46,6 +46,9 @@
             <span class="rates-ticker-title">Currency Rates vs USD</span>
             <div style="display:flex;align-items:center;gap:16px;">
               <span class="countdown" id="countdown">Refreshing in 30s</span>
+              <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="fetchRatesManual()">
+                📡 Fetch Live Rates
+              </button>
               <div class="live-badge">
                 <div class="live-dot"></div>
                 LIVE
@@ -95,8 +98,12 @@
           </div>
 
           <div class="conversion-preview" id="conv-preview">
-            <div class="conversion-preview-label">Estimated conversion</div>
+            <div class="conversion-preview-label">Estimated conversion (via USD bridge)</div>
             <div class="conversion-preview-value" id="preview-value">—</div>
+            <div style="font-size: 0.85rem; color: var(--text2); margin-top: 8px; padding: 8px; background: #e3f2fd; border-left: 3px solid #2196F3; line-height: 1.4;">
+              <strong>USD Bridge Currency:</strong><br>
+              <span id="bridge-conversion">Select currencies and amount to see conversion path</span>
+            </div>
             <div class="conversion-preview-rate" id="preview-rate">Rate locked at order submission</div>
           </div>
 
@@ -255,7 +262,67 @@
         converted.toFixed(2) + ' ' + to;
       document.getElementById('preview-rate').textContent =
         '1 ' + from + ' ≈ ' + rate.toFixed(6) + ' ' + to + ' (indicative)';
+      
+      // Show USD bridge conversion
+      document.getElementById('bridge-conversion').innerHTML = `
+        <strong style="color: #1976D2;">${from} ${amt.toFixed(2)}</strong> → 
+        <strong style="color: #D32F2F;">USD ${inUSD.toFixed(2)}</strong> → 
+        <strong style="color: #388E3C;">${to} ${converted.toFixed(2)}</strong><br>
+        <small style="color: #666; margin-top: 4px;">Exchange rates are live and refresh every 30 seconds</small>
+      `;
+      
       document.getElementById('conv-preview').classList.add('visible');
+    }
+
+    // ─── MANUAL FETCH RATES (with USD bridge details) ───
+    async function fetchRatesManual() {
+      const resultDiv = document.getElementById('order-result');
+      resultDiv.style.display = 'none';
+      
+      const from = document.getElementById('fromCurrency').value;
+      const to = document.getElementById('toCurrency').value;
+      const amt = parseFloat(document.getElementById('amount').value);
+
+      if (!amt || amt <= 0) {
+        alert('Please enter an amount first'); 
+        return;
+      }
+
+      try {
+        // Fetch with USD bridge conversion details
+        const res = await fetch(
+          `${CONFIG.API_BASE_URL}/api/forex/convert-bridge?fromCurrency=${from}&toCurrency=${to}&amount=${amt}`,
+          { headers: Auth.getAuthHeader() }
+        );
+        const data = await res.json();
+
+        if (data.success) {
+          const conv = data.data;
+          resultDiv.style.display = 'block';
+          resultDiv.className = 'success-message';
+          resultDiv.innerHTML = `
+            <strong>✓ Live Rate Fetched</strong><br>
+            <strong style="color: #1976D2;">${conv.fromCurrency}</strong> 
+            <strong>${conv.fromAmount.toFixed(2)}</strong> → 
+            <strong style="color: #D32F2F;">USD</strong> 
+            <strong>${conv.bridgeAmount.toFixed(2)}</strong> → 
+            <strong style="color: #388E3C;">${conv.toCurrency}</strong> 
+            <strong>${conv.toAmount.toFixed(2)}</strong><br>
+            <small style="color: var(--text3); margin-top: 8px;">
+              Final Rate: 1 ${conv.fromCurrency} = ${conv.finalExchangeRate} ${conv.toCurrency} 
+              (Source: ${conv.ratesSource}) at ${new Date(conv.ratesFetchedAt).toLocaleTimeString()}
+            </small>
+          `;
+        } else {
+          resultDiv.style.display = 'block';
+          resultDiv.className = 'error-message';
+          resultDiv.textContent = data.message || 'Failed to fetch rates';
+        }
+      } catch(e) {
+        resultDiv.style.display = 'block';
+        resultDiv.className = 'error-message';
+        resultDiv.textContent = 'Error fetching rates: ' + e.message;
+      }
     }
 
     // ─── PLACE ORDER ───

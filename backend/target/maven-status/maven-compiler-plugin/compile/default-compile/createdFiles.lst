@@ -1,3 +1,4 @@
+com\ftms\service\InvoiceService.class
 com\ftms\dto\LoginRequest.class
 com\ftms\model\Transaction.class
 com\ftms\service\ForexService.class

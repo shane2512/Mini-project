@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +88,29 @@ public class ForexController {
             response.putAll(invoice);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    // GET /api/forex/convert-bridge
+    // Returns live exchange rate with explicit USD bridge currency display
+    // Query params: fromCurrency, toCurrency, amount
+    // Example: GET
+    // /api/forex/convert-bridge?fromCurrency=INR&toCurrency=EUR&amount=10000
+    @GetMapping("/convert-bridge")
+    public ResponseEntity<Map<String, Object>> convertWithBridge(
+            @RequestParam String fromCurrency,
+            @RequestParam String toCurrency,
+            @RequestParam BigDecimal amount) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Map<String, Object> conversion = forexService.convertWithBridge(fromCurrency, toCurrency, amount);
+            response.put("success", true);
+            response.put("data", conversion);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
             response.put("success", false);
             response.put("message", e.getMessage());
             return ResponseEntity.badRequest().body(response);

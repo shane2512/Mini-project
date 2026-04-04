@@ -54,7 +54,7 @@ CREATE TABLE exchange_rates (
     base_currency VARCHAR(10) NOT NULL,       -- USD
     target_currency VARCHAR(10) NOT NULL,     -- INR
     rate DECIMAL(15, 6) NOT NULL,
-    source ENUM('API', 'CENTRAL_BANK_MANUAL') DEFAULT 'API',
+    source VARCHAR(50) DEFAULT 'API',
     fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
