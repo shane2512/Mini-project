@@ -9,6 +9,17 @@
 # Node / tooling
 **/node_modules/
 
+# Maven build artifacts
+**/target/
+*.jar
+*.war
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
 # Logs
 *.log
 
