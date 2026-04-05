@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ftms-backend
+    env: java
+    region: oregon
+    plan: free
+    buildCommand: cd backend && mvn clean package -DskipTests
+    startCommand: java -jar backend/target/ftms-backend-1.0.0.jar
+    envVars:
+      - key: DB_PASSWORD
+        scope: build,runtime
+      - key: JWT_SECRET
+        scope: build,runtime
+      - key: PORT
+        value: "8080"
+    autoDeploy: true

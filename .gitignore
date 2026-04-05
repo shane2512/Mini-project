@@ -28,3 +28,8 @@
 
 # trash files by vs
 trash/
+
+# Git helper scripts (temporary)
+.git-filter-password.sh
+.git-replace.txt
+.git-backup/
