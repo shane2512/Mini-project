@@ -95,13 +95,15 @@
         if (data.token) {
           Auth.saveSession(data.token, data.role, data.fullName, data.id);
           
-          // Check if user needs to select role
+          // Check user role type
           const systemRoles = ['ADMIN', 'CENTRAL_BANK', 'COMMERCIAL_BANK'];
-          if (!data.roleSelected && !systemRoles.includes(data.role)) {
-            // User has been KYC approved but hasn't selected role yet
-            window.location.href = 'role-selection.html';
+          
+          // For regular users (Importer/Exporter/Exchanger) - always go to role selection
+          // This allows them to change roles anytime
+          if (!systemRoles.includes(data.role)) {
+            window.location.href = 'role-selection.html?mode=select';
           } else {
-            // Normal redirect by role
+            // System roles go directly to their dashboard
             redirectByRole(data.role);
           }
         } else {
@@ -121,7 +123,10 @@
       const map = {
         ADMIN: 'admin/dashboard.html',
         CENTRAL_BANK: 'central-bank/dashboard.html',
-        COMMERCIAL_BANK: 'bank/dashboard.html'
+        COMMERCIAL_BANK: 'bank/dashboard.html',
+        IMPORTER: 'user/importer-dashboard.html',
+        EXPORTER: 'user/exporter-dashboard.html',
+        EXCHANGER: 'user/exchanger-dashboard.html'
       };
       window.location.href = map[role] || 'user/dashboard.html';
     }

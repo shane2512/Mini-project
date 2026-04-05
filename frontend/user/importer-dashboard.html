@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Importer Dashboard — FTMS</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <style>
+    .role-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .role-btn {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .role-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .role-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--bg2);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      min-width: 200px;
+      margin-top: 4px;
+      display: none;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .role-dropdown-menu.show {
+      display: block;
+    }
+    .role-option {
+      padding: 10px 16px;
+      color: var(--text2);
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .role-option:last-child {
+      border-bottom: none;
+    }
+    .role-option:hover {
+      background: var(--bg3);
+      color: var(--accent);
+    }
+    .role-option.active {
+      background: rgba(0,212,170,0.1);
+      color: var(--accent);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">FT<span style="color:var(--accent)">MS</span></div>
+    <div class="nav-user">
+      <span class="nav-user-name" id="user-name"></span>
+      <div class="role-dropdown">
+        <button class="role-btn" onclick="toggleRoleMenu()">
+          📥 <span id="current-role">Importer</span> ▼
+        </button>
+        <div class="role-dropdown-menu" id="roleMenu">
+          <div class="role-option active" onclick="switchRole('IMPORTER')">📥 Importer</div>
+          <div class="role-option" onclick="switchRole('EXPORTER')">📤 Exporter</div>
+          <div class="role-option" onclick="switchRole('EXCHANGER')">💱 Exchanger</div>
+        </div>
+      </div>
+      <button onclick="Auth.logout()" class="btn-logout">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-wrap">
+    <aside class="sidebar">
+      <div class="sidebar-section">Menu</div>
+      <ul>
+        <li class="active" onclick="showSection('rates')" id="tab-rates">
+          <span class="sidebar-icon">📊</span> Live Rates
+        </li>
+        <li onclick="showSection('order')" id="tab-order">
+          <span class="sidebar-icon">📥</span> Import Order
+        </li>
+        <li onclick="showSection('history')" id="tab-history">
+          <span class="sidebar-icon">🕐</span> History
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <!-- RATES SECTION -->
+      <div id="section-rates">
+        <div class="page-header">
+          <h2>Live Exchange Rates</h2>
+          <p>Current forex rates — auto-refreshes every 30 seconds</p>
+        </div>
+        <div class="rates-ticker">
+          <div class="rates-ticker-header">
+            <span class="rates-ticker-title">Currency Rates vs USD</span>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <span class="countdown" id="countdown">Refreshing in 30s</span>
+              <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="fetchRatesManual()">📡 Fetch Live Rates</button>
+              <div class="live-badge"><div class="live-dot"></div>LIVE</div>
+            </div>
+          </div>
+          <div id="rates-loading" class="loading"><div class="spinner"></div> Fetching live rates...</div>
+          <div id="rates-grid" class="rates-grid" style="display:none;"></div>
+          <div class="rates-footer">
+            <span id="rates-timestamp">—</span>
+            <button class="refresh-btn" onclick="fetchRates()">↻ Refresh now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDER SECTION -->
+      <div id="section-order" style="display:none;">
+        <div class="page-header">
+          <h2>📥 Import Order</h2>
+          <p>Import goods from foreign suppliers - Pay in foreign currency, receive bills in local currency</p>
+        </div>
+        <div class="card order-form">
+          <div class="form-group">
+            <label>Supplier Country</label>
+            <input type="text" placeholder="e.g., USA, Germany, China" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>From Currency (Foreign)</label>
+              <select id="fromCurrency" onchange="updatePreview()"></select>
+            </div>
+            <div class="form-group">
+              <label>To Currency (INR)</label>
+              <select id="toCurrency" value="INR" onchange="updatePreview()"><option value="INR">INR</option></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Amount to Pay (Foreign Currency)</label>
+            <input type="number" id="amount" placeholder="Enter amount" min="1" oninput="updatePreview()" />
+          </div>
+          <div class="conversion-preview" id="conv-preview"></div>
+          <button class="btn-primary" onclick="submitOrder('IMPORT')">Submit Import Order</button>
+        </div>
+      </div>
+
+      <!-- HISTORY SECTION -->
+      <div id="section-history" style="display:none;">
+        <div class="page-header">
+          <h2>Import Order History</h2>
+          <p>View all your import transactions</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Your Import Orders</span>
+            <button class="btn-secondary" onclick="loadHistory()">↻ Refresh</button>
+          </div>
+          <div id="history-loading" class="loading"><div class="spinner"></div> Loading...</div>
+          <table class="data-table" id="history-table" style="display:none;">
+            <thead><tr><th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Converted</th><th>Rate</th><th>Status</th><th>Date</th></tr></thead>
+            <tbody id="history-tbody"></tbody>
+          </table>
+          <div id="history-empty" class="empty-state" style="display:none;"><div class="empty-state-icon">📭</div><p>No import orders yet</p></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    // Protect against accidental redirects to role-selection
+    const originalHref = Object.getOwnPropertyDescriptor(window.location, 'href');
+    const originalReplace = window.location.replace;
+    
+    // Override location.href to log and prevent role-selection redirects from unexpected sources
+    Object.defineProperty(window.location, 'href', {
+      get: function() { return document.location.href; },
+      set: function(value) {
+        if (value.includes('role-selection') && !window._intentionalRoleSwitch) {
+          console.warn('⚠️ Attempted unexpected redirect to role-selection:', new Error().stack);
+          return; // Prevent redirect
+        }
+        document.location.href = value;
+      }
+    });
+    
+    if (!Auth.isLoggedIn()) window.location.href = '/login.html';
+    
+    document.getElementById('user-name').textContent = Auth.getFullName();
+    
+    let availableCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'SGD', 'HKD', 'NZD', 'MXN', 'BRL', 'ZAR'];
+    
+    document.getElementById('fromCurrency').innerHTML = availableCurrencies.map(c => `<option value="${c}">${c}</option>`).join('');
+    
+    // IMPORTER dashboard - focus on IMPORT goods
+    const orderForm = document.querySelector('.order-form');
+    if (orderForm) {
+      const purpose = orderForm.querySelector('[placeholder="e.g. Payment to XYZ supplier, Germany"]');
+      if (purpose) purpose.textContent = 'Payment to foreign supplier for imported goods';
+    }
+    
+    const roleIcons = { IMPORTER: '📥', EXPORTER: '📤', EXCHANGER: '💱' };
+    const roleLabels = { IMPORTER: 'Importer', EXPORTER: 'Exporter', EXCHANGER: 'Exchanger' };
+    
+    function toggleRoleMenu() {
+      document.getElementById('roleMenu').classList.toggle('show');
+    }
+    
+    async function switchRole(role) {
+      // Immediately close dropdown
+      const dropdown = document.getElementById('roleMenu');
+      if (dropdown) dropdown.classList.remove('show');
+      
+      // Don't switch if already on this role
+      const currentRole = Auth.getRole();
+      if (role === currentRole) {
+        console.log('Already on this role:', role);
+        return;
+      }
+      
+      console.log('Switching from', currentRole, 'to', role);
+      
+      try {
+        // Make API call to update role
+        const response = await fetch(`${CONFIG.API_BASE_URL}/api/user/select-role`, {
+          method: 'PUT',
+          headers: Auth.getAuthHeader(),
+          body: JSON.stringify({ role: role })
+        });
+        
+        const data = await response.json();
+        console.log('API Response:', response.status, data);
+        
+        // Check if successful (accept both success field and 200 status)
+        if (data.success === true || data.success === undefined && response.ok) {
+          console.log('Role update successful - updating session');
+          
+          // Update local session immediately
+          Auth.saveSession(Auth.getToken(), role, Auth.getFullName(), Auth.getUserId());
+          console.log('Session updated - new role:', Auth.getRole());
+          
+          // Wait a tiny bit for session to propagate, then redirect
+          setTimeout(() => {
+            const dashboards = {
+              'IMPORTER': '/user/importer-dashboard.html',
+              'EXPORTER': '/user/exporter-dashboard.html',
+              'EXCHANGER': '/user/exchanger-dashboard.html'
+            };
+            const target = dashboards[role];
+            console.log('Redirecting to:', target);
+            window.location.replace(target);
+          }, 50);
+          
+        } else {
+          console.error('API error response:', data);
+          alert('Failed to switch role: ' + (data.message || JSON.stringify(data)));
+        }
+      } catch(error) {
+        console.error('Exception during role switch:', error);
+        alert('Error switching role: ' + error.message);
+      }
+    }
+    
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.role-dropdown')) {
+        document.getElementById('roleMenu').classList.remove('show');
+      }
+    });
+    
+    function showSection(name) {
+      ['rates','order','history'].forEach(s => {
+        document.getElementById('section-' + s).style.display = 'none';
+        document.getElementById('tab-' + s).classList.remove('active');
+      });
+      document.getElementById('section-' + name).style.display = 'block';
+      document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'history') loadHistory();
+    }
+    
+    async function fetchRates() {
+      document.getElementById('rates-loading').style.display = 'flex';
+      document.getElementById('rates-grid').style.display = 'none';
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/forex/rates`);
+        const data = await res.json();
+        
+        // Handle response - API returns { rates: { EUR: 0.92, INR: 83, ... }, base: "USD", source: "cached"|"fresh" }
+        const ratesObj = data.rates || data;
+        
+        if (!ratesObj || Object.keys(ratesObj).length === 0) throw new Error('Empty rates');
+        
+        document.getElementById('rates-loading').style.display = 'none';
+        document.getElementById('rates-grid').style.display = 'grid';
+        
+        let html = '';
+        Object.entries(ratesObj).forEach(([currency, rate]) => {
+          html += `<div class="rate-card"><div class="rate-currency">${currency}</div><div class="rate-value">${parseFloat(rate).toFixed(4)}</div><div class="rate-label">per USD</div></div>`;
+        });
+        document.getElementById('rates-grid').innerHTML = html;
+        document.getElementById('rates-timestamp').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+      } catch(e) {
+        // Fallback rates if API fails
+        document.getElementById('rates-loading').style.display = 'none';
+        document.getElementById('rates-grid').style.display = 'grid';
+        const fallback = { EUR: 0.8670, GBP: 0.7570, JPY: 159.5700, CAD: 1.3900, AUD: 1.4500, INR: 83.1800 };
+        let html = '';
+        Object.entries(fallback).forEach(([currency, rate]) => {
+          html += `<div class="rate-card"><div class="rate-currency">${currency}</div><div class="rate-value">${rate.toFixed(4)}</div><div class="rate-label">per USD (sample)</div></div>`;
+        });
+        document.getElementById('rates-grid').innerHTML = html;
+        document.getElementById('rates-timestamp').textContent = 'Cannot reach API - showing sample rates';
+      }
+    }
+    
+    function fetchRatesManual() { fetchRates(); }
+    
+    function updatePreview() {
+      const from = document.getElementById('fromCurrency').value;
+      const to = document.getElementById('toCurrency').value;
+      const amount = parseFloat(document.getElementById('amount').value) || 0;
+      if (from && to && amount > 0) {
+        document.getElementById('conv-preview').classList.add('visible');
+        document.getElementById('conv-preview').innerHTML = `<div class="conversion-preview-label">You will receive approximately</div><div class="conversion-preview-value">${(amount * 1.2).toFixed(2)} ${to}</div>`;
+      }
+    }
+    
+    async function submitOrder(type) {
+      alert('Order submitted! Pending central bank approval.');
+    }
+    
+    async function loadHistory() {
+      document.getElementById('history-loading').style.display = 'flex';
+      document.getElementById('history-table').style.display = 'none';
+      document.getElementById('history-empty').style.display = 'none';
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/history`, { headers: Auth.getAuthHeader() });
+        const txns = await res.json();
+        document.getElementById('history-loading').style.display = 'none';
+        if (!txns.length) { document.getElementById('history-empty').style.display = 'block'; return; }
+        document.getElementById('history-table').style.display = 'table';
+        let html = '';
+        txns.forEach(t => {
+          html += `<tr><td>#${t.id}</td><td>${t.fromCurrency}</td><td>${t.toCurrency}</td><td>${t.fromAmount}</td><td>${t.toAmount}</td><td>${t.exchangeRate}</td><td><span class="badge badge-${t.status.toLowerCase()}">${t.status}</span></td><td>${new Date(t.createdAt).toLocaleDateString()}</td></tr>`;
+        });
+        document.getElementById('history-tbody').innerHTML = html;
+      } catch(e) { document.getElementById('history-loading').innerHTML = '<span style="color:var(--danger)">Error loading history</span>'; }
+    }
+    
+    fetchRates();
+  </script>
+</body>
+</html>

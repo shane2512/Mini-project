@@ -45,13 +45,7 @@ public class UserController {
                 return ResponseEntity.badRequest().body(resp);
             }
 
-            // Validate role hasn't been selected already
-            if (user.getRoleSelected()) {
-                resp.put("success", false);
-                resp.put("message", "Role has already been selected");
-                return ResponseEntity.badRequest().body(resp);
-            }
-
+            // Allow role updates - users can change their role anytime
             String selectedRole = body.get("role");
 
             // Validate role is one of the allowed options

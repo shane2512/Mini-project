@@ -5,42 +5,214 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Your Role - FTMS</title>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0c10; color: #e8eaf0; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+        
+        .role-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: #0a0c10;
+        }
+
+        .role-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+        }
+
+        .role-header {
+            margin-bottom: 40px;
+        }
+
+        .role-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #e8eaf0;
+        }
+
+        .role-header p {
+            font-size: 16px;
+            color: #8a90a0;
+        }
+
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .role-item {
+            background: #111318;
+            border: 2px solid #1e2330;
+            border-radius: 12px;
+            padding: 40px 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .role-item:hover {
+            border-color: #00d4aa;
+            box-shadow: 0 8px 32px rgba(0, 212, 170, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .role-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .role-item h3 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #e8eaf0;
+        }
+
+        .role-item p {
+            font-size: 14px;
+            color: #8a90a0;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+
+        .role-btn {
+            padding: 12px 32px;
+            background: #00d4aa;
+            color: #0a0c10;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .role-btn:hover:not(:disabled) {
+            background: #00f0c0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 18px rgba(0, 212, 170, 0.3);
+        }
+
+        .role-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message-box {
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message-success {
+            display: block;
+            background: rgba(0, 212, 170, 0.12);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            color: #00d4aa;
+        }
+
+        .message-error {
+            display: block;
+            background: rgba(255, 77, 106, 0.12);
+            border: 1px solid rgba(255, 77, 106, 0.3);
+            color: #ff4d6a;
+        }
+
+        .footer-btn {
+            padding: 10px 20px;
+            background: transparent;
+            color: #8a90a0;
+            border: 1px solid #1e2330;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .footer-btn:hover {
+            color: #ff4d6a;
+            border-color: #ff4d6a;
+        }
+
+        .footer-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .role-grid { grid-template-columns: 1fr; gap: 20px; }
+            .role-item { padding: 30px 20px; }
+            .role-icon { font-size: 48px; }
+            .role-item h3 { font-size: 18px; }
+            .role-item p { font-size: 13px; }
+            .role-header h1 { font-size: 28px; }
+            .role-header p { font-size: 14px; }
+        }
+
+        @media (max-width: 480px) {
+            .role-container { padding: 12px; }
+            .role-grid { gap: 15px; }
+            .role-item { padding: 20px 15px; }
+            .role-icon { font-size: 40px; margin-bottom: 15px; }
+            .role-item h3 { font-size: 16px; margin-bottom: 10px; }
+            .role-item p { font-size: 12px; margin-bottom: 15px; }
+            .role-btn { padding: 10px 20px; font-size: 13px; }
+            .role-header h1 { font-size: 22px; }
+        }
+    </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <h1>Welcome, <span id="userName"></span>!</h1>
-                <p>Your KYC has been approved. Please select your role to continue.</p>
+    <div class="role-container">
+        <div class="role-wrapper">
+            <div class="role-header">
+                <h1>Welcome, <span id="userName">User</span>!</h1>
+                <p id="headerText">Your KYC has been approved. Please select your role to continue.</p>
             </div>
 
-            <div class="role-selection-grid">
-                <div class="role-card" data-role="IMPORTER">
+            <div id="messageBox" class="message-box"></div>
+
+            <div class="role-grid">
+                <div class="role-item" data-role="IMPORTER">
                     <div class="role-icon">📥</div>
                     <h3>Importer</h3>
                     <p>Import goods from foreign suppliers. Pay in foreign currency and receive bills in local currency.</p>
-                    <button class="role-select-btn">Select Role</button>
+                    <button class="role-btn" onclick="selectRole('IMPORTER', this)">Select Role</button>
                 </div>
 
-                <div class="role-card" data-role="EXPORTER">
+                <div class="role-item" data-role="EXPORTER">
                     <div class="role-icon">📤</div>
                     <h3>Exporter</h3>
                     <p>Export goods to foreign buyers. Receive payment in foreign currency and convert to local.</p>
-                    <button class="role-select-btn">Select Role</button>
+                    <button class="role-btn" onclick="selectRole('EXPORTER', this)">Select Role</button>
                 </div>
 
-                <div class="role-card" data-role="EXCHANGER">
+                <div class="role-item" data-role="EXCHANGER">
                     <div class="role-icon">💱</div>
                     <h3>Exchanger</h3>
                     <p>Perform pure currency exchange and conversions. Buy and sell foreign currencies freely.</p>
-                    <button class="role-select-btn">Select Role</button>
+                    <button class="role-btn" onclick="selectRole('EXCHANGER', this)">Select Role</button>
                 </div>
             </div>
 
-            <div id="roleMessage" class="message"></div>
-
-            <div class="auth-footer">
-                <button id="logoutBtn" class="btn-secondary">Logout</button>
+            <div class="footer-buttons">
+                <button class="footer-btn" onclick="Auth.logout()">Logout</button>
+                <button class="footer-btn" id="skipBtn" style="display: none;" onclick="goToDashboard()">Go to Dashboard</button>
             </div>
         </div>
     </div>
@@ -56,127 +228,87 @@
         // Set user name
         document.getElementById('userName').textContent = Auth.getFullName();
 
-        // Handle role selection
-        document.querySelectorAll('.role-card').forEach(card => {
-            const btn = card.querySelector('.role-select-btn');
-            btn.addEventListener('click', async () => {
-                const role = card.dataset.role;
-                const messageDiv = document.getElementById('roleMessage');
+        // Check if user already has a role selected
+        const currentRole = Auth.getRole();
+        const validRoles = ['IMPORTER', 'EXPORTER', 'EXCHANGER'];
+        const hasRoleSelected = validRoles.includes(currentRole);
+
+        // Update header - only show if they're explicitly changing role (not first selection)
+        const headerText = document.getElementById('headerText');
+        const fromParam = new URLSearchParams(window.location.search).get('from');
+        if (hasRoleSelected && fromParam) {
+            headerText.textContent = `You can change your role below.`;
+            // Show skip button if they already have a role
+            document.getElementById('skipBtn').style.display = 'inline-block';
+        }
+
+        async function selectRole(role, btn) {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = '';
+            messageBox.className = 'message-box';
+            
+            try {
+                btn.disabled = true;
+                btn.textContent = 'Selecting...';
                 
-                try {
-                    btn.disabled = true;
-                    btn.textContent = 'Selecting...';
+                const response = await fetch(`${CONFIG.API_BASE_URL}/api/user/select-role`, {
+                    method: 'PUT',
+                    headers: Auth.getAuthHeader(),
+                    body: JSON.stringify({ role: role })
+                });
+
+                const data = await response.json();
+
+                // Success - role selected or updated
+                if (data.success || response.ok) {
+                    messageBox.className = 'message-box message-success';
+                    messageBox.textContent = `✓ Role set to ${role}. Redirecting to dashboard...`;
                     
-                    const response = await fetch(`${API_BASE_URL}/api/user/select-role`, {
-                        method: 'PUT',
-                        headers: Auth.getAuthHeader(),
-                        body: JSON.stringify({ role: role })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        messageDiv.className = 'message success';
-                        messageDiv.textContent = `✓ Role selected as ${role}. Redirecting to dashboard...`;
-                        
-                        // Redirect to appropriate dashboard after 1.5 seconds
-                        setTimeout(() => {
-                            const dashboardMap = {
-                                'IMPORTER': '/user/dashboard.html',
-                                'EXPORTER': '/user/dashboard.html',
-                                'EXCHANGER': '/user/dashboard.html',
-                                'ADMIN': '/admin/dashboard.html',
-                                'CENTRAL_BANK': '/central-bank/dashboard.html',
-                                'COMMERCIAL_BANK': '/bank/dashboard.html'
-                            };
-                            window.location.href = dashboardMap[role] || '/login.html';
-                        }, 1500);
+                    // Update localStorage with new role
+                    Auth.saveSession(Auth.getToken(), role, Auth.getFullName(), Auth.getUserId());
+                    
+                    // Redirect to role-specific dashboard after 1.5 seconds
+                    setTimeout(() => {
+                        const dashboards = {
+                            'IMPORTER': '/user/importer-dashboard.html',
+                            'EXPORTER': '/user/exporter-dashboard.html',
+                            'EXCHANGER': '/user/exchanger-dashboard.html'
+                        };
+                        window.location.href = dashboards[role] || '/user/dashboard.html';
+                    }, 1500);
+                } else {
+                    // Handle error
+                    messageBox.className = 'message-box message-error';
+                    const errorMsg = data.message || 'Failed to select role';
+                    
+                    // Check if it's the "already selected" error
+                    if (errorMsg.toLowerCase().includes('already')) {
+                        messageBox.textContent = `⚠ You already have this role selected. Select a different role to change it.`;
                     } else {
-                        messageDiv.className = 'message error';
-                        messageDiv.textContent = `✗ Error: ${data.message}`;
-                        btn.disabled = false;
-                        btn.textContent = 'Select Role';
+                        messageBox.textContent = `✗ ${errorMsg}`;
                     }
-                } catch (error) {
-                    messageDiv.className = 'message error';
-                    messageDiv.textContent = `✗ Error: ${error.message}`;
+                    
                     btn.disabled = false;
                     btn.textContent = 'Select Role';
                 }
-            });
-        });
+            } catch (error) {
+                messageBox.className = 'message-box message-error';
+                messageBox.textContent = `✗ Error: ${error.message}`;
+                btn.disabled = false;
+                btn.textContent = 'Select Role';
+            }
+        }
 
-        // Logout button
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            Auth.logout();
-        });
+        function goToDashboard() {
+            // Go to role-specific dashboard with current role
+            const currentRole = Auth.getRole();
+            const dashboards = {
+                'IMPORTER': '/user/importer-dashboard.html',
+                'EXPORTER': '/user/exporter-dashboard.html',
+                'EXCHANGER': '/user/exchanger-dashboard.html'
+            };
+            window.location.href = dashboards[currentRole] || '/user/dashboard.html';
+        }
     </script>
-
-    <style>
-        .role-selection-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .role-card {
-            background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
-            border: 2px solid #00d4aa;
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .role-card:hover {
-            background: linear-gradient(135deg, #252d3f 0%, #18202d 100%);
-            box-shadow: 0 0 20px rgba(0, 212, 170, 0.3);
-        }
-
-        .role-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-        }
-
-        .role-card h3 {
-            color: #00d4aa;
-            font-size: 20px;
-            margin: 15px 0;
-            font-family: 'DM Sans', sans-serif;
-        }
-
-        .role-card p {
-            color: #a0aec0;
-            font-size: 14px;
-            line-height: 1.5;
-            margin: 15px 0;
-        }
-
-        .role-select-btn {
-            background-color: #00d4aa;
-            color: #0a0c10;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 15px;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .role-select-btn:hover {
-            background-color: #00a88a;
-            transform: translateY(-2px);
-        }
-
-        .role-select-btn:disabled {
-            background-color: #4a5568;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-    </style>
 </body>
 </html>

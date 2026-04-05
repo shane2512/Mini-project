@@ -200,9 +200,9 @@
         const result = await res.json();
 
         if (result.success) {
-          sucEl.innerHTML = '✓ Registration successful! Your KYC is submitted.<br>You can login after admin approves your account.';
+          sucEl.innerHTML = '✓ Registration successful! Your KYC is submitted.<br><strong>Next:</strong> Wait for admin approval (~24h), then login and select your role.';
           sucEl.style.display = 'block';
-          setTimeout(() => window.location.href = 'login.html', 3000);
+          setTimeout(() => window.location.href = 'login.html', 4000);
         } else {
           errEl.textContent = result.message || 'Registration failed. Please try again.';
           errEl.style.display = 'block';

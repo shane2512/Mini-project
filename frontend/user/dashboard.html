@@ -11,7 +11,16 @@
     <div class="nav-brand">FT<span style="color:var(--accent)">MS</span></div>
     <div class="nav-user">
       <span class="nav-user-name" id="user-name"></span>
-      <span class="badge badge-role" id="user-role"></span>
+      <div class="role-dropdown" style="position:relative;display:inline-block;">
+        <button class="role-btn" onclick="toggleRoleMenu()" style="background:transparent;border:1px solid var(--border2);color:var(--text);padding:8px 14px;border-radius:6px;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;gap:6px;transition:all 0.2s;">
+          <span id="role-icon">📊</span> <span id="current-role-text">User</span> ▼
+        </button>
+        <div class="role-dropdown-menu" id="roleMenu" style="position:absolute;top:100%;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;min-width:200px;margin-top:4px;display:none;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.3);">
+          <div class="role-option" onclick="switchRole('IMPORTER')" style="padding:10px 16px;color:var(--text2);cursor:pointer;border-bottom:1px solid var(--border);transition:all 0.2s;">📥 Importer</div>
+          <div class="role-option" onclick="switchRole('EXPORTER')" style="padding:10px 16px;color:var(--text2);cursor:pointer;border-bottom:1px solid var(--border);transition:all 0.2s;">📤 Exporter</div>
+          <div class="role-option" onclick="switchRole('EXCHANGER')" style="padding:10px 16px;color:var(--text2);cursor:pointer;transition:all 0.2s;">💱 Exchanger</div>
+        </div>
+      </div>
       <button onclick="Auth.logout()" class="btn-logout">Sign out</button>
     </div>
   </nav>
@@ -169,8 +178,71 @@
   <script>
     if (!Auth.requireUser()) {}
 
+    // ─── REDIRECT TO ROLE-SPECIFIC DASHBOARDS ───
+    const userRole = Auth.getRole();
+    const roleDashboards = {
+      'IMPORTER': '/user/importer-dashboard.html',
+      'EXPORTER': '/user/exporter-dashboard.html',
+      'EXCHANGER': '/user/exchanger-dashboard.html'
+    };
+    
+    if (roleDashboards[userRole]) {
+      window.location.href = roleDashboards[userRole];
+    }
+
+    // ─── ROLE CHANGE FUNCTIONS ───
+    const roleIcons = { IMPORTER: '📥', EXPORTER: '📤', EXCHANGER: '💱' };
+    const roleLabels = { IMPORTER: 'Importer', EXPORTER: 'Exporter', EXCHANGER: 'Exchanger' };
+    
+    function updateRoleBadge() {
+      const role = Auth.getRole();
+      document.getElementById('role-icon').textContent = roleIcons[role] || '📊';
+      document.getElementById('current-role-text').textContent = roleLabels[role] || 'User';
+    }
+    
+    function toggleRoleMenu() {
+      document.getElementById('roleMenu').style.display = 
+        document.getElementById('roleMenu').style.display === 'none' ? 'block' : 'none';
+    }
+    
+    async function switchRole(role) {
+      document.getElementById('roleMenu').style.display = 'none';
+      if (role === Auth.getRole()) return;
+      
+      try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/api/user/select-role`, {
+          method: 'PUT',
+          headers: Auth.getAuthHeader(),
+          body: JSON.stringify({ role: role })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok || data.success) {
+          Auth.saveSession(Auth.getToken(), role, Auth.getFullName(), Auth.getUserId());
+          const dashboards = {
+            'IMPORTER': '/user/importer-dashboard.html',
+            'EXPORTER': '/user/exporter-dashboard.html',
+            'EXCHANGER': '/user/exchanger-dashboard.html'
+          };
+          window.location.replace(dashboards[role] || '/user/dashboard.html');
+        } else {
+          alert('Failed to switch role: ' + (data.message || 'Please try again.'));
+        }
+      } catch(e) {
+        alert('Error: ' + e.message);
+      }
+    }
+    
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.role-dropdown')) {
+        document.getElementById('roleMenu').style.display = 'none';
+      }
+    });
+    
+    updateRoleBadge();
+
     document.getElementById('user-name').textContent = Auth.getFullName();
-    document.getElementById('user-role').textContent = Auth.getRole();
 
     // Populate currency dropdowns
     CONFIG.CURRENCIES.forEach(cur => {
@@ -194,14 +266,23 @@
       try {
         const res = await fetch(CONFIG.API_BASE_URL + '/api/forex/rates');
         const data = await res.json();
+        
+        // API returns { rates: { EUR: 0.92, INR: 83, ... }, base: "USD", ... }
+        const rates = data.rates || data;
+        
         prevRates = {...cachedRates};
-        cachedRates = data.rates;
+        cachedRates = rates;
         renderRates();
         document.getElementById('rates-timestamp').textContent =
           'Last updated: ' + new Date().toLocaleTimeString();
       } catch(e) {
-        document.getElementById('rates-loading').innerHTML =
-          '<span style="color:var(--danger)">Failed to load rates. Check backend.</span>';
+        // Fallback rates if API fails
+        document.getElementById('rates-loading').style.display = 'none';
+        document.getElementById('rates-grid').style.display = 'grid';
+        const fallback = { EUR: 0.8670, GBP: 0.7570, JPY: 159.5700, CAD: 1.3900, AUD: 1.4500, INR: 83.1800 };
+        cachedRates = fallback;
+        renderRates();
+        document.getElementById('rates-timestamp').textContent = 'Cannot reach API - showing sample rates';
       }
     }
 
@@ -284,7 +365,8 @@
       const amt = parseFloat(document.getElementById('amount').value);
 
       if (!amt || amt <= 0) {
-        alert('Please enter an amount first'); 
+        resultDiv.textContent = 'Please enter an amount to see conversion';
+        resultDiv.style.display = 'block';
         return;
       }
 
