@@ -75,7 +75,7 @@ Database is hosted on Aiven MySQL:
 - **Port**: 17457
 - **Database**: ftms_db
 - **Username**: avnadmin
-- **Password**: Stored in Render Environment Variables (secure)
+- **Password**: Set in Render Environment Variables (secure)
 
 ---
 
