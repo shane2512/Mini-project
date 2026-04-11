@@ -23,10 +23,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; // BCrypt encoder from SecurityConfig
 
-    // Registers a new user. Checks email uniqueness, encodes password, sets KYC as
-    // PENDING.
-    // Role is NOT selected during registration - user selects it after KYC
-    // approval.
+    // Registers a new user. Checks email uniqueness and stores credentials directly.
+    // Role is NOT selected during registration - user selects it later.
     public User registerUser(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email already registered");
@@ -44,9 +42,9 @@ public class UserService {
         user.setSwiftCode(request.getSwiftCode());
         user.setIfscCode(request.getIfscCode());
         user.setPassportData(request.getPassportBase64()); // Base64 encoded image
-        user.setRole(User.Role.IMPORTER); // Default role - user will select actual role after KYC approval
+        user.setRole(User.Role.IMPORTER); // Default role - user can change role later
         user.setRoleSelected(false); // Explicitly mark that role hasn't been selected yet
-        user.setKycStatus(User.KycStatus.PENDING); // always starts as PENDING
+        user.setKycStatus(User.KycStatus.APPROVED); // No verification step required for signup
 
         return userRepository.save(user);
     }

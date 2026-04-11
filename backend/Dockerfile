@@ -33,5 +33,6 @@ COPY --from=build /app/target/ftms-backend-1.0.0.jar app.jar
 EXPOSE 8080
 
 # Command to run the application
-# Environment variables like DB_URL, DB_USER, DB_PASS are set in Render's dashboard
+# Environment variables like SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME,
+# SPRING_DATASOURCE_PASSWORD, and JWT_SECRET are set in Render's dashboard.
 ENTRYPOINT ["java", "-jar", "app.jar"]

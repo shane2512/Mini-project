@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users")
+@Table(name = "ftms_users")
 @Data
 public class User {
 
@@ -35,7 +35,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private KycStatus kycStatus = KycStatus.PENDING; // PENDING, APPROVED, REJECTED
 
-    @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 0")
+    @Column(nullable = false)
     private Boolean roleSelected = false; // Has user chosen their role after KYC approval?
 
     // Bank details
@@ -45,7 +45,7 @@ public class User {
     private String swiftCode;
 
     // KYC passport document stored as Base64
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String passportData;
 
     @Column(updatable = false)

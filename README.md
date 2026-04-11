@@ -1,6 +1,6 @@
 # FTMS - Foreign Trade Management System
 
-A complete three-tier foreign forex trading management system with KYC verification, real-time exchange rates, and multi-role approval workflows.
+A complete three-tier foreign forex trading management system with instant signup (no email verification), real-time exchange rates, and multi-role approval workflows.
 
 ## Project Structure
 
@@ -34,7 +34,7 @@ forex-system/
 │   ├── central-bank/dashboard.html
 │   └── bank/dashboard.html
 └── database/
-    └── schema.sql             # MySQL schema
+    └── schema.sql             # PostgreSQL schema (Supabase)
 
 ## Tech Stack
 
@@ -42,13 +42,13 @@ forex-system/
 - **Java 17** with **Spring Boot 3.2.0**
 - **Spring Data JPA** for database operations
 - **Spring Security** with **JWT** authentication
-- **MySQL** connector for database
+- **PostgreSQL** driver for database
 - **Maven** for build management
 - **Docker** for containerization
 
 ### Database (Tier 3)
-- **MySQL** (local or Aiven cloud)
-- Schema includes: users, transactions, exchange_rates tables
+- **PostgreSQL** on **Supabase**
+- Schema includes: `ftms_users`, `ftms_transactions`, `ftms_exchange_rates` tables
 
 ### Frontend (Tier 1)
 - Pure **HTML5, CSS3, JavaScript** (no framework)
@@ -60,23 +60,24 @@ forex-system/
 ### 1. Prerequisites
 - Java 17 (https://adoptium.net)
 - Maven 3.9+
-- MySQL 8.0+
+- Supabase account + project
 - Git
 
 ### 2. Local Development
 
 #### Setup Database
 ```bash
-# Install DBeaver or MySQL Workbench
-# Create database and run schema:
-mysql -u root -p < database/schema.sql
+# Apply the PostgreSQL schema to Supabase using MCP (recommended)
+# or paste database/schema.sql in Supabase SQL Editor and run it.
 ```
 
 #### Configure Backend
 ```bash
 cd backend
-# Edit src/main/resources/application.properties
-# Change: spring.datasource.password=yourpassword
+# Set environment variables (example in ../.env.example):
+# SPRING_DATASOURCE_URL=jdbc:postgresql://db.<project-ref>.supabase.co:5432/postgres?sslmode=require
+# SPRING_DATASOURCE_USERNAME=postgres
+# SPRING_DATASOURCE_PASSWORD=<your-supabase-db-password>
 ```
 
 #### Run Backend
@@ -122,10 +123,10 @@ const CONFIG = {
 2. Create new Web Service
 3. Connect GitHub repository (backend folder)
 4. Set environment variables:
-   - `DB_URL`: Aiven MySQL JDBC URL
-   - `DB_USER`: Database username
-   - `DB_PASS`: Database password
-   - `JWT_SECRET`: Your secret key
+    - `SPRING_DATASOURCE_URL`: Supabase PostgreSQL JDBC URL
+    - `SPRING_DATASOURCE_USERNAME`: Database username
+    - `SPRING_DATASOURCE_PASSWORD`: Database password
+    - `JWT_SECRET`: Your secret key
 
 #### Deploy Frontend to Netlify
 1. Sign up at https://netlify.com
@@ -135,19 +136,18 @@ const CONFIG = {
    API_BASE_URL: 'https://your-render-backend.onrender.com'
    ```
 
-#### Setup Database on Aiven
-1. Sign up at https://aiven.io (free tier)
-2. Create MySQL service
-3. Copy JDBC connection string
-4. Use in Render environment variables
+#### Setup Database on Supabase
+1. Sign up at https://supabase.com
+2. Create a project and copy Postgres connection details from the Connect panel
+3. Apply `database/schema.sql` through Supabase SQL Editor or Supabase MCP migration
+4. Use the connection details in Render environment variables
 
 ## User Flows
 
-### Registration & KYC Approval
-1. User registers at `/register.html` with email, password, address, and bank details
-2. User KYC status set to PENDING
-3. Admin logs in and approves KYC at `/admin/dashboard.html`
-4. User can now login
+### Registration
+1. User registers at `/register.html` with login details
+2. Account is created immediately (no email verification)
+3. User can login and continue role selection
 
 ### Forex Transaction
 1. User logs in and places order at `/user/dashboard.html`
@@ -193,7 +193,7 @@ const CONFIG = {
 
 ✅ Three-tier architecture (Frontend, Backend, Database)
 ✅ Multi-role access control (Admin, Central Bank, Commercial Bank, Users)
-✅ KYC verification workflow
+✅ Instant signup without email verification
 ✅ Real-time exchange rates (free API)
 ✅ Forex transaction lifecycle management
 ✅ JWT-based authentication
@@ -206,8 +206,8 @@ const CONFIG = {
 
 ### Backend won't start
 - Check Java version: `java -version`
-- Verify MySQL is running
-- Check application.properties database credentials
+- Verify Supabase project is active
+- Check datasource environment variables
 - Review logs in console
 
 ### Frontend can't connect to backend
@@ -217,8 +217,8 @@ const CONFIG = {
 
 ### Database errors
 - Run schema.sql to create tables
-- Verify MySQL permissions
-- Check database name is `ftms_db`
+- Verify Supabase credentials and host
+- Ensure SSL is enabled in the connection string (`sslmode=require`)
 
 ## Support & Documentation
 

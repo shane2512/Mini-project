@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "exchange_rates")
+@Table(name = "ftms_exchange_rates")
 @Data
 public class ExchangeRate {
     @Id
@@ -23,8 +23,8 @@ public class ExchangeRate {
     private BigDecimal rate;
 
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(50) DEFAULT 'API'")
-    private Source source; // API or CENTRAL_BANK_MANUAL
+    @Column(nullable = false)
+    private Source source = Source.API; // API or CENTRAL_BANK_MANUAL
 
     @Column(nullable = false)
     private LocalDateTime fetchedAt;

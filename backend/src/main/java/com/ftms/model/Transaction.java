@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "transactions")
+@Table(name = "ftms_transactions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

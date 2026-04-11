@@ -7,7 +7,11 @@ services:
     buildCommand: cd backend && mvn clean package -DskipTests
     startCommand: java -jar backend/target/ftms-backend-1.0.0.jar
     envVars:
-      - key: DB_PASSWORD
+      - key: SPRING_DATASOURCE_URL
+        scope: build,runtime
+      - key: SPRING_DATASOURCE_USERNAME
+        scope: build,runtime
+      - key: SPRING_DATASOURCE_PASSWORD
         scope: build,runtime
       - key: JWT_SECRET
         scope: build,runtime

@@ -93,7 +93,7 @@
         const data = await res.json();
 
         if (data.token) {
-          Auth.saveSession(data.token, data.role, data.fullName, data.id);
+          Auth.saveSession(data.token, data.role, data.fullName, data.userId);
           
           // Check user role type
           const systemRoles = ['ADMIN', 'CENTRAL_BANK', 'COMMERCIAL_BANK'];

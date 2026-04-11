@@ -30,15 +30,14 @@ public class AuthController {
     private final UserRepository userRepository;
 
     // POST /api/auth/register
-    // Frontend sends registration form data, this saves it to DB with PENDING
-    // status
+    // Frontend sends registration form data, this saves login details directly
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
             User user = userService.registerUser(request);
             response.put("success", true);
-            response.put("message", "Registration successful. Please wait for admin KYC approval.");
+            response.put("message", "Registration successful. You can login now.");
             response.put("userId", user.getId());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
