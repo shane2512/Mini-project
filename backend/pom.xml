@@ -49,6 +49,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- H2 Database: in-memory database for development/testing -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- JJWT: library to create and validate JWT tokens for authentication -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

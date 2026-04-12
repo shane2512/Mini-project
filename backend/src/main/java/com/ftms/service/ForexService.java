@@ -164,6 +164,8 @@ public class ForexService {
         // Overall exchange rate (1 fromCurrency = ? toCurrency)
         BigDecimal finalRate = getExchangeRate(fromCurrency, toCurrency);
         result.put("finalExchangeRate", finalRate.setScale(6, RoundingMode.HALF_UP));
+        result.put("rate", finalRate.setScale(6, RoundingMode.HALF_UP));
+        result.put("exchangeRate", finalRate.setScale(6, RoundingMode.HALF_UP));
 
         // Add timestamp
         result.put("ratesFetchedAt", LocalDateTime.now().toString());

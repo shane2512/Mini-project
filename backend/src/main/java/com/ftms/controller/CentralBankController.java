@@ -2,10 +2,13 @@ package com.ftms.controller;
 
 import com.ftms.model.Transaction;
 import com.ftms.repository.TransactionRepository;
+import com.ftms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,9 @@ public class CentralBankController {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     // GET pending (awaiting central bank approval)
     @GetMapping("/pending")
@@ -41,7 +47,7 @@ public class CentralBankController {
 
     // PUT approve transaction
     @PutMapping("/approve/{txnId}")
-    public ResponseEntity<Map<String, Object>> approve(@PathVariable Long txnId) {
+    public ResponseEntity<Map<String, Object>> approve(@PathVariable Long txnId, Authentication authentication) {
         Map<String, Object> resp = new HashMap<>();
         Optional<Transaction> txnOpt = transactionRepository.findById(txnId);
         if (txnOpt.isEmpty()) {
@@ -51,6 +57,8 @@ public class CentralBankController {
         }
         Transaction txn = txnOpt.get();
         txn.setStatus(Transaction.TransactionStatus.APPROVED_BY_CENTRAL_BANK);
+        txn.setUpdatedAt(LocalDateTime.now());
+        userRepository.findByEmail(authentication.getName()).ifPresent(user -> txn.setCentralBankApprovedBy(user.getId()));
         transactionRepository.save(txn);
         resp.put("success", true);
         resp.put("message", "Transaction #" + txnId + " approved. Forwarded to commercial bank.");

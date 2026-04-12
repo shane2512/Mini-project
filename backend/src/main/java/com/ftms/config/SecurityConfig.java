@@ -46,7 +46,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // These routes are PUBLIC - anyone can access
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/forex/rates").permitAll()  // public rate display
+                .requestMatchers("/api/forex/**").permitAll()  // public rate display and live preview conversion
                 
                 // These routes need ADMIN role
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
