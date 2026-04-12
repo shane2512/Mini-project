@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: free
     buildCommand: cd backend && mvn clean package -DskipTests
-    startCommand: java -jar backend/target/ftms-backend-1.0.0.jar
+    startCommand: java -jar backend/target/ftms-backend.jar
     envVars:
       - key: SPRING_DATASOURCE_URL
         scope: build,runtime

@@ -89,6 +89,7 @@
     </dependencies>
 
     <build>
+        <finalName>ftms-backend</finalName>
         <plugins>
             <!-- This plugin packages your Spring Boot app into a single runnable JAR file -->
             <plugin>
