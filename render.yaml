@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: free
     buildCommand: cd backend && mvn clean package -DskipTests
-    startCommand: java -jar backend/target/ftms-backend.jar
+    startCommand: java -Dspring.profiles.active=prod -jar backend/target/ftms-backend.jar
     envVars:
       - key: SPRING_DATASOURCE_URL
         scope: build,runtime
@@ -24,7 +24,7 @@ services:
         scope: build,runtime
       - key: CORS_ALLOWED_ORIGINS
         scope: build,runtime
-        value: "https://ftms-frontend.netlify.app,https://ftms-backend.onrender.com"
+        value: "https://ftms-frontend.netlify.app,https://mini-project-059o.onrender.com"
       - key: FOREX_API_URL
         scope: build,runtime
         value: https://api.exchangerate-api.com/v4/latest/USD
