@@ -20,7 +20,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy JAR from build stage
-COPY --from=build /app/target/ftms-backend-1.0.0.jar app.jar
+COPY --from=build /app/target/ftms-backend.jar app.jar
 
 # Expose port
 EXPOSE 8080
