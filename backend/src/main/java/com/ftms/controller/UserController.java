@@ -2,6 +2,7 @@ package com.ftms.controller;
 
 import com.ftms.model.User;
 import com.ftms.repository.UserRepository;
+import com.ftms.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,9 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JwtService jwtService;
 
     // PUT /api/user/select-role
     // Allows a user to select their role after KYC approval
@@ -62,9 +66,13 @@ public class UserController {
                 user.setRoleSelected(true);
                 userRepository.save(user);
 
+                // Generate new JWT token with updated role
+                String newToken = jwtService.generateToken(user.getEmail(), role.name());
+
                 resp.put("success", true);
                 resp.put("message", "Role selected successfully");
                 resp.put("role", role.toString());
+                resp.put("token", newToken);
                 return ResponseEntity.ok(resp);
             } catch (IllegalArgumentException e) {
                 resp.put("success", false);

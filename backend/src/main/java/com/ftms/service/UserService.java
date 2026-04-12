@@ -44,7 +44,7 @@ public class UserService {
         user.setPassportData(request.getPassportBase64()); // Base64 encoded image
         user.setRole(User.Role.IMPORTER); // Default role - user can change role later
         user.setRoleSelected(false); // Explicitly mark that role hasn't been selected yet
-        user.setKycStatus(User.KycStatus.APPROVED); // No verification step required for signup
+        user.setKycStatus(User.KycStatus.PENDING); // Requires admin verification before login
 
         return userRepository.save(user);
     }

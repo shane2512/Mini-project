@@ -141,16 +141,49 @@
           <div class="form-row">
             <div class="form-group">
               <label>From Currency (Foreign)</label>
-              <select id="fromCurrency" onchange="updatePreview()"></select>
+              <select id="fromCurrency" onchange="updatePreview()">
+                <option value="" disabled selected>Select currency to give</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="JPY">JPY</option>
+                <option value="AUD">AUD</option>
+                <option value="CAD">CAD</option>
+                <option value="CHF">CHF</option>
+                <option value="CNY">CNY</option>
+                <option value="SGD">SGD</option>
+                <option value="HKD">HKD</option>
+                <option value="NZD">NZD</option>
+                <option value="MXN">MXN</option>
+                <option value="BRL">BRL</option>
+              </select>
             </div>
             <div class="form-group">
               <label>To Currency (INR)</label>
-              <select id="toCurrency" value="INR" onchange="updatePreview()"><option value="INR">INR</option></select>
+              <select id="toCurrency" onchange="updatePreview()"><option value="INR">INR</option></select>
             </div>
           </div>
           <div class="form-group">
             <label>Amount to Pay (Foreign Currency)</label>
             <input type="number" id="amount" placeholder="Enter amount" min="1" oninput="updatePreview()" />
+          </div>
+          <div class="form-group">
+            <label>Purpose of Import</label>
+            <input type="text" id="purpose" placeholder="e.g. Payment for machinery import from Germany" required />
+          </div>
+          <div class="form-group">
+            <label>Beneficiary Name (Supplier)</label>
+            <input type="text" id="beneficiaryName" placeholder="Supplier company name" required />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Beneficiary Bank</label>
+              <input type="text" id="beneficiaryBank" placeholder="Supplier's bank name" required />
+            </div>
+            <div class="form-group">
+              <label>SWIFT Code</label>
+              <input type="text" id="beneficiarySwift" placeholder="e.g. DEUTDEFF" required />
+            </div>
           </div>
           <div class="conversion-preview" id="conv-preview"></div>
           <button class="btn-primary" onclick="submitOrder('IMPORT')">Submit Import Order</button>
@@ -170,7 +203,7 @@
           </div>
           <div id="history-loading" class="loading"><div class="spinner"></div> Loading...</div>
           <table class="data-table" id="history-table" style="display:none;">
-            <thead><tr><th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Converted</th><th>Rate</th><th>Status</th><th>Date</th></tr></thead>
+            <thead><tr><th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Converted</th><th>Rate</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
             <tbody id="history-tbody"></tbody>
           </table>
           <div id="history-empty" class="empty-state" style="display:none;"><div class="empty-state-icon">📭</div><p>No import orders yet</p></div>
@@ -179,8 +212,8 @@
     </main>
   </div>
 
-  <script src="../js/config.js"></script>
-  <script src="../js/auth.js"></script>
+  <script src="../js/config.js?v=3"></script>
+  <script src="../js/auth.js?v=3"></script>
   <script>
     // Protect against accidental redirects to role-selection
     const originalHref = Object.getOwnPropertyDescriptor(window.location, 'href');
@@ -202,9 +235,28 @@
     
     document.getElementById('user-name').textContent = Auth.getFullName();
     
-    let availableCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'INR', 'SGD', 'HKD', 'NZD', 'MXN', 'BRL', 'ZAR'];
+    // Load available currencies from API
+    async function loadCurrencies() {
+      const availableCurrencies = CONFIG.CURRENCIES.filter(c => c !== 'INR');
+      document.getElementById('fromCurrency').innerHTML = '<option value="" disabled selected>Select currency to give</option>' +
+        availableCurrencies.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      // Optional: refresh list from backend if available, but use local static list first
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/forex/rates`);
+        const data = await res.json();
+        const ratesObj = data.rates || data;
+        const currencies = Object.keys(ratesObj).filter(c => c !== 'INR');
+        if (currencies.length > 0) {
+          document.getElementById('fromCurrency').innerHTML = '<option value="" disabled selected>Select currency to give</option>' +
+            currencies.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+      } catch (error) {
+        console.warn('Backend currency fetch failed, using static list:', error);
+      }
+    }
     
-    document.getElementById('fromCurrency').innerHTML = availableCurrencies.map(c => `<option value="${c}">${c}</option>`).join('');
+    loadCurrencies();
     
     // IMPORTER dashboard - focus on IMPORT goods
     const orderForm = document.querySelector('.order-form');
@@ -249,8 +301,9 @@
         if (data.success === true || data.success === undefined && response.ok) {
           console.log('Role update successful - updating session');
           
-          // Update local session immediately
-          Auth.saveSession(Auth.getToken(), role, Auth.getFullName(), Auth.getUserId());
+          // Update local session with new token if provided
+          const newToken = data.token || Auth.getToken();
+          Auth.saveSession(newToken, role, Auth.getFullName(), Auth.getUserId());
           console.log('Session updated - new role:', Auth.getRole());
           
           // Wait a tiny bit for session to propagate, then redirect
@@ -300,6 +353,7 @@
         
         // Handle response - API returns { rates: { EUR: 0.92, INR: 83, ... }, base: "USD", source: "cached"|"fresh" }
         const ratesObj = data.rates || data;
+        window.cachedForexRates = ratesObj;
         
         if (!ratesObj || Object.keys(ratesObj).length === 0) throw new Error('Empty rates');
         
@@ -328,18 +382,117 @@
     
     function fetchRatesManual() { fetchRates(); }
     
-    function updatePreview() {
+    function getLocalConversion(from, to, amount) {
+      if (!window.cachedForexRates || !window.cachedForexRates[from] || !window.cachedForexRates[to]) return null;
+      const fromRate = parseFloat(window.cachedForexRates[from]);
+      const toRate = parseFloat(window.cachedForexRates[to]);
+      if (!fromRate || !toRate) return null;
+      const usdAmount = amount / fromRate;
+      const converted = usdAmount * toRate;
+      return {
+        fromCurrency: from,
+        toCurrency: to,
+        toAmount: converted,
+        rate: toRate / fromRate
+      };
+    }
+    
+    async function updatePreview() {
       const from = document.getElementById('fromCurrency').value;
       const to = document.getElementById('toCurrency').value;
       const amount = parseFloat(document.getElementById('amount').value) || 0;
       if (from && to && amount > 0) {
-        document.getElementById('conv-preview').classList.add('visible');
-        document.getElementById('conv-preview').innerHTML = `<div class="conversion-preview-label">You will receive approximately</div><div class="conversion-preview-value">${(amount * 1.2).toFixed(2)} ${to}</div>`;
+        try {
+          const res = await fetch(`${CONFIG.API_BASE_URL}/api/forex/convert-bridge?fromCurrency=${from}&toCurrency=${to}&amount=${amount}`);
+          const data = await res.json();
+          if (res.ok && data.success) {
+            const conversion = data.data;
+            const rate = conversion.rate || conversion.finalExchangeRate || conversion.exchangeRate || conversion.toRate || 0;
+            const fromCurrency = conversion.fromCurrency || from;
+            const toCurrency = conversion.toCurrency || to;
+            const convertedAmount = parseFloat(conversion.toAmount);
+            document.getElementById('conv-preview').classList.add('visible');
+            document.getElementById('conv-preview').innerHTML = `
+              <div class="conversion-preview-label">You will receive approximately</div>
+              <div class="conversion-preview-value">${convertedAmount.toFixed(2)} ${toCurrency}</div>
+              <div class="conversion-preview-rate">Exchange Rate: 1 ${fromCurrency} = ${parseFloat(rate).toFixed(6)} ${toCurrency}</div>
+            `;
+            return;
+          }
+          throw new Error(data.message || 'Conversion API failed');
+        } catch (error) {
+          console.warn('Conversion preview failed', error);
+          const fallback = getLocalConversion(from, to, amount);
+          if (fallback) {
+            document.getElementById('conv-preview').classList.add('visible');
+            document.getElementById('conv-preview').innerHTML = `
+              <div class="conversion-preview-label">You will receive approximately</div>
+              <div class="conversion-preview-value">${fallback.toAmount.toFixed(2)} ${fallback.toCurrency}</div>
+              <div class="conversion-preview-rate">Exchange Rate: 1 ${fallback.fromCurrency} = ${fallback.rate.toFixed(6)} ${fallback.toCurrency}</div>
+            `;
+            return;
+          }
+          document.getElementById('conv-preview').classList.add('visible');
+          document.getElementById('conv-preview').innerHTML = `
+            <div class="conversion-preview-label">Live conversion unavailable</div>
+            <div class="conversion-preview-value">Unable to fetch conversion rate</div>
+            <div class="conversion-preview-rate">Please refresh or try again later.</div>
+          `;
+        }
+      } else {
+        document.getElementById('conv-preview').classList.remove('visible');
       }
     }
     
     async function submitOrder(type) {
-      alert('Order submitted! Pending central bank approval.');
+      const fromCurrency = document.getElementById('fromCurrency').value;
+      const toCurrency = document.getElementById('toCurrency').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const purpose = document.getElementById('purpose').value;
+      const beneficiaryName = document.getElementById('beneficiaryName').value;
+      const beneficiaryBank = document.getElementById('beneficiaryBank').value;
+      const beneficiarySwift = document.getElementById('beneficiarySwift').value;
+
+      if (!fromCurrency || !toCurrency || !amount || !purpose || !beneficiaryName || !beneficiaryBank || !beneficiarySwift) {
+        alert('Please fill all required fields');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${CONFIG.API_BASE_URL}/api/forex/transaction`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...Auth.getAuthHeader()
+          },
+          body: JSON.stringify({
+            transactionType: type,
+            fromCurrency: fromCurrency,
+            toCurrency: toCurrency,
+            fromAmount: amount,
+            purpose: purpose,
+            beneficiaryName: beneficiaryName,
+            beneficiaryBank: beneficiaryBank,
+            beneficiarySwift: beneficiarySwift
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert(`Order submitted successfully! Transaction ID: ${data.transactionId}\nPending Central Bank approval.`);
+          // Clear form
+          document.getElementById('amount').value = '';
+          document.getElementById('purpose').value = '';
+          document.getElementById('beneficiaryName').value = '';
+          document.getElementById('beneficiaryBank').value = '';
+          document.getElementById('beneficiarySwift').value = '';
+          document.getElementById('conv-preview').classList.remove('visible');
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (error) {
+        alert('Error submitting order: ' + error.message);
+      }
     }
     
     async function loadHistory() {
@@ -347,17 +500,21 @@
       document.getElementById('history-table').style.display = 'none';
       document.getElementById('history-empty').style.display = 'none';
       try {
-        const res = await fetch(`${CONFIG.API_BASE_URL}/api/user/history`, { headers: Auth.getAuthHeader() });
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/forex/my-transactions`, { headers: Auth.getAuthHeader() });
         const txns = await res.json();
         document.getElementById('history-loading').style.display = 'none';
         if (!txns.length) { document.getElementById('history-empty').style.display = 'block'; return; }
         document.getElementById('history-table').style.display = 'table';
         let html = '';
         txns.forEach(t => {
-          html += `<tr><td>#${t.id}</td><td>${t.fromCurrency}</td><td>${t.toCurrency}</td><td>${t.fromAmount}</td><td>${t.toAmount}</td><td>${t.exchangeRate}</td><td><span class="badge badge-${t.status.toLowerCase()}">${t.status}</span></td><td>${new Date(t.createdAt).toLocaleDateString()}</td></tr>`;
+          html += `<tr><td>#${t.id}</td><td>${t.fromCurrency}</td><td>${t.toCurrency}</td><td>${t.fromAmount}</td><td>${t.toAmount}</td><td>${t.exchangeRate}</td><td><span class="badge badge-${t.status.toLowerCase()}">${t.status}</span></td><td>${new Date(t.createdAt).toLocaleDateString()}</td><td>${t.status === 'COMPLETED' ? `<button class="btn-secondary" onclick="downloadInvoice(${t.id})" style="padding: 4px 8px; font-size: 12px;">📄 Invoice</button>` : '-'}</td></tr>`;
         });
         document.getElementById('history-tbody').innerHTML = html;
       } catch(e) { document.getElementById('history-loading').innerHTML = '<span style="color:var(--danger)">Error loading history</span>'; }
+    }
+    
+    function downloadInvoice(transactionId) {
+      window.open(`/invoice.html?id=${transactionId}`, '_blank');
     }
     
     fetchRates();
