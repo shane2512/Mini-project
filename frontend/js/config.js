@@ -2,17 +2,15 @@ const CONFIG = {
     // Backend URL - dynamically built based on environment
     API_BASE_URL: (() => {
         // Check if running on Netlify production
-        if (window.location.hostname === 'ftms-frontend.netlify.app') {
-            return 'https://ftms-backend.onrender.com';
-        }
-        // Check if we have an environment variable (for Netlify build)
-        if (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) {
-            return process.env.REACT_APP_API_URL;
+        if (window.location.hostname.includes('netlify.app')) {
+            return 'https://mini-project-059o.onrender.com';
         }
         // Fallback: localhost development
-        const backendPort = 8080;
-        const host = window.location.hostname === 'localhost' ? 'localhost' : window.location.hostname;
-        return `${window.location.protocol}//${host}:${backendPort}`;
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:8080';
+        }
+        // Default fallback
+        return 'https://mini-project-059o.onrender.com';
     })(),
     
     EXCHANGE_API_KEY: '6bf11c4b17daa3cc2ccfc96c',  // from exchangerate-api.com
