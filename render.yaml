@@ -24,7 +24,7 @@ services:
         scope: build,runtime
       - key: CORS_ALLOWED_ORIGINS
         scope: build,runtime
-        value: "https://ftms-frontend.netlify.app,https://mini-project-059o.onrender.com"
+        value: "https://ftms-new.netlify.app,https://mini-project-059o.onrender.com"
       - key: FOREX_API_URL
         scope: build,runtime
         value: https://api.exchangerate-api.com/v4/latest/USD
