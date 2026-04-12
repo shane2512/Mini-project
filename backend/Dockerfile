@@ -27,7 +27,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy the built JAR from the build stage
-COPY --from=build /app/target/ftms-backend-1.0.0.jar app.jar
+COPY --from=build /app/target/ftms-backend.jar app.jar
 
 # Expose port 8080 so Render knows this app listens on 8080
 EXPOSE 8080
