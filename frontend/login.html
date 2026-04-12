@@ -81,6 +81,13 @@
         errEl.style.display = 'block'; return;
       }
 
+      console.log('🔐 Login attempt with:', {
+        email: email,
+        emailLength: email.length,
+        emailCharCodes: Array.from(email).map(c => c.charCodeAt(0)),
+        password: '***hidden***'
+      });
+
       btn.textContent = 'Signing in...';
       btn.disabled = true;
 
@@ -91,6 +98,8 @@
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
+
+        console.log('🔑 Login response:', data);
 
         if (data.token) {
           Auth.saveSession(data.token, data.role, data.fullName, data.userId);

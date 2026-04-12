@@ -30,7 +30,9 @@ CREATE TABLE IF NOT EXISTS public.ftms_transactions (
     from_currency VARCHAR(10) NOT NULL, -- e.g. INR
     to_currency VARCHAR(10) NOT NULL, -- e.g. USD
     from_amount NUMERIC(15, 2) NOT NULL, -- amount user is sending
-    to_amount NUMERIC(15, 2), -- calculated amount user will receive
+    bridge_currency VARCHAR(10) DEFAULT 'USDC', -- USDC as per real-world forex standard
+    bridge_amount NUMERIC(15, 2), -- amount in USDC after step 1 conversion
+    to_amount NUMERIC(15, 2), -- final amount user will receive
     exchange_rate NUMERIC(15, 6), -- rate used at time of transaction
     purpose TEXT, -- reason: import payment to XYZ
     beneficiary_name VARCHAR(100),

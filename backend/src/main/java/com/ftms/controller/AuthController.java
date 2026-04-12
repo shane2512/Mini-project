@@ -35,7 +35,9 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
+            System.out.println("📝 REGISTER REQUEST - Email: '" + request.getEmail() + "' | Email length: " + request.getEmail().length());
             User user = userService.registerUser(request);
+            System.out.println("✅ USER REGISTERED - ID: " + user.getId() + " | Email: " + user.getEmail());
             response.put("success", true);
             response.put("message", "Registration successful. You can login now.");
             response.put("userId", user.getId());
@@ -54,10 +56,18 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
         Map<String, Object> response = new HashMap<>();
 
+        System.out.println("🔐 LOGIN REQUEST - Email: '" + request.getEmail() + "' | Email length: " + request.getEmail().length());
+
         // Find user by email
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
+        System.out.println("🔍 DATABASE LOOKUP - User found: " + (user != null));
+        if (user != null) {
+            System.out.println("   User ID: " + user.getId() + " | Stored Email: '" + user.getEmail() + "' | KYC Status: " + user.getKycStatus());
+        }
+
         if (user == null) {
+            System.out.println("❌ USER NOT FOUND in database");
             response.put("success", false);
             response.put("message", "User not found");
             return ResponseEntity.badRequest().body(response);
@@ -65,26 +75,33 @@ public class AuthController {
 
         // Check password matches (BCrypt comparison)
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            System.out.println("❌ PASSWORD MISMATCH - Login failed");
             response.put("success", false);
             response.put("message", "Invalid password");
             return ResponseEntity.badRequest().body(response);
         }
+
+        System.out.println("✅ PASSWORD VERIFIED");
 
         // Check KYC status - only ADMIN, CENTRAL_BANK, COMMERCIAL_BANK skip KYC check
         if (user.getKycStatus() == User.KycStatus.PENDING
                 && user.getRole() != User.Role.ADMIN
                 && user.getRole() != User.Role.CENTRAL_BANK
                 && user.getRole() != User.Role.COMMERCIAL_BANK) {
+            System.out.println("⚠️  KYC PENDING - Login blocked");
             response.put("success", false);
             response.put("message", "Your KYC verification is pending. Please wait for admin approval.");
             return ResponseEntity.badRequest().body(response);
         }
 
         if (user.getKycStatus() == User.KycStatus.REJECTED) {
+            System.out.println("❌ KYC REJECTED - Login blocked");
             response.put("success", false);
             response.put("message", "Your KYC was rejected. Please contact support.");
             return ResponseEntity.badRequest().body(response);
         }
+
+        System.out.println("✅ KYC VERIFIED - Generating JWT token");
 
         // Generate JWT token with email and role
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());

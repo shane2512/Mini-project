@@ -140,13 +140,21 @@
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label>From Currency (INR)</label>
-              <select id="fromCurrency" onchange="updatePreview()" disabled>
-                <option value="INR" selected>INR</option>
+              <label>From Currency (Your Currency)</label>
+              <select id="fromCurrency" onchange="updatePreview()">
+                <option value="" disabled selected>Select your home currency</option>
+                <option value="INR">INR</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="AUD">AUD</option>
+                <option value="CAD">CAD</option>
+                <option value="SGD">SGD</option>
+                <option value="JPY">JPY</option>
               </select>
             </div>
             <div class="form-group">
-              <label>To Currency (Foreign Payment)</label>
+              <label>To Currency (Buyer's Currency)</label>
               <select id="toCurrency" onchange="updatePreview()">
                 <option value="" disabled selected>Select currency to receive</option>
                 <option value="USD">USD</option>
@@ -239,15 +247,25 @@
     
     // Load available currencies from API
     async function loadCurrencies() {
-      const availableCurrencies = CONFIG.CURRENCIES.filter(c => c !== 'INR');
+      const fromCurr = document.getElementById('fromCurrency').value || 'INR';
+      const toCurr = document.getElementById('toCurrency').value;
+      
+      // For exporter: From (Home) should have common currencies
+      const availableFrom = ['INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD', 'JPY'];
+      const fromSelect = document.getElementById('fromCurrency');
+      fromSelect.innerHTML = '<option value="" disabled selected>Select your home currency</option>' +
+        availableFrom.map(c => `<option value="${c}" ${c === fromCurr ? 'selected' : ''}>${c}</option>`).join('');
+
+      // For exporter: To (Foreign) should have all currencies EXCEPT home currency (From)
+      const availableTo = CONFIG.CURRENCIES.filter(c => c !== fromCurr);
       document.getElementById('toCurrency').innerHTML = '<option value="" disabled selected>Select currency to receive</option>' +
-        availableCurrencies.map(c => `<option value="${c}">${c}</option>`).join('');
+        availableTo.map(c => `<option value="${c}" ${c === toCurr ? 'selected' : ''}>${c}</option>`).join('');
 
       try {
         const res = await fetch(`${CONFIG.API_BASE_URL}/api/forex/rates`);
         const data = await res.json();
         const ratesObj = data.rates || data;
-        const currencies = Object.keys(ratesObj).filter(c => c !== 'INR');
+        const currencies = Object.keys(ratesObj).filter(c => c !== fromCurr);
         if (currencies.length > 0) {
           document.getElementById('toCurrency').innerHTML = '<option value="" disabled selected>Select currency to receive</option>' +
             currencies.map(c => `<option value="${c}">${c}</option>`).join('');
@@ -258,6 +276,16 @@
     }
     
     loadCurrencies();
+    
+    // When From Currency changes, update To Currency options (exclude selected From)
+    document.getElementById('fromCurrency').addEventListener('change', () => {
+      setTimeout(loadCurrencies, 100); // Small delay to ensure value is updated
+    });
+    
+    // When To Currency changes, update From Currency options (exclude selected To)
+    document.getElementById('toCurrency').addEventListener('change', () => {
+      setTimeout(loadCurrencies, 100); // Small delay to ensure value is updated
+    });
     
     // EXPORTER dashboard - focus on EXPORT goods
     const orderForm = document.querySelector('.order-form');
@@ -446,8 +474,8 @@
     }
     
     async function submitOrder(type) {
-      const fromCurrency = document.getElementById('fromCurrency').value; // INR
-      const toCurrency = document.getElementById('toCurrency').value; // Foreign currency
+      const fromCurrency = document.getElementById('fromCurrency').value;
+      const toCurrency = document.getElementById('toCurrency').value;
       const amount = parseFloat(document.getElementById('amount').value);
       const purpose = document.getElementById('purpose').value;
       const beneficiaryName = document.getElementById('beneficiaryName').value;
@@ -456,6 +484,12 @@
 
       if (!fromCurrency || !toCurrency || !amount || !purpose || !beneficiaryName || !beneficiaryBank || !beneficiarySwift) {
         alert('Please fill all required fields');
+        return;
+      }
+
+      // Prevent same currency for both from and to
+      if (fromCurrency === toCurrency) {
+        alert('Currencies must be different! You cannot convert a currency to itself.');
         return;
       }
 

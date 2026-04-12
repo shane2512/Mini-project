@@ -184,6 +184,14 @@
         errEl.style.display = 'block'; return;
       }
 
+      console.log('📝 Registration data being sent:', {
+        fullName: data.fullName,
+        email: data.email,
+        emailLength: data.email.length,
+        emailCharCodes: Array.from(data.email).map(c => c.charCodeAt(0)),
+        password: '***hidden***'
+      });
+
       btn.textContent = 'Submitting...';
       btn.disabled = true;
 
@@ -194,6 +202,8 @@
           body: JSON.stringify(data)
         });
         const result = await res.json();
+
+        console.log('✅ Registration response:', result);
 
         if (result.success) {
           sucEl.innerHTML = '✓ Registration successful! You can login now.';

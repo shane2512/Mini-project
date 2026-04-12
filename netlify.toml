@@ -2,16 +2,21 @@
   command = "echo 'Static site - no build needed'"
   publish = "frontend"
 
+# Production environment backend URL
 [context.production]
+  environment = { API_BASE_URL = "https://ftms-backend.onrender.com", REACT_APP_API_URL = "https://ftms-backend.onrender.com" }
+
+# Deploy preview environment
+[context.deploy-preview]
   environment = { API_BASE_URL = "https://ftms-backend.onrender.com" }
 
-# Redirect all routes to index.html for SPA routing
+# Redirect all routes to appropriate page for SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Configure headers for security
+# Security headers
 [[headers]]
   for = "/*"
   [headers.values]
@@ -19,3 +24,4 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self' https:; connect-src 'self' https://ftms-backend.onrender.com https://api.exchangerate-api.com; script-src 'self'; style-src 'self' 'unsafe-inline'"

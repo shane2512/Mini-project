@@ -42,7 +42,14 @@ public class TransactionService {
                 request.getFromCurrency(),
                 request.getToCurrency());
 
-        // Calculate how much the user will receive in the target currency
+        // REAL-WORLD FOREX: Convert through USDC as the bridge currency
+        // Step 1: fromCurrency -> USDC (bridge)
+        BigDecimal bridgeAmount = forexService.convertAmount(
+                request.getFromCurrency(),
+                "USD",
+                request.getFromAmount());
+
+        // Step 2: USDC -> toCurrency
         BigDecimal toAmount = forexService.convertAmount(
                 request.getFromCurrency(),
                 request.getToCurrency(),
@@ -55,6 +62,8 @@ public class TransactionService {
         transaction.setFromCurrency(request.getFromCurrency());
         transaction.setToCurrency(request.getToCurrency());
         transaction.setFromAmount(request.getFromAmount());
+        transaction.setBridgeCurrency("USDC"); // Explicitly set bridge currency
+        transaction.setBridgeAmount(bridgeAmount); // Amount user gets in USDC
         transaction.setToAmount(toAmount);
         transaction.setExchangeRate(exchangeRate);
         transaction.setPurpose(request.getPurpose());

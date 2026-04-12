@@ -40,6 +40,13 @@ public class Transaction {
     @Column(name = "from_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal fromAmount;
 
+    // USDC Bridge Amount - how much USDC was received after converting from_currency
+    @Column(name = "bridge_currency")
+    private String bridgeCurrency = "USDC"; // Always USDC as per real-world forex standards
+
+    @Column(name = "bridge_amount", precision = 15, scale = 2)
+    private BigDecimal bridgeAmount; // Amount in USDC received from step 1
+
     @Column(name = "to_amount", precision = 15, scale = 2)
     private BigDecimal toAmount;
 

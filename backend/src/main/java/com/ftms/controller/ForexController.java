@@ -56,6 +56,11 @@ public class ForexController {
             response.put("success", true);
             response.put("message", "Transaction submitted successfully. Awaiting Central Bank approval.");
             response.put("transactionId", transaction.getId());
+            response.put("fromCurrency", transaction.getFromCurrency());
+            response.put("fromAmount", transaction.getFromAmount());
+            response.put("bridgeCurrency", transaction.getBridgeCurrency());
+            response.put("bridgeAmount", transaction.getBridgeAmount());
+            response.put("toCurrency", transaction.getToCurrency());
             response.put("toAmount", transaction.getToAmount());
             response.put("exchangeRate", transaction.getExchangeRate());
             return ResponseEntity.ok(response);
