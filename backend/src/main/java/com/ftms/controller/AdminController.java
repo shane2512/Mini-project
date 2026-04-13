@@ -24,6 +24,15 @@ public class AdminController {
     @Autowired
     private TransactionRepository transactionRepository;
 
+    // GET all users pending account approval
+    @GetMapping("/pending-account")
+    public ResponseEntity<List<User>> getPendingAccount() {
+        List<User> pending = userRepository.findByAccountStatus(User.AccountStatus.PENDING);
+        // Don't expose password
+        pending.forEach(u -> u.setPassword(null));
+        return ResponseEntity.ok(pending);
+    }
+
     // GET all users pending KYC
     @GetMapping("/pending-kyc")
     public ResponseEntity<List<User>> getPendingKyc() {
@@ -60,6 +69,42 @@ public class AdminController {
     @GetMapping("/transactions")
     public ResponseEntity<List<Transaction>> getAllTransactions() {
         return ResponseEntity.ok(transactionRepository.findAll());
+    }
+
+    // PUT approve account
+    @PutMapping("/approve-account/{userId}")
+    public ResponseEntity<Map<String, Object>> approveAccount(@PathVariable Long userId) {
+        Map<String, Object> resp = new HashMap<>();
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            resp.put("success", false);
+            resp.put("message", "User not found");
+            return ResponseEntity.badRequest().body(resp);
+        }
+        User user = userOpt.get();
+        user.setAccountStatus(User.AccountStatus.APPROVED);
+        userRepository.save(user);
+        resp.put("success", true);
+        resp.put("message", "Account approved for " + user.getFullName());
+        return ResponseEntity.ok(resp);
+    }
+
+    // PUT reject account
+    @PutMapping("/reject-account/{userId}")
+    public ResponseEntity<Map<String, Object>> rejectAccount(@PathVariable Long userId) {
+        Map<String, Object> resp = new HashMap<>();
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isEmpty()) {
+            resp.put("success", false);
+            resp.put("message", "User not found");
+            return ResponseEntity.badRequest().body(resp);
+        }
+        User user = userOpt.get();
+        user.setAccountStatus(User.AccountStatus.REJECTED);
+        userRepository.save(user);
+        resp.put("success", true);
+        resp.put("message", "Account rejected for " + user.getFullName());
+        return ResponseEntity.ok(resp);
     }
 
     // PUT approve KYC

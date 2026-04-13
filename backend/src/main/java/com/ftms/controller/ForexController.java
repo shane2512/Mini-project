@@ -6,8 +6,10 @@ package com.ftms.controller;
 
 import com.ftms.dto.TransactionRequest;
 import com.ftms.model.Transaction;
+import com.ftms.model.User;
 import com.ftms.service.ForexService;
 import com.ftms.service.TransactionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -44,14 +46,25 @@ public class ForexController {
     // Authenticated users place a forex order (import/export/exchange)
     // Authentication object from Spring Security contains the logged-in user's
     // email
+    // User must have KYC approved to initiate transactions
     @PostMapping("/transaction")
     public ResponseEntity<Map<String, Object>> createTransaction(
-            @RequestBody TransactionRequest request,
+            @Valid @RequestBody TransactionRequest request,
             Authentication authentication) {
         Map<String, Object> response = new HashMap<>();
         try {
             // authentication.getName() returns the email from JWT token
             String userEmail = authentication.getName();
+
+            // Check if user's KYC is approved before allowing transaction
+            User user = transactionService.getUserByEmail(userEmail);
+            if (user.getKycStatus() != User.KycStatus.APPROVED) {
+                response.put("success", false);
+                response.put("message",
+                        "KYC verification pending. You cannot initiate transactions until your KYC is approved.");
+                return ResponseEntity.status(403).body(response);
+            }
+
             Transaction transaction = transactionService.createTransaction(request, userEmail);
             response.put("success", true);
             response.put("message", "Transaction submitted successfully. Awaiting Central Bank approval.");
@@ -62,6 +75,7 @@ public class ForexController {
             response.put("bridgeAmount", transaction.getBridgeAmount());
             response.put("toCurrency", transaction.getToCurrency());
             response.put("toAmount", transaction.getToAmount());
+            response.put("bankCharges", transaction.getBankCharges());
             response.put("exchangeRate", transaction.getExchangeRate());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {

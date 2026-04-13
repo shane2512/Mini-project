@@ -11,6 +11,7 @@ import com.ftms.model.User;
 import com.ftms.repository.UserRepository;
 import com.ftms.service.JwtService;
 import com.ftms.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,15 +32,18 @@ public class AuthController {
 
     // POST /api/auth/register
     // Frontend sends registration form data, this saves login details directly
+    // Bank details are now MANDATORY and will be validated
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<Map<String, Object>> register(@Valid @RequestBody RegisterRequest request) {
         Map<String, Object> response = new HashMap<>();
         try {
-            System.out.println("📝 REGISTER REQUEST - Email: '" + request.getEmail() + "' | Email length: " + request.getEmail().length());
+            System.out.println("📝 REGISTER REQUEST - Email: '" + request.getEmail() + "' | Email length: "
+                    + request.getEmail().length());
             User user = userService.registerUser(request);
             System.out.println("✅ USER REGISTERED - ID: " + user.getId() + " | Email: " + user.getEmail());
             response.put("success", true);
-            response.put("message", "Registration successful. You can login now.");
+            response.put("message",
+                    "Registration successful. Your account is pending admin approval. You will be able to login once the admin activates your account.");
             response.put("userId", user.getId());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
@@ -56,14 +60,16 @@ public class AuthController {
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
         Map<String, Object> response = new HashMap<>();
 
-        System.out.println("🔐 LOGIN REQUEST - Email: '" + request.getEmail() + "' | Email length: " + request.getEmail().length());
+        System.out.println("🔐 LOGIN REQUEST - Email: '" + request.getEmail() + "' | Email length: "
+                + request.getEmail().length());
 
         // Find user by email
         User user = userRepository.findByEmail(request.getEmail()).orElse(null);
 
         System.out.println("🔍 DATABASE LOOKUP - User found: " + (user != null));
         if (user != null) {
-            System.out.println("   User ID: " + user.getId() + " | Stored Email: '" + user.getEmail() + "' | KYC Status: " + user.getKycStatus());
+            System.out.println("   User ID: " + user.getId() + " | Stored Email: '" + user.getEmail()
+                    + "' | KYC Status: " + user.getKycStatus());
         }
 
         if (user == null) {
@@ -82,6 +88,24 @@ public class AuthController {
         }
 
         System.out.println("✅ PASSWORD VERIFIED");
+
+        // Check account status first - user must be APPROVED by admin to login
+        if (user.getAccountStatus() == User.AccountStatus.PENDING) {
+            System.out.println("⚠️  ACCOUNT PENDING - Login blocked");
+            response.put("success", false);
+            response.put("message",
+                    "Your account is pending admin approval. Please wait for the admin to activate your account.");
+            return ResponseEntity.status(403).body(response);
+        }
+
+        if (user.getAccountStatus() == User.AccountStatus.REJECTED) {
+            System.out.println("❌ ACCOUNT REJECTED - Login blocked");
+            response.put("success", false);
+            response.put("message", "Your account has been rejected by the admin. Please contact support.");
+            return ResponseEntity.status(403).body(response);
+        }
+
+        System.out.println("✅ ACCOUNT APPROVED");
 
         // Check KYC status - only ADMIN, CENTRAL_BANK, COMMERCIAL_BANK skip KYC check
         if (user.getKycStatus() == User.KycStatus.PENDING
@@ -112,6 +136,7 @@ public class AuthController {
         response.put("userId", user.getId());
         response.put("fullName", user.getFullName());
         response.put("roleSelected", user.getRoleSelected());
+        response.put("accountStatus", user.getAccountStatus().name());
         response.put("kycStatus", user.getKycStatus().name());
         response.put("message", "Login successful");
 

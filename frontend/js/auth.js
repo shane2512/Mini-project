@@ -42,3 +42,18 @@ const Auth = {
     return true;
   }
 };
+
+// Global redirect function - redirects user to their role-specific dashboard
+function redirectByRole(role) {
+  const dashboards = {
+    'ADMIN': 'admin/dashboard.html',
+    'CENTRAL_BANK': 'central-bank/dashboard.html',
+    'COMMERCIAL_BANK': 'bank/dashboard.html',
+    'IMPORTER': 'user/importer-dashboard.html',
+    'EXPORTER': 'user/exporter-dashboard.html',
+    'EXCHANGER': 'user/exchanger-dashboard.html'
+  };
+  
+  const dashboard = dashboards[role] || 'user/dashboard.html';
+  window.location.href = dashboard;
+}

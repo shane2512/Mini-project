@@ -26,6 +26,12 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final ForexService forexService;
 
+    // Get user by email
+    public User getUserByEmail(String userEmail) {
+        return userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
     // Creates a new forex transaction when user places an order
     public Transaction createTransaction(TransactionRequest request, String userEmail) {
         // Find the user who is creating this transaction
@@ -42,14 +48,14 @@ public class TransactionService {
                 request.getFromCurrency(),
                 request.getToCurrency());
 
-        // REAL-WORLD FOREX: Convert through USDC as the bridge currency
-        // Step 1: fromCurrency -> USDC (bridge)
+        // REAL-WORLD FOREX: Convert through USD as the bridge currency (2-step process)
+        // Step 1: fromCurrency -> USD (bridge)
         BigDecimal bridgeAmount = forexService.convertAmount(
                 request.getFromCurrency(),
                 "USD",
                 request.getFromAmount());
 
-        // Step 2: USDC -> toCurrency
+        // Step 2: USD -> toCurrency
         BigDecimal toAmount = forexService.convertAmount(
                 request.getFromCurrency(),
                 request.getToCurrency(),
@@ -62,8 +68,8 @@ public class TransactionService {
         transaction.setFromCurrency(request.getFromCurrency());
         transaction.setToCurrency(request.getToCurrency());
         transaction.setFromAmount(request.getFromAmount());
-        transaction.setBridgeCurrency("USDC"); // Explicitly set bridge currency
-        transaction.setBridgeAmount(bridgeAmount); // Amount user gets in USDC
+        transaction.setBridgeCurrency("USD"); // Explicitly set bridge currency
+        transaction.setBridgeAmount(bridgeAmount); // Amount user gets in USD
         transaction.setToAmount(toAmount);
         transaction.setExchangeRate(exchangeRate);
         transaction.setPurpose(request.getPurpose());
@@ -182,17 +188,25 @@ public class TransactionService {
         response.put("success", true);
         response.put("transactionId", transaction.getId());
         response.put("transactionDate", transaction.getCreatedAt().toString());
+        response.put("transactionDateTime",
+                transaction.getCreatedAt().format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")));
         response.put("userName", transaction.getUser().getFullName());
         response.put("userEmail", transaction.getUser().getEmail());
         response.put("userPhone", transaction.getUser().getPhone());
         response.put("userCity", transaction.getUser().getCity());
         response.put("userAddress", transaction.getUser().getAddress());
+        response.put("userBankName", transaction.getUser().getBankName());
+        response.put("userSwiftCode", transaction.getUser().getSwiftCode()); // Sender's SWIFT code
         response.put("transactionType", transaction.getTransactionType().name());
         response.put("fromCurrency", transaction.getFromCurrency());
         response.put("toCurrency", transaction.getToCurrency());
         response.put("fromAmount", transaction.getFromAmount());
+        response.put("bridgeCurrency", transaction.getBridgeCurrency()); // USD
+        response.put("bridgeAmount", transaction.getBridgeAmount()); // Amount in USD after step 1
         response.put("toAmount", transaction.getToAmount());
-        response.put("exchangeRate", transaction.getExchangeRate());
+        response.put("exchangeRate", transaction.getExchangeRate()); // Original rate
+        response.put("bankCharges", transaction.getBankCharges() != null ? transaction.getBankCharges()
+                : new java.math.BigDecimal("15.00"));
         response.put("beneficiaryName", transaction.getBeneficiaryName());
         response.put("beneficiaryBank", transaction.getBeneficiaryBank());
         response.put("beneficiarySwift", transaction.getBeneficiarySwift());
@@ -200,6 +214,7 @@ public class TransactionService {
         response.put("purpose", transaction.getPurpose());
         response.put("approvedByAdmin", approvedByAdminName);
         response.put("approvedByBank", approvedByBankName);
+        response.put("rejectionReason", transaction.getRejectionReason());
 
         return response;
     }

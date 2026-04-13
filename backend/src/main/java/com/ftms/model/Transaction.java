@@ -40,19 +40,24 @@ public class Transaction {
     @Column(name = "from_amount", nullable = false, precision = 15, scale = 2)
     private BigDecimal fromAmount;
 
-    // USDC Bridge Amount - how much USDC was received after converting from_currency
+    // USD Bridge Amount - how much USD was received after converting from_currency
+    // Used in 2-step conversion: from_currency -> USD -> to_currency
     @Column(name = "bridge_currency")
-    private String bridgeCurrency = "USDC"; // Always USDC as per real-world forex standards
+    private String bridgeCurrency; // Always USD as bridge currency for all conversions
 
     @Column(name = "bridge_amount", precision = 15, scale = 2)
-    private BigDecimal bridgeAmount; // Amount in USDC received from step 1
+    private BigDecimal bridgeAmount; // Amount in USD received from step 1
 
     @Column(name = "to_amount", precision = 15, scale = 2)
     private BigDecimal toAmount;
 
+    @Column(name = "bank_charges", precision = 15, scale = 2)
+    private BigDecimal bankCharges = new BigDecimal("15.00"); // Default $15 USD equivalent for SWIFT charges
+
     @Column(name = "exchange_rate", precision = 15, scale = 6)
     private BigDecimal exchangeRate;
 
+    @Column(name = "purpose")
     private String purpose;
 
     @Column(name = "beneficiary_name")
@@ -65,6 +70,7 @@ public class Transaction {
     private String beneficiarySwift;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private TransactionStatus status = TransactionStatus.PENDING_CENTRAL_BANK;
 
     @Column(name = "central_bank_approved_by")

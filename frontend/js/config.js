@@ -17,8 +17,8 @@ const CONFIG = {
     EXCHANGE_API_URL: 'https://v6.exchangerate-api.com/v6',
     CURRENCIES: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'INR', 'SGD', 'HKD', 'CNY', 'AED'],
     
-    // USDC Bridge Currency Configuration
-    BRIDGE_CURRENCY: 'USDC',
+    // USD Bridge Currency Configuration
+    BRIDGE_CURRENCY: 'USD',
     USE_BRIDGE_CONVERSION: true
 };
 

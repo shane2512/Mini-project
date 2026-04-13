@@ -23,7 +23,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; // BCrypt encoder from SecurityConfig
 
-    // Registers a new user. Checks email uniqueness and stores credentials directly.
+    // Registers a new user. Checks email uniqueness and stores credentials
+    // directly.
     // Role is NOT selected during registration - user selects it later.
     public User registerUser(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -44,8 +45,30 @@ public class UserService {
         user.setPassportData(request.getPassportBase64()); // Base64 encoded image
         user.setRole(User.Role.IMPORTER); // Default role - user can change role later
         user.setRoleSelected(false); // Explicitly mark that role hasn't been selected yet
-        user.setKycStatus(User.KycStatus.PENDING); // Requires admin verification before login
+        user.setAccountStatus(User.AccountStatus.PENDING); // Requires admin account approval before login
+        user.setKycStatus(User.KycStatus.PENDING); // Requires admin KYC verification to initiate transactions
 
+        return userRepository.save(user);
+    }
+
+    // Returns all users waiting for account approval - used by Admin dashboard
+    public List<User> getPendingAccountUsers() {
+        return userRepository.findByAccountStatus(User.AccountStatus.PENDING);
+    }
+
+    // Admin approves a user's account - user can now login
+    public User approveAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        user.setAccountStatus(User.AccountStatus.APPROVED);
+        return userRepository.save(user);
+    }
+
+    // Admin rejects a user's account - user cannot login
+    public User rejectAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        user.setAccountStatus(User.AccountStatus.REJECTED);
         return userRepository.save(user);
     }
 

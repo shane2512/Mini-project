@@ -11,16 +11,20 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    
+
     // Spring generates: SELECT * FROM users WHERE email = ?
     Optional<User> findByEmail(String email);
-    
+
+    // Spring generates: SELECT * FROM users WHERE account_status = ?
+    List<User> findByAccountStatus(User.AccountStatus accountStatus);
+
     // Spring generates: SELECT * FROM users WHERE kyc_status = ?
     List<User> findByKycStatus(User.KycStatus kycStatus);
-    
+
     // Spring generates: SELECT * FROM users WHERE role = ?
     List<User> findByRole(User.Role role);
-    
-    // Spring generates: SELECT CASE WHEN COUNT(id) > 0 THEN TRUE ELSE FALSE END FROM users WHERE email = ?
+
+    // Spring generates: SELECT CASE WHEN COUNT(id) > 0 THEN TRUE ELSE FALSE END
+    // FROM users WHERE email = ?
     boolean existsByEmail(String email);
 }

@@ -8,15 +8,16 @@ CREATE TABLE IF NOT EXISTS public.ftms_users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL, -- stored as BCrypt hash, never plain text
     role VARCHAR(30) NOT NULL CHECK (role IN ('ADMIN', 'CENTRAL_BANK', 'COMMERCIAL_BANK', 'IMPORTER', 'EXPORTER', 'EXCHANGER')),
-    kyc_status VARCHAR(20) NOT NULL DEFAULT 'APPROVED' CHECK (kyc_status IN ('PENDING', 'APPROVED', 'REJECTED')),
+    account_status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (account_status IN ('PENDING', 'APPROVED', 'REJECTED')), -- Account activation by admin before user can login
+    kyc_status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (kyc_status IN ('PENDING', 'APPROVED', 'REJECTED')), -- KYC verification for transactions
     role_selected BOOLEAN NOT NULL DEFAULT FALSE,
     city VARCHAR(100),
     address TEXT,
-    phone VARCHAR(20),
-    bank_name VARCHAR(100), -- which commercial bank this user is linked to
-    account_number VARCHAR(50),
-    swift_code VARCHAR(20), -- for international transfers
-    ifsc_code VARCHAR(20), -- for domestic transfers
+    phone VARCHAR(20) NOT NULL, -- now mandatory
+    bank_name VARCHAR(100) NOT NULL, -- MANDATORY: commercial bank linked to user
+    account_number VARCHAR(50) NOT NULL, -- MANDATORY: bank account number
+    swift_code VARCHAR(20) NOT NULL, -- MANDATORY: for international transfers
+    ifsc_code VARCHAR(20) NOT NULL, -- MANDATORY: for domestic transfers
     passport_data TEXT, -- Base64 encoded passport image
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -30,9 +31,10 @@ CREATE TABLE IF NOT EXISTS public.ftms_transactions (
     from_currency VARCHAR(10) NOT NULL, -- e.g. INR
     to_currency VARCHAR(10) NOT NULL, -- e.g. USD
     from_amount NUMERIC(15, 2) NOT NULL, -- amount user is sending
-    bridge_currency VARCHAR(10) DEFAULT 'USDC', -- USDC as per real-world forex standard
-    bridge_amount NUMERIC(15, 2), -- amount in USDC after step 1 conversion
+    bridge_currency VARCHAR(10) DEFAULT 'USD', -- USD as bridge currency for all conversions
+    bridge_amount NUMERIC(15, 2), -- amount in USD after step 1 conversion
     to_amount NUMERIC(15, 2), -- final amount user will receive
+    bank_charges NUMERIC(15, 2) DEFAULT 15.00, -- charge in USD for SWIFT/bank processing (can be in other currencies as well)
     exchange_rate NUMERIC(15, 6), -- rate used at time of transaction
     purpose TEXT, -- reason: import payment to XYZ
     beneficiary_name VARCHAR(100),
@@ -72,14 +74,14 @@ CREATE INDEX IF NOT EXISTS idx_ftms_exchange_rates_pair ON public.ftms_exchange_
 CREATE INDEX IF NOT EXISTS idx_ftms_exchange_rates_fetched_at ON public.ftms_exchange_rates(fetched_at);
 
 -- Insert default non-user/system role logins (password is BCrypt of Admin@123)
-INSERT INTO public.ftms_users (full_name, email, password, role, kyc_status, role_selected)
+INSERT INTO public.ftms_users (full_name, email, password, role, account_status, kyc_status, phone, bank_name, account_number, swift_code, ifsc_code, role_selected)
 VALUES
-    ('System Admin', 'admin@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'ADMIN', 'APPROVED', TRUE),
-    ('Central Bank Officer', 'centralbank@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'CENTRAL_BANK', 'APPROVED', TRUE),
-    ('Commercial Bank Officer', 'bank@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'COMMERCIAL_BANK', 'APPROVED', TRUE),
-    ('Importer Demo', 'importer@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'IMPORTER', 'APPROVED', TRUE),
-    ('Exporter Demo', 'exporter@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'EXPORTER', 'APPROVED', TRUE),
-    ('Exchanger Demo', 'exchanger@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'EXCHANGER', 'APPROVED', TRUE)
+    ('System Admin', 'admin@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'ADMIN', 'APPROVED', 'APPROVED', '+91-1111111111', 'Admin Bank', '1000000001', 'ADMNINBB', 'ADMIN0001', TRUE),
+    ('Central Bank Officer', 'central@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'CENTRAL_BANK', 'APPROVED', 'APPROVED', '+91-2222222222', 'Central Bank', '2000000002', 'CNTRLNBB', 'CNTRL0002', TRUE),
+    ('Commercial Bank Officer', 'bank@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'COMMERCIAL_BANK', 'APPROVED', 'APPROVED', '+91-3333333333', 'Commercial Bank', '3000000003', 'COMMNBB', 'COMM0003', TRUE),
+    ('Importer Demo', 'importer@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'IMPORTER', 'APPROVED', 'APPROVED', '+91-4444444444', 'HDFC Bank', '4000000004', 'HDFCINBB', 'HDFC0004', TRUE),
+    ('Exporter Demo', 'exporter@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'EXPORTER', 'APPROVED', 'PENDING', '+91-5555555555', 'ICICI Bank', '5000000005', 'ICICIIN', 'ICICI0005', TRUE),
+    ('Exchanger Demo', 'exchanger@ftms.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lmmG', 'EXCHANGER', 'APPROVED', 'APPROVED', '+91-6666666666', 'Axis Bank', '6000000006', 'AXISINBB', 'AXIS0006', TRUE)
 ON CONFLICT (email) DO NOTHING;
 -- All default passwords are Admin@123
 

@@ -217,8 +217,8 @@
                 <p style="margin: 5px 0 0 0; font-size: 12px;">Forex Transaction Management System</p>
             </div>
             <div class="invoice-info">
-                <div><span class="label">Invoice #:</span> <span id="invNum"></span></div>
-                <div><span class="label">Date:</span> <span id="invDate"></span></div>
+                <div><span class="label">Reference #:</span> <span id="invNum"></span></div>
+                <div><span class="label">Date & Time:</span> <span id="invDate"></span></div>
                 <div><span class="label">Status:</span> <span id="invStatus"></span></div>
             </div>
         </div>
@@ -226,32 +226,50 @@
         <div class="invoice-content">
             <!-- User Details -->
             <div class="invoice-section">
-                <div class="invoice-section-title">Customer Information</div>
+                <div class="invoice-section-title">Sender Information</div>
                 <div class="invoice-row">
                     <div class="invoice-field">
                         <span class="invoice-field-label">Name</span>
                         <span class="invoice-field-value" id="userName"></span>
                     </div>
                     <div class="invoice-field">
-                        <span class="invoice-field-label">Email</span>
-                        <span class="invoice-field-value" id="userEmail"></span>
+                        <span class="invoice-field-label">Bank & SWIFT Code</span>
+                        <span class="invoice-field-value" id="userBankSwift"></span>
                     </div>
                 </div>
                 <div class="invoice-row">
                     <div class="invoice-field">
-                        <span class="invoice-field-label">Phone</span>
-                        <span class="invoice-field-value" id="userPhone"></span>
+                        <span class="invoice-field-label">Email</span>
+                        <span class="invoice-field-value" id="userEmail"></span>
                     </div>
                     <div class="invoice-field">
-                        <span class="invoice-field-label">City</span>
-                        <span class="invoice-field-value" id="userCity"></span>
+                        <span class="invoice-field-label">Phone</span>
+                        <span class="invoice-field-value" id="userPhone"></span>
                     </div>
                 </div>
             </div>
 
             <!-- Transaction Details -->
             <div class="invoice-section">
-                <div class="invoice-section-title">Transaction Details</div>
+                <div class="invoice-section-title">Transaction Conversion Breakdown</div>
+                <div style="background: #f7fafc; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+                    <div style="font-size: 14px; margin-bottom: 15px;">
+                        <strong>Step 1: Source Currency → USD Bridge</strong>
+                        <div style="margin-top: 8px; color: #4a5568;">
+                            <span id="convStep1"></span>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; margin-bottom: 15px;">
+                        <strong>Step 2: USD Bridge → Destination Currency</strong>
+                        <div style="margin-top: 8px; color: #4a5568;">
+                            <span id="convStep2"></span>
+                        </div>
+                    </div>
+                    <div style="font-size: 14px; border-top: 2px solid #e0e0e0; padding-top: 10px; margin-top: 10px;">
+                        <strong>Final Amount Received:</strong> <span id="finalAmount" style="color: #00d4aa; font-size: 16px;"></span>
+                    </div>
+                </div>
+
                 <table class="invoice-table">
                     <tr>
                         <th>Item</th>
@@ -262,24 +280,24 @@
                         <td><strong id="txnType"></strong></td>
                     </tr>
                     <tr>
-                        <td>From Currency</td>
-                        <td id="fromCur"></td>
-                    </tr>
-                    <tr>
-                        <td>To Currency</td>
-                        <td id="toCur"></td>
-                    </tr>
-                    <tr>
                         <td>From Amount</td>
                         <td id="fromAmt"></td>
                     </tr>
                     <tr>
-                        <td>Exchange Rate (locked)</td>
-                        <td id="exRate"></td>
+                        <td>USD Bridge Amount</td>
+                        <td id="bridgeAmt"></td>
                     </tr>
                     <tr>
-                        <td style="background-color: #f0f0f0; font-weight: 600;">To Amount (received)</td>
-                        <td style="background-color: #f0f0f0; font-weight: 600;" id="toAmt"></td>
+                        <td>To Amount (before charges)</td>
+                        <td id="toAmt"></td>
+                    </tr>
+                    <tr>
+                        <td style="color: #c53030; font-weight: 600;">Bank/SWIFT Charges</td>
+                        <td style="color: #c53030; font-weight: 600;" id="bankCharges"></td>
+                    </tr>
+                    <tr style="background-color: #f0f0f0;">
+                        <td style="font-weight: 600;">Final Received Amount</td>
+                        <td style="font-weight: 600; color: #00d4aa;" id="finalReceivedAmt"></td>
                     </tr>
                 </table>
             </div>
@@ -366,34 +384,67 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Populate invoice
-                    document.getElementById('invNum').textContent = data.transactionId;
-                    document.getElementById('invDate').textContent = new Date(data.transactionDate).toLocaleDateString('en-IN', {
-                        year: 'numeric', month: 'long', day: 'numeric'
+                    // Populate invoice header
+                    document.getElementById('invNum').textContent = `TXN-${data.transactionId}`;
+                    document.getElementById('invDate').textContent = data.transactionDateTime || new Date(data.transactionDate).toLocaleDateString('en-IN', {
+                        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
                     });
                     
                     const statusClass = `status-${data.status.toLowerCase()}`;
-                    document.getElementById('invStatus').innerHTML = `<span class="status-badge ${statusClass}">${data.status}</span>`;
+                    const statusEmoji = data.status === 'COMPLETED' ? '✓' : data.status === 'REJECTED' ? '✗' : '⏳';
+                    document.getElementById('invStatus').innerHTML = `<span class="status-badge ${statusClass}">${statusEmoji} ${data.status}</span>`;
 
+                    // Sender details
                     document.getElementById('userName').textContent = data.userName || 'N/A';
+                    document.getElementById('userBankSwift').textContent = (data.userBankName || 'N/A') + ' (' + (data.userSwiftCode || 'N/A') + ')';
                     document.getElementById('userEmail').textContent = data.userEmail || 'N/A';
                     document.getElementById('userPhone').textContent = data.userPhone || 'N/A';
-                    document.getElementById('userCity').textContent = data.userCity || 'N/A';
 
+                    // Transaction type
                     document.getElementById('txnType').textContent = data.transactionType;
-                    document.getElementById('fromCur').textContent = data.fromCurrency;
-                    document.getElementById('toCur').textContent = data.toCurrency;
-                    document.getElementById('fromAmt').textContent = `${data.fromCurrency} ${parseFloat(data.fromAmount).toFixed(2)}`;
-                    document.getElementById('exRate').textContent = parseFloat(data.exchangeRate).toFixed(6);
-                    document.getElementById('toAmt').textContent = `${data.toCurrency} ${parseFloat(data.toAmount).toFixed(2)}`;
 
+                    // Calculate conversion amounts
+                    const fromAmt = parseFloat(data.fromAmount);
+                    const bridgeAmt = parseFloat(data.bridgeAmount || data.fromAmount * 0.012); // Default rough conversion
+                    const toAmt = parseFloat(data.toAmount);
+                    const charges = parseFloat(data.bankCharges || 15);
+                    const finalAmount = toAmt - charges;
+
+                    // Step 1: Source → USD
+                    const step1Rate = (bridgeAmt / fromAmt).toFixed(6);
+                    document.getElementById('convStep1').textContent = `${fromAmt.toFixed(2)} ${data.fromCurrency} → ${bridgeAmt.toFixed(2)} USD at rate ${step1Rate}`;
+
+                    // Step 2: USD → Destination
+                    const step2Rate = (toAmt / bridgeAmt).toFixed(6);
+                    document.getElementById('convStep2').textContent = `${bridgeAmt.toFixed(2)} USD → ${toAmt.toFixed(2)} ${data.toCurrency} at rate ${step2Rate}`;
+
+                    // Final amount
+                    document.getElementById('finalAmount').textContent = `${finalAmount.toFixed(2)} ${data.toCurrency}`;
+
+                    // Amount rows
+                    document.getElementById('fromAmt').textContent = `${data.fromCurrency} ${fromAmt.toFixed(2)}`;
+                    document.getElementById('bridgeAmt').textContent = `USD ${bridgeAmt.toFixed(2)}`;
+                    document.getElementById('toAmt').textContent = `${data.toCurrency} ${toAmt.toFixed(2)}`;
+                    document.getElementById('bankCharges').textContent = `USD ${charges.toFixed(2)} (converted: approx. ${(charges / (bridgeAmt / toAmt)).toFixed(2)} ${data.toCurrency})`;
+                    document.getElementById('finalReceivedAmt').textContent = `${data.toCurrency} ${finalAmount.toFixed(2)}`;
+
+                    // Beneficiary details
                     document.getElementById('benName').textContent = data.beneficiaryName || 'N/A';
                     document.getElementById('benBank').textContent = data.beneficiaryBank || 'N/A';
                     document.getElementById('benSwift').textContent = data.beneficiarySwift || 'N/A';
                     document.getElementById('purpose').textContent = data.purpose || 'N/A';
 
+                    // Approvals
                     document.getElementById('cbApprover').textContent = data.approvedByAdmin;
                     document.getElementById('bankVerifier').textContent = data.approvedByBank;
+
+                    // Show rejection reason if present
+                    if (data.status === 'REJECTED' && data.rejectionReason) {
+                        const rejectionSection = document.createElement('div');
+                        rejectionSection.style.cssText = 'background: #fed7d7; border-left: 4px solid #c53030; padding: 15px; margin: 20px 0; border-radius: 4px;';
+                        rejectionSection.innerHTML = `<strong style="color: #742a2a;">Rejection Reason:</strong><br><span style="color: #742a2a;">${data.rejectionReason}</span>`;
+                        document.querySelector('.invoice-content').insertBefore(rejectionSection, document.querySelector('.invoice-footer'));
+                    }
                 } else {
                     alert(data.message || 'Failed to load invoice');
                     window.location.href = '/user/dashboard.html';

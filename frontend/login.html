@@ -57,6 +57,14 @@
   <script>
     if (Auth.isLoggedIn()) redirectByRole(Auth.getRole());
 
+    // Check if session expired
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reason') === 'session_expired') {
+      const errEl = document.getElementById('error-msg');
+      errEl.innerHTML = '⏱️ <strong>Session Expired</strong><br>Your session has expired. Please login again.';
+      errEl.style.display = 'block';
+    }
+
     // Load live rates on login page
     fetch('https://api.exchangerate-api.com/v4/latest/USD')
       .then(r => r.json())
@@ -99,24 +107,38 @@
         });
         const data = await res.json();
 
-        console.log('🔑 Login response:', data);
+        console.log('🔑 Login response:', data, 'Status:', res.status);
+
+        // Handle account/session approval errors specifically (403 Forbidden)
+        if (res.status === 403) {
+          errEl.style.display = 'block';
+          // Account status message from backend
+          if (data.message.includes('pending admin approval')) {
+            errEl.innerHTML = '⏳ <strong>Account Pending Approval</strong><br>' + data.message;
+          } else if (data.message.includes('rejected')) {
+            errEl.innerHTML = '❌ <strong>Account Rejected</strong><br>' + data.message;
+          } else {
+            errEl.textContent = data.message;
+          }
+          btn.textContent = 'Sign in';
+          btn.disabled = false;
+          return;
+        }
 
         if (data.token) {
           Auth.saveSession(data.token, data.role, data.fullName, data.userId);
           
-          // Check user role type
-          const systemRoles = ['ADMIN', 'CENTRAL_BANK', 'COMMERCIAL_BANK'];
+          // Save additional data in localStorage for use on dashboard
+          localStorage.setItem('kycStatus', data.kycStatus || 'PENDING');
+          localStorage.setItem('accountStatus', data.accountStatus || 'PENDING');
           
-          // For regular users (Importer/Exporter/Exchanger) - always go to role selection
-          // This allows them to change roles anytime
-          if (!systemRoles.includes(data.role)) {
-            window.location.href = 'role-selection.html?mode=select';
-          } else {
-            // System roles go directly to their dashboard
+          // Auto-redirect based on role
+          console.log('✅ Login successful - Redirecting to role-specific dashboard: ' + data.role);
+          setTimeout(() => {
             redirectByRole(data.role);
-          }
+          }, 500); // Small delay ensures localStorage is fully written
         } else {
-          errEl.textContent = data.message || 'Invalid credentials or account pending approval.';
+          errEl.textContent = data.message || 'Invalid credentials.';
           errEl.style.display = 'block';
         }
       } catch (e) {

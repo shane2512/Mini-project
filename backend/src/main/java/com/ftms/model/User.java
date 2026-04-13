@@ -1,6 +1,7 @@
 package com.ftms.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -13,7 +14,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
     @Column(nullable = false, unique = true)
@@ -22,7 +23,10 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
     private String phone;
+
+    @Column(nullable = true)
     private String city;
 
     @Column(columnDefinition = "TEXT")
@@ -33,24 +37,38 @@ public class User {
     private Role role; // IMPORTER, EXPORTER, EXCHANGER, ADMIN, CENTRAL_BANK, COMMERCIAL_BANK
 
     @Enumerated(EnumType.STRING)
-    private KycStatus kycStatus = KycStatus.PENDING; // PENDING, APPROVED, REJECTED
+    @Column(name = "account_status", nullable = false)
+    private AccountStatus accountStatus = AccountStatus.PENDING; // PENDING, APPROVED, REJECTED - Admin account
 
-    @Column(nullable = false)
-    private Boolean roleSelected = false; // Has user chosen their role after KYC approval?
+    @Enumerated(EnumType.STRING)
+    @Column(name = "kyc_status", nullable = false)
+    private KycStatus kycStatus = KycStatus.PENDING; // PENDING, APPROVED, REJECTED - KYC verification
 
-    // Bank details
+    @Column(name = "role_selected", nullable = false)
+    private Boolean roleSelected = false; // Has user chosen their role?
+
+    // Bank details (now mandatory during registration)
+    @Column(name = "bank_name", nullable = false)
     private String bankName;
-    private String accountNumber;
+
+    @Column(name = "account_number", nullable = false)
+    private String accountNumber = "UNKNOWN";
+
+    @Column(name = "ifsc_code", nullable = false)
     private String ifscCode;
+
+    @Column(name = "swift_code", nullable = false)
+    @Pattern(regexp = "^[A-Z0-9]{6,11}$", message = "Invalid SWIFT code format")
     private String swiftCode;
 
     // KYC passport document stored as Base64
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "passport_data", columnDefinition = "TEXT")
     private String passportData;
 
-    @Column(updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -74,6 +92,12 @@ public class User {
     }
 
     public enum KycStatus {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
+
+    public enum AccountStatus {
         PENDING,
         APPROVED,
         REJECTED

@@ -109,6 +109,8 @@
           <h2>Live Exchange Rates</h2>
           <p>Current forex rates — auto-refreshes every 30 seconds</p>
         </div>
+        <!-- STATUS ALERTS -->
+        <div id="status-alerts"></div>
         <div class="rates-ticker">
           <div class="rates-ticker-header">
             <span class="rates-ticker-title">Currency Rates vs USD</span>
@@ -514,9 +516,15 @@
           })
         });
 
-        const data = await response.json();
+        let data;
+        try {
+          data = await response.json();
+        } catch (jsonError) {
+          alert('❌ Server error: Invalid response. Ensure SWIFT code is 6-11 alphanumeric characters (e.g., HDFCINBB)');
+          return;
+        }
         if (data.success) {
-          alert(`Order submitted successfully! Transaction ID: ${data.transactionId}\nPending Central Bank approval.`);
+          alert(`✅ Order submitted successfully! Transaction ID: ${data.transactionId}\nPending Central Bank approval.`);
           // Clear form
           document.getElementById('amount').value = '';
           document.getElementById('purpose').value = '';
@@ -525,10 +533,10 @@
           document.getElementById('beneficiarySwift').value = '';
           document.getElementById('conv-preview').classList.remove('visible');
         } else {
-          alert('Error: ' + data.message);
+          alert('❌ Error: ' + (data.message || 'Invalid SWIFT code format'));
         }
       } catch (error) {
-        alert('Error submitting order: ' + error.message);
+        alert('❌ Network error: ' + error.message);
       }
     }
     
@@ -554,6 +562,43 @@
       window.open(`/invoice.html?id=${transactionId}`, '_blank');
     }
     
+    // Load and display rejection status alerts
+    async function loadStatusAlerts() {
+      try {
+        const res = await fetch(`${CONFIG.API_BASE_URL}/api/forex/my-transactions`, { headers: Auth.getAuthHeader() });
+        const txns = await res.json();
+        
+        // Find rejected transactions
+        const rejectedTxns = txns.filter(t => t.status === 'REJECTED' && t.rejectionReason);
+        
+        if (rejectedTxns.length > 0) {
+          let alertHtml = '';
+          rejectedTxns.forEach(txn => {
+            alertHtml += `
+              <div style="background: #fed7d7; border-left: 4px solid #c53030; padding: 16px; margin-bottom: 12px; border-radius: 4px;">
+                <div style="color: #742a2a; font-weight: 600; margin-bottom: 8px;">
+                  ❌ Transaction #${txn.id} Rejected
+                </div>
+                <div style="color: #742a2a; margin-bottom: 8px;">
+                  <strong>Reason:</strong> ${txn.rejectionReason}
+                </div>
+                <div style="color: #742a2a; font-size: 0.9rem;">
+                  ${txn.fromAmount} ${txn.fromCurrency} → ${txn.toCurrency} | Date: ${new Date(txn.createdAt).toLocaleDateString()}
+                </div>
+                <button class="btn-secondary" onclick="downloadInvoice(${txn.id})" style="margin-top: 10px; padding: 6px 12px; font-size: 12px;">
+                  📄 View Invoice Details
+                </button>
+              </div>
+            `;
+          });
+          document.getElementById('status-alerts').innerHTML = alertHtml;
+        }
+      } catch(e) {
+        console.warn('Failed to load status alerts:', e);
+      }
+    }
+    
+    loadStatusAlerts();
     fetchRates();
   </script>
 </body>
