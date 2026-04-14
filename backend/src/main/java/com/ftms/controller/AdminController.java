@@ -4,8 +4,11 @@ import com.ftms.model.Transaction;
 import com.ftms.model.User;
 import com.ftms.repository.TransactionRepository;
 import com.ftms.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -23,6 +26,9 @@ public class AdminController {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     // GET all users pending account approval
     @GetMapping("/pending-account")
@@ -73,6 +79,7 @@ public class AdminController {
 
     // PUT approve account
     @PutMapping("/approve-account/{userId}")
+    @Transactional
     public ResponseEntity<Map<String, Object>> approveAccount(@PathVariable Long userId) {
         Map<String, Object> resp = new HashMap<>();
         Optional<User> userOpt = userRepository.findById(userId);
@@ -84,6 +91,8 @@ public class AdminController {
         User user = userOpt.get();
         user.setAccountStatus(User.AccountStatus.APPROVED);
         userRepository.save(user);
+        entityManager.flush();
+        entityManager.clear();
         resp.put("success", true);
         resp.put("message", "Account approved for " + user.getFullName());
         return ResponseEntity.ok(resp);
@@ -91,6 +100,7 @@ public class AdminController {
 
     // PUT reject account
     @PutMapping("/reject-account/{userId}")
+    @Transactional
     public ResponseEntity<Map<String, Object>> rejectAccount(@PathVariable Long userId) {
         Map<String, Object> resp = new HashMap<>();
         Optional<User> userOpt = userRepository.findById(userId);
@@ -102,6 +112,8 @@ public class AdminController {
         User user = userOpt.get();
         user.setAccountStatus(User.AccountStatus.REJECTED);
         userRepository.save(user);
+        entityManager.flush();
+        entityManager.clear();
         resp.put("success", true);
         resp.put("message", "Account rejected for " + user.getFullName());
         return ResponseEntity.ok(resp);
