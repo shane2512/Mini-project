@@ -191,7 +191,7 @@
 
     async function loadStats() {
       try {
-        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/stats', { headers: Auth.getAuthHeader() });
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/stats', { headers: Auth.getAuthHeader(), cache: 'no-store' });
         const data = await res.json();
         if (data.success) {
           document.getElementById('stat-users').textContent = data.totalUsers;
@@ -205,6 +205,23 @@
       } catch(e) {
         console.error('Could not load stats:', e);
       }
+    }
+
+    async function parseApiResponse(res) {
+      let data = null;
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = null;
+      }
+
+      const hasFailureFlag = data && typeof data === 'object' && !Array.isArray(data) && data.success === false;
+      if (!res.ok || hasFailureFlag) {
+        const message = data?.message || `Request failed (HTTP ${res.status})`;
+        throw new Error(message);
+      }
+
+      return data;
     }
 
     function showSection(name) {
@@ -224,7 +241,7 @@
       document.getElementById('kyc-table').style.display = 'none';
       document.getElementById('kyc-empty').style.display = 'none';
       try {
-        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/pending-kyc', { headers: Auth.getAuthHeader() });
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/pending-kyc', { headers: Auth.getAuthHeader(), cache: 'no-store' });
         const users = await res.json();
         document.getElementById('kyc-loading').style.display = 'none';
         if (!users.length) { document.getElementById('kyc-empty').style.display = 'block'; return; }
@@ -259,7 +276,7 @@
       document.getElementById('accounts-table').style.display = 'none';
       document.getElementById('accounts-empty').style.display = 'none';
       try {
-        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/pending-account', { headers: Auth.getAuthHeader() });
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/pending-account', { headers: Auth.getAuthHeader(), cache: 'no-store' });
         const users = await res.json();
         document.getElementById('accounts-loading').style.display = 'none';
         if (!users.length) { document.getElementById('accounts-empty').style.display = 'block'; return; }
@@ -289,31 +306,51 @@
       if (!confirm('Approve account access for this user?')) return;
       try {
         const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/approve-account/' + userId, {
-          method: 'PUT', headers: Auth.getAuthHeader()
+          method: 'PUT', headers: Auth.getAuthHeader(), cache: 'no-store'
         });
-        const data = await res.json();
-        alert(data.message);
-        loadAccounts();
-      } catch(e) { alert('Error approving account.'); }
+        const data = await parseApiResponse(res);
+
+        const verifyRes = await fetch(CONFIG.API_BASE_URL + '/api/admin/user/' + userId, {
+          headers: Auth.getAuthHeader(),
+          cache: 'no-store'
+        });
+        const verifyUser = await parseApiResponse(verifyRes);
+        if (verifyUser.accountStatus !== 'APPROVED') {
+          throw new Error('Approval request completed but account status was not persisted.');
+        }
+
+        alert(data.message || 'Account approved successfully.');
+        await Promise.all([loadAccounts(), loadUsers(), loadStats()]);
+      } catch(e) { alert('Error approving account: ' + e.message); }
     }
 
     async function rejectAccount(userId) {
       if (!confirm('Reject this account request?')) return;
       try {
         const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/reject-account/' + userId, {
-          method: 'PUT', headers: Auth.getAuthHeader()
+          method: 'PUT', headers: Auth.getAuthHeader(), cache: 'no-store'
         });
-        const data = await res.json();
-        alert(data.message);
-        loadAccounts();
-      } catch(e) { alert('Error rejecting account.'); }
+        const data = await parseApiResponse(res);
+
+        const verifyRes = await fetch(CONFIG.API_BASE_URL + '/api/admin/user/' + userId, {
+          headers: Auth.getAuthHeader(),
+          cache: 'no-store'
+        });
+        const verifyUser = await parseApiResponse(verifyRes);
+        if (verifyUser.accountStatus !== 'REJECTED') {
+          throw new Error('Reject request completed but account status was not persisted.');
+        }
+
+        alert(data.message || 'Account rejected successfully.');
+        await Promise.all([loadAccounts(), loadUsers(), loadStats()]);
+      } catch(e) { alert('Error rejecting account: ' + e.message); }
     }
 
     async function loadUsers() {
       document.getElementById('users-loading').style.display = 'flex';
       document.getElementById('users-table').style.display = 'none';
       try {
-        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/users', { headers: Auth.getAuthHeader() });
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/users', { headers: Auth.getAuthHeader(), cache: 'no-store' });
         const users = await res.json();
         document.getElementById('users-loading').style.display = 'none';
         if (!users.length) { document.getElementById('users-empty').style.display = 'block'; return; }
@@ -344,7 +381,7 @@
       document.getElementById('txn-loading').style.display = 'flex';
       document.getElementById('txn-table').style.display = 'none';
       try {
-        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/transactions', { headers: Auth.getAuthHeader() });
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/transactions', { headers: Auth.getAuthHeader(), cache: 'no-store' });
         const txns = await res.json();
         document.getElementById('txn-loading').style.display = 'none';
         if (!txns.length) { document.getElementById('txn-empty').style.display = 'block'; return; }
@@ -382,24 +419,44 @@
       if (!confirm('Approve KYC for this user?')) return;
       try {
         const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/approve-kyc/' + userId, {
-          method: 'PUT', headers: Auth.getAuthHeader()
+          method: 'PUT', headers: Auth.getAuthHeader(), cache: 'no-store'
         });
-        const data = await res.json();
-        alert(data.message);
-        loadKyc();
-      } catch(e) { alert('Error approving KYC.'); }
+        const data = await parseApiResponse(res);
+
+        const verifyRes = await fetch(CONFIG.API_BASE_URL + '/api/admin/user/' + userId, {
+          headers: Auth.getAuthHeader(),
+          cache: 'no-store'
+        });
+        const verifyUser = await parseApiResponse(verifyRes);
+        if (verifyUser.kycStatus !== 'APPROVED') {
+          throw new Error('KYC approval request completed but status was not persisted.');
+        }
+
+        alert(data.message || 'KYC approved successfully.');
+        await Promise.all([loadKyc(), loadUsers(), loadStats()]);
+      } catch(e) { alert('Error approving KYC: ' + e.message); }
     }
 
     async function rejectKyc(userId) {
       if (!confirm('Reject this KYC request?')) return;
       try {
         const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/reject-kyc/' + userId, {
-          method: 'PUT', headers: Auth.getAuthHeader()
+          method: 'PUT', headers: Auth.getAuthHeader(), cache: 'no-store'
         });
-        const data = await res.json();
-        alert(data.message);
-        loadKyc();
-      } catch(e) { alert('Error rejecting KYC.'); }
+        const data = await parseApiResponse(res);
+
+        const verifyRes = await fetch(CONFIG.API_BASE_URL + '/api/admin/user/' + userId, {
+          headers: Auth.getAuthHeader(),
+          cache: 'no-store'
+        });
+        const verifyUser = await parseApiResponse(verifyRes);
+        if (verifyUser.kycStatus !== 'REJECTED') {
+          throw new Error('KYC reject request completed but status was not persisted.');
+        }
+
+        alert(data.message || 'KYC rejected successfully.');
+        await Promise.all([loadKyc(), loadUsers(), loadStats()]);
+      } catch(e) { alert('Error rejecting KYC: ' + e.message); }
     }
 
     // Store passport data for modal

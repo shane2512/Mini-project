@@ -241,48 +241,68 @@
     
     document.getElementById('user-name').textContent = Auth.getFullName();
     
-    // Load available currencies from API
-    async function loadCurrencies() {
-      const fromCurr = document.getElementById('fromCurrency').value || 'INR';
-      const toCurr = document.getElementById('toCurrency').value || 'INR';
-      
-      // For importer: From (Foreign) should have all currencies EXCEPT home currency (To)
-      const availableFrom = CONFIG.CURRENCIES.filter(c => c !== toCurr);
-      document.getElementById('fromCurrency').innerHTML = '<option value="" disabled selected>Select currency to give</option>' +
-        availableFrom.map(c => `<option value="${c}" ${c === fromCurr ? 'selected' : ''}>${c}</option>`).join('');
+    const importerToCurrencies = ['INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD', 'JPY'];
+    let importerFromCurrencies = [...CONFIG.CURRENCIES];
 
-      // For importer: To (Home) should have common currencies
-      const availableTo = ['INR', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'SGD', 'JPY'];
+    function renderCurrencyOptions() {
+      const fromSelect = document.getElementById('fromCurrency');
       const toSelect = document.getElementById('toCurrency');
-      const currentTo = toCurr;
-      toSelect.innerHTML = '<option value="" disabled selected>Select your home currency</option>' +
-        availableTo.map(c => `<option value="${c}" ${c === currentTo ? 'selected' : ''}>${c}</option>`).join('');
 
-      // Optional: refresh from backend if available
+      const selectedFrom = fromSelect.value;
+      const selectedTo = toSelect.value || 'INR';
+
+      const fromChoices = importerFromCurrencies.filter(c => c !== selectedTo);
+      fromSelect.innerHTML = '<option value="" disabled>Select currency to give</option>' +
+        fromChoices.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      if (selectedFrom && fromChoices.includes(selectedFrom)) {
+        fromSelect.value = selectedFrom;
+      } else {
+        fromSelect.value = '';
+      }
+
+      const activeFrom = fromSelect.value;
+      const toChoices = importerToCurrencies.filter(c => c !== activeFrom);
+      toSelect.innerHTML = '<option value="" disabled>Select your home currency</option>' +
+        toChoices.map(c => `<option value="${c}">${c}</option>`).join('');
+
+      if (selectedTo && toChoices.includes(selectedTo)) {
+        toSelect.value = selectedTo;
+      } else if (toChoices.includes('INR')) {
+        toSelect.value = 'INR';
+      } else {
+        toSelect.value = '';
+      }
+    }
+
+    // Load available currencies from API once, then preserve selection during user changes.
+    async function loadCurrencies() {
+      renderCurrencyOptions();
       try {
         const res = await fetch(`${CONFIG.API_BASE_URL}/api/forex/rates`);
         const data = await res.json();
         const ratesObj = data.rates || data;
-        const currencies = Object.keys(ratesObj).filter(c => c !== toCurr);
+        const currencies = Object.keys(ratesObj || {}).filter(Boolean);
         if (currencies.length > 0) {
-          document.getElementById('fromCurrency').innerHTML = '<option value="" disabled selected>Select currency to give</option>' +
-            currencies.map(c => `<option value="${c}">${c}</option>`).join('');
+          importerFromCurrencies = currencies;
+          renderCurrencyOptions();
         }
       } catch (error) {
         console.warn('Backend currency fetch failed, using static list:', error);
       }
     }
-    
+
     loadCurrencies();
-    
-    // When From Currency changes, update To Currency options (exclude selected From)
+
+    // Keep the opposite dropdown valid without wiping the current selection.
     document.getElementById('fromCurrency').addEventListener('change', () => {
-      setTimeout(loadCurrencies, 100); // Small delay to ensure value is updated
+      renderCurrencyOptions();
+      updatePreview();
     });
-    
-    // When To Currency changes, update From Currency options (exclude selected To)
+
     document.getElementById('toCurrency').addEventListener('change', () => {
-      setTimeout(loadCurrencies, 100); // Small delay to ensure value is updated
+      renderCurrencyOptions();
+      updatePreview();
     });
     
     // IMPORTER dashboard - focus on IMPORT goods

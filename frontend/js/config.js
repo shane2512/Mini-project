@@ -1,12 +1,17 @@
 const CONFIG = {
     API_BASE_URL: (() => {
+        const host = window.location.hostname;
+        const isLoopback = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+        const isPrivateLan = /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(host);
+        const isLocalFile = window.location.protocol === 'file:';
+
         // Production (Netlify)
-        if (window.location.hostname.includes('netlify.app')) {
+        if (host.includes('netlify.app')) {
             return 'https://mini-project-pnj7.onrender.com';
         }
 
-        // Local development
-        if (window.location.hostname === 'localhost') {
+        // Local development (localhost, loopback, LAN, or file preview)
+        if (isLoopback || isPrivateLan || isLocalFile) {
             return 'http://localhost:8080';
         }
 
