@@ -23,6 +23,9 @@
         <li class="active" onclick="showSection('kyc')" id="tab-kyc">
           <span class="sidebar-icon">🪪</span> KYC Approvals
         </li>
+        <li onclick="showSection('accounts')" id="tab-accounts">
+          <span class="sidebar-icon">✅</span> Account Approvals
+        </li>
         <li onclick="showSection('users')" id="tab-users">
           <span class="sidebar-icon">👥</span> All Users
         </li>
@@ -88,6 +91,33 @@
         </div>
       </div>
 
+      <!-- ACCOUNT APPROVAL SECTION -->
+      <div id="section-accounts" style="display:none;">
+        <div class="page-header">
+          <h2>Account Approvals</h2>
+          <p>Review user account approval requests before granting login access.</p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-header">
+            <span class="table-title">Pending Accounts</span>
+            <button class="btn-secondary" onclick="loadAccounts()">↻ Refresh</button>
+          </div>
+          <div id="accounts-loading" class="loading"><div class="spinner"></div> Loading...</div>
+          <table class="data-table" id="accounts-table" style="display:none;">
+            <thead>
+              <tr>
+                <th>User</th><th>Email</th><th>Role</th><th>City</th><th>Registered</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="accounts-tbody"></tbody>
+          </table>
+          <div id="accounts-empty" class="empty-state" style="display:none;">
+            <div class="empty-state-icon">✅</div>
+            <p>No pending account approvals</p>
+          </div>
+        </div>
+      </div>
+
       <!-- USERS SECTION -->
       <div id="section-users" style="display:none;">
         <div class="page-header">
@@ -102,7 +132,7 @@
           <div id="users-loading" class="loading"><div class="spinner"></div> Loading...</div>
           <table class="data-table" id="users-table" style="display:none;">
             <thead>
-              <tr><th>Name</th><th>Email</th><th>Role</th><th>City</th><th>KYC Status</th><th>Joined</th></tr>
+              <tr><th>Name</th><th>Email</th><th>Role</th><th>City</th><th>KYC Status</th><th>Account Status</th><th>Joined</th></tr>
             </thead>
             <tbody id="users-tbody"></tbody>
           </table>
@@ -178,12 +208,13 @@
     }
 
     function showSection(name) {
-      ['kyc','users','transactions'].forEach(s => {
+      ['kyc','accounts','users','transactions'].forEach(s => {
         document.getElementById('section-' + s).style.display = 'none';
         document.getElementById('tab-' + s).classList.remove('active');
       });
       document.getElementById('section-' + name).style.display = 'block';
       document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'accounts') loadAccounts();
       if (name === 'users') loadUsers();
       if (name === 'transactions') loadTransactions();
     }
@@ -223,6 +254,61 @@
       }
     }
 
+    async function loadAccounts() {
+      document.getElementById('accounts-loading').style.display = 'flex';
+      document.getElementById('accounts-table').style.display = 'none';
+      document.getElementById('accounts-empty').style.display = 'none';
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/pending-account', { headers: Auth.getAuthHeader() });
+        const users = await res.json();
+        document.getElementById('accounts-loading').style.display = 'none';
+        if (!users.length) { document.getElementById('accounts-empty').style.display = 'block'; return; }
+        document.getElementById('accounts-table').style.display = 'table';
+        const tbody = document.getElementById('accounts-tbody');
+        tbody.innerHTML = '';
+        users.forEach(u => {
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>${u.fullName}</strong></td>
+              <td style="color:var(--text3)">${u.email}</td>
+              <td><span class="badge badge-role">${u.role}</span></td>
+              <td>${u.city || '—'}</td>
+              <td style="color:var(--text3);font-size:0.8rem;">${new Date(u.createdAt).toLocaleDateString()}</td>
+              <td>
+                <button class="btn-approve" onclick="approveAccount(${u.id})">Approve</button>
+                <button class="btn-reject" onclick="rejectAccount(${u.id})">Reject</button>
+              </td>
+            </tr>`;
+        });
+      } catch(e) {
+        document.getElementById('accounts-loading').innerHTML = '<span style="color:var(--danger)">Error loading data</span>';
+      }
+    }
+
+    async function approveAccount(userId) {
+      if (!confirm('Approve account access for this user?')) return;
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/approve-account/' + userId, {
+          method: 'PUT', headers: Auth.getAuthHeader()
+        });
+        const data = await res.json();
+        alert(data.message);
+        loadAccounts();
+      } catch(e) { alert('Error approving account.'); }
+    }
+
+    async function rejectAccount(userId) {
+      if (!confirm('Reject this account request?')) return;
+      try {
+        const res = await fetch(CONFIG.API_BASE_URL + '/api/admin/reject-account/' + userId, {
+          method: 'PUT', headers: Auth.getAuthHeader()
+        });
+        const data = await res.json();
+        alert(data.message);
+        loadAccounts();
+      } catch(e) { alert('Error rejecting account.'); }
+    }
+
     async function loadUsers() {
       document.getElementById('users-loading').style.display = 'flex';
       document.getElementById('users-table').style.display = 'none';
@@ -245,6 +331,7 @@
               <td><span class="badge badge-role">${u.role}</span></td>
               <td>${u.city || '—'}</td>
               <td><span class="badge ${statusMap[u.kycStatus] || ''}">${u.kycStatus}</span></td>
+              <td><span class="badge ${statusMap[u.accountStatus] || ''}">${u.accountStatus}</span></td>
               <td style="color:var(--text3);font-size:0.8rem;">${new Date(u.createdAt).toLocaleDateString()}</td>
             </tr>`;
         });

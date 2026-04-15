@@ -53,7 +53,7 @@
             <input type="password" id="password" placeholder="Min 8 characters" />
           </div>
           <div class="form-group">
-            <label>Phone</label>
+            <label>Phone *</label>
             <input type="text" id="phone" placeholder="+91 98765 43210" />
           </div>
         </div>
@@ -64,14 +64,9 @@
             <input type="text" id="city" placeholder="Your city" />
           </div>
           <div class="form-group">
-            <label>Phone</label>
-            <input type="text" id="phone" placeholder="+91 98765 43210" />
+            <label>Address</label>
+            <input type="text" id="address" placeholder="Your address" />
           </div>
-        </div>
-
-        <div class="form-group">
-          <label>Address</label>
-          <textarea id="address" placeholder="Full address" rows="2"></textarea>
         </div>
 
         <hr class="section-divider" />
@@ -179,8 +174,8 @@
         passportBase64: passportBase64
       };
 
-      if (!data.fullName || !data.email || !data.password) {
-        errEl.textContent = 'Please enter full name, email, and password.';
+      if (!data.fullName || !data.email || !data.password || !data.phone) {
+        errEl.textContent = 'Please enter full name, email, password, and phone number.';
         errEl.style.display = 'block';
         return;
       }

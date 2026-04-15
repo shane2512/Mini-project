@@ -107,25 +107,23 @@ public class AuthController {
 
         System.out.println("✅ ACCOUNT APPROVED");
 
-        // Check KYC status - only ADMIN, CENTRAL_BANK, COMMERCIAL_BANK skip KYC check
-        if (user.getKycStatus() == User.KycStatus.PENDING
+        // KYC pending should not block login once account is approved.
+        // Only reject login if KYC has been explicitly rejected.
+        if (user.getKycStatus() == User.KycStatus.REJECTED
                 && user.getRole() != User.Role.ADMIN
                 && user.getRole() != User.Role.CENTRAL_BANK
                 && user.getRole() != User.Role.COMMERCIAL_BANK) {
-            System.out.println("⚠️  KYC PENDING - Login blocked");
-            response.put("success", false);
-            response.put("message", "Your KYC verification is pending. Please wait for admin approval.");
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        if (user.getKycStatus() == User.KycStatus.REJECTED) {
             System.out.println("❌ KYC REJECTED - Login blocked");
             response.put("success", false);
             response.put("message", "Your KYC was rejected. Please contact support.");
             return ResponseEntity.badRequest().body(response);
         }
 
-        System.out.println("✅ KYC VERIFIED - Generating JWT token");
+        if (user.getKycStatus() == User.KycStatus.PENDING) {
+            System.out.println("ℹ️  KYC PENDING - login allowed, transaction access may still require KYC approval");
+        } else {
+            System.out.println("✅ KYC VERIFIED or not required - Generating JWT token");
+        }
 
         // Generate JWT token with email and role
         String token = jwtService.generateToken(user.getEmail(), user.getRole().name());
