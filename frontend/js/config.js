@@ -6,7 +6,7 @@ const CONFIG = {
             return 'https://mini-project-059o.onrender.com';
         }
         // Fallback: localhost development
-        if (window.location.hostname === 'localhost' || window.location.hostname === '5000') {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '3000') {
             return 'http://localhost:8080';
         }
         // Default fallback

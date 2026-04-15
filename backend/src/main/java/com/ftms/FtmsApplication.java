@@ -6,6 +6,8 @@ package com.ftms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class FtmsApplication {
@@ -14,5 +16,11 @@ public class FtmsApplication {
         // No need to install separate Tomcat. Spring Boot includes it.
         SpringApplication.run(FtmsApplication.class, args);
         System.out.println("FTMS Backend started successfully on port 8080");
+    }
+
+    // RestTemplate Bean for making HTTP calls to external APIs
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

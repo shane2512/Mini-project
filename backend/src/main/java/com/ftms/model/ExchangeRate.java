@@ -13,10 +13,10 @@ public class ExchangeRate {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "base_currency", nullable = false)
     private String baseCurrency; // Usually USD
 
-    @Column(nullable = false)
+    @Column(name = "target_currency", nullable = false)
     private String targetCurrency; // INR, EUR, etc.
 
     @Column(nullable = false)
@@ -26,7 +26,7 @@ public class ExchangeRate {
     @Column(nullable = false)
     private Source source = Source.API; // API or CENTRAL_BANK_MANUAL
 
-    @Column(nullable = false)
+    @Column(name = "fetched_at", nullable = false)
     private LocalDateTime fetchedAt;
 
     public enum Source {

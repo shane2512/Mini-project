@@ -232,20 +232,14 @@
   <script src="../js/auth.js"></script>
   <script>
     // Protect against accidental redirects to role-selection
-    const originalHref = Object.getOwnPropertyDescriptor(window.location, 'href');
-    const originalReplace = window.location.replace;
-    
-    // Override location.href to log and prevent role-selection redirects from unexpected sources
-    Object.defineProperty(window.location, 'href', {
-      get: function() { return document.location.href; },
-      set: function(value) {
-        if (value.includes('role-selection') && !window._intentionalRoleSwitch) {
-          console.warn('⚠️ Attempted unexpected redirect to role-selection:', new Error().stack);
-          return; // Prevent redirect
-        }
-        document.location.href = value;
+    const originalAssign = window.location.assign;
+    window.location.assign = function(url) {
+      if (url.includes('role-selection') && !window._intentionalRoleSwitch) {
+        console.warn('⚠️ Attempted unexpected redirect to role-selection');
+        return; // Prevent redirect
       }
-    });
+      originalAssign.call(window.location, url);
+    };
     
     if (!Auth.isLoggedIn()) window.location.href = '/login.html';
     

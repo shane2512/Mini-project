@@ -7,6 +7,8 @@ package com.ftms.service;
 
 import com.ftms.model.ExchangeRate;
 import com.ftms.repository.ExchangeRateRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,13 +25,16 @@ import java.util.Optional;
 @Service
 public class ForexService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ForexService.class);
+
     @Value("${forex.api.url}")
     private String forexApiUrl; // https://api.exchangerate-api.com/v4/latest/USD
 
     @Autowired
     private ExchangeRateRepository exchangeRateRepository;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private RestTemplate restTemplate;
 
     // Fetches all exchange rates against USD and returns them as a Map
     // Uses caching: if rates are less than 1 hour old, returns cached rates
@@ -43,6 +48,7 @@ public class ForexService {
             List<ExchangeRate> cachedRates = exchangeRateRepository.findByFetchedAtAfter(oneHourAgo);
 
             if (!cachedRates.isEmpty()) {
+                logger.info("✅ Returning cached rates ({} entries)", cachedRates.size());
                 // Return cached rates
                 Map<String, Object> ratesMap = new HashMap<>();
                 Map<String, Double> ratesData = new HashMap<>();
@@ -58,27 +64,42 @@ public class ForexService {
             }
 
             // Fetch fresh rates from API
+            logger.info("🌐 Fetching fresh rates from API: {}", forexApiUrl);
             Map<String, Object> response = restTemplate.getForObject(forexApiUrl, Map.class);
+
+            if (response == null) {
+                throw new RuntimeException("API returned null response");
+            }
+
             Map<String, Object> rates = (Map<String, Object>) response.get("rates");
 
             if (rates == null) {
-                throw new RuntimeException("Could not get rates from API");
+                logger.error("❌ API response does not contain 'rates' key. Response: {}", response.keySet());
+                throw new RuntimeException("Could not get rates from API - no rates in response");
             }
+
+            logger.info("📊 Received {} currencies from API, caching...", rates.size());
 
             // Cache the rates in database
             rates.forEach((currency, rate) -> {
-                ExchangeRate er = new ExchangeRate();
-                er.setBaseCurrency("USD");
-                er.setTargetCurrency(currency);
-                er.setRate(BigDecimal.valueOf(((Number) rate).doubleValue()));
-                er.setSource(ExchangeRate.Source.API);
-                er.setFetchedAt(LocalDateTime.now());
-                exchangeRateRepository.save(er);
+                try {
+                    ExchangeRate er = new ExchangeRate();
+                    er.setBaseCurrency("USD");
+                    er.setTargetCurrency(currency);
+                    er.setRate(BigDecimal.valueOf(((Number) rate).doubleValue()));
+                    er.setSource(ExchangeRate.Source.API);
+                    er.setFetchedAt(LocalDateTime.now());
+                    exchangeRateRepository.save(er);
+                } catch (Exception e) {
+                    logger.warn("⚠️ Failed to cache rate for {}: {}", currency, e.getMessage());
+                }
             });
 
             response.put("source", "fresh");
+            logger.info("✅ Successfully fetched and cached {} rates", rates.size());
             return response;
         } catch (Exception e) {
+            logger.error("❌ Error fetching exchange rates: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to fetch exchange rates: " + e.getMessage());
         }
     }
