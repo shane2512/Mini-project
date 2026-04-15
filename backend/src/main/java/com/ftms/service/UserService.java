@@ -61,6 +61,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         user.setAccountStatus(User.AccountStatus.APPROVED);
+        user.setKycStatus(User.KycStatus.APPROVED);
         return userRepository.save(user);
     }
 
@@ -82,6 +83,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         user.setKycStatus(User.KycStatus.APPROVED);
+        user.setAccountStatus(User.AccountStatus.APPROVED);
         return userRepository.save(user);
     }
 

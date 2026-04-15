@@ -90,11 +90,12 @@ public class AdminController {
         }
         User user = userOpt.get();
         user.setAccountStatus(User.AccountStatus.APPROVED);
+        user.setKycStatus(User.KycStatus.APPROVED);
         userRepository.save(user);
         entityManager.flush();
         entityManager.clear();
         resp.put("success", true);
-        resp.put("message", "Account approved for " + user.getFullName());
+        resp.put("message", "Account and KYC approved for " + user.getFullName());
         return ResponseEntity.ok(resp);
     }
 
@@ -121,6 +122,7 @@ public class AdminController {
 
     // PUT approve KYC
     @PutMapping("/approve-kyc/{userId}")
+    @Transactional
     public ResponseEntity<Map<String, Object>> approveKyc(@PathVariable Long userId) {
         Map<String, Object> resp = new HashMap<>();
         Optional<User> userOpt = userRepository.findById(userId);
@@ -131,9 +133,12 @@ public class AdminController {
         }
         User user = userOpt.get();
         user.setKycStatus(User.KycStatus.APPROVED);
+        user.setAccountStatus(User.AccountStatus.APPROVED);
         userRepository.save(user);
+        entityManager.flush();
+        entityManager.clear();
         resp.put("success", true);
-        resp.put("message", "KYC approved for " + user.getFullName());
+        resp.put("message", "KYC and account approved for " + user.getFullName());
         return ResponseEntity.ok(resp);
     }
 
