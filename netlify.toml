@@ -4,11 +4,11 @@
 
 # Production environment backend URL
 [context.production]
-  environment = { API_BASE_URL = "https://mini-project-059o.onrender.com", REACT_APP_API_URL = "https://mini-project-059o.onrender.com" }
+  environment = { API_BASE_URL = "https://ftms-backend-n4oy.onrender.com", REACT_APP_API_URL = "https://ftms-backend-n4oy.onrender.com" }
 
 # Deploy preview environment
 [context.deploy-preview]
-  environment = { API_BASE_URL = "https://mini-project-059o.onrender.com" }
+  environment = { API_BASE_URL = "https://ftms-backend-n4oy.onrender.com" }
 
 # Redirect all routes to appropriate page for SPA routing
 [[redirects]]
@@ -24,4 +24,4 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self' https:; connect-src 'self' https://mini-project-059o.onrender.com https://api.exchangerate-api.com https://v6.exchangerate-api.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"
+    Content-Security-Policy = "default-src 'self' https:; connect-src 'self' https://ftms-backend-n4oy.onrender.com https://api.exchangerate-api.com https://v6.exchangerate-api.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com"

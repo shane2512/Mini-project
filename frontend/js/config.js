@@ -7,7 +7,7 @@ const CONFIG = {
 
         // Production (Netlify)
         if (host.includes('netlify.app')) {
-            return 'https://mini-project-pnj7.onrender.com';
+            return 'https://ftms-backend-n4oy.onrender.com';
         }
 
         // Local development (localhost, loopback, LAN, or file preview)
@@ -16,7 +16,7 @@ const CONFIG = {
         }
 
         // Default fallback
-        return 'https://mini-project-pnj7.onrender.com';
+        return 'https://ftms-backend-n4oy.onrender.com';
     })(),
 
     EXCHANGE_API_KEY: '6bf11c4b17daa3cc2ccfc96c',
