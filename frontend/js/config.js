@@ -1,26 +1,25 @@
 const CONFIG = {
-    // Backend URL - dynamically built based on environment
     API_BASE_URL: (() => {
-        // Check if running on Netlify production
+        // Production (Netlify)
         if (window.location.hostname.includes('netlify.app')) {
-            return 'https://mini-project-059o.onrender.com';
+            return 'https://mini-project-pnj7.onrender.com';
         }
-        // Fallback: localhost development
-        if (window.location.hostname === 'localhost' || window.location.hostname === '3000') {
+
+        // Local development
+        if (window.location.hostname === 'localhost') {
             return 'http://localhost:8080';
         }
+
         // Default fallback
-        return 'https://mini-project-059o.onrender.com';
+        return 'https://mini-project-pnj7.onrender.com';
     })(),
-    
-    EXCHANGE_API_KEY: '6bf11c4b17daa3cc2ccfc96c',  // from exchangerate-api.com
+
+    EXCHANGE_API_KEY: '6bf11c4b17daa3cc2ccfc96c',
     EXCHANGE_API_URL: 'https://v6.exchangerate-api.com/v6',
     CURRENCIES: ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'INR', 'SGD', 'HKD', 'CNY', 'AED'],
-    
-    // USD Bridge Currency Configuration
+
     BRIDGE_CURRENCY: 'USD',
     USE_BRIDGE_CONVERSION: true
 };
 
 console.log('CONFIG.API_BASE_URL =', CONFIG.API_BASE_URL);
-console.log('Bridge Currency (Real-world forex) =', CONFIG.BRIDGE_CURRENCY);
