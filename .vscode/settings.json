@@ -12,5 +12,9 @@
     },
     "[css]": {
         "editor.formatOnSave": false
-    }
+    },
+    // ✅ ADD THIS FOR SELENIUM (IMPORTANT)
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar"
+    ]
 }
