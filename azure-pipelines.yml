@@ -7,16 +7,16 @@ trigger:
 - main
 
 pool:
-  name:'SelfHostedAgent' 
+  name:'Agent1' 
 
 steps:
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
     mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.11'
+    javaHomeOption: 'Path'
+    jdkUserInputPath: 'C:\Program Files\Java\jdk-25'
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
+    goals: 'compile test'
